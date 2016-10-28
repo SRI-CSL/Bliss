@@ -3,9 +3,9 @@
 
 #include "sampler.h"
 
-static void sampler_init_hack(sampler_t *sampler){
+static void sampler_init_k(sampler_t *sampler){
 
-  sampler->hack = (uint64_t) (sigma_bin_inv_lowprec * sampler->stddev) + 1;
+  sampler->k = (uint64_t) (sigma_bin_inv_lowprec * sampler->stddev) + 1;
 
 
 }
@@ -81,7 +81,7 @@ bool sampler_init(sampler_t *sampler, int64_t stddev, double alpha){
 
     sampler->alpha = alpha;
 
-    sampler_init_hack(sampler);
+    sampler_init_k(sampler);
 
     sampler_init_mask(sampler);
 

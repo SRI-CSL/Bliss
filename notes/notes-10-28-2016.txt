@@ -1,0 +1,29 @@
+
+need to construct tables akin to bliss_param_set.c with cols = X  where X is either 64 or 128.
+
+
+/** BLISS I
+ * sigma = 215, k_sigma = ceiling[ sqrt(2*ln 2) * sigma ] = 254
+ *
+ * c[i] = exp(-2^i/f), i = 0..20, with f = k_sigma^2 / ln 2 = 93'076.9
+ */
+
+
+/** BLISS III
+ * sigma = 250, k_sigma = ceiling[ sqrt(2*ln 2) * sigma ] = 295
+ *
+ * c[i] = exp(-2^i/f), i = 0..20, with f = k_sigma^2 / ln 2 = 125'550.5
+ */
+
+
+/** BLISS IV
+ * sigma = 271, k_sigma = ceiling[ sqrt(2*ln 2) * sigma ] = 320
+ *
+ * c[i] = exp(-2^i/f), i = 0..21, with f = k_sigma^2 / ln 2 = 147'732.0
+ */
+
+
+
+make_c_table(sigma, rows (i.e. ell aka l), cols (i.e. precision in the bernoulli i.e. 128 or 64 (?) ));
+
+

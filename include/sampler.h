@@ -20,7 +20,7 @@ typedef struct sampler_s {
   int64_t stddev;
   double alpha;
 
-  uint64_t hack;   /* called k in Sampler.[h.cpp]                     */
+  uint64_t k;      /* called k in Sampler.[h.cpp]                     */
 
   uint64_t mask;   /* called mask in Sampler.[h.cpp]                  */
   
