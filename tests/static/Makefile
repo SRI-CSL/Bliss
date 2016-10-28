@@ -13,7 +13,7 @@ OBJDIR=../../obj
 OBJ_GLOBS = $(addsuffix /*.o,${OBJDIR})
 OBJS = $(sort $(wildcard ${OBJ_GLOBS}))
 
-LIBS=-lpthread
+LIBS=-lpthread  -lmpfr -lgmp
 
 all:
 	${CC} ${CFLAGS} speed.c ${OBJS} ${LIBS} -o  speed

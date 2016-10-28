@@ -16,12 +16,12 @@ LIBRARYNAME=libbliss
 ifeq (Darwin, $(findstring Darwin, ${OS}))
 LIBRARY = ${LIBRARYNAME}.dylib
 LIBFLAGS = -dynamiclib
-LDFLAGS =
+LDFLAGS = -lmpfr -lgmp
 CFLAGS = -DDARWIN
 else
 LIBRARY = ${LIBRARYNAME}.so              
 LIBFLAGS = -shared -Wl,-soname,${LIBRARY}
-LDFLAGS =
+LDFLAGS =  -lmpfr -lgmp
 CFLAGS = -DLINUX
 endif
 
@@ -42,7 +42,7 @@ all: ${TARGET}
 
 
 $(TARGET): $(OBJ) | lib
-	$(CC) $(LIBFLAGS) ${OPT} $(OBJ)  -o $@  
+	$(CC) $(LIBFLAGS) ${OPT} $(OBJ) $(LDFLAGS) -o $@  
 
 obj:
 	mkdir -p obj
