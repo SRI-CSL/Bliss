@@ -4,7 +4,7 @@
 #include <mpfr.h>
 
 
-static void init_c(uint32_t ell, uint8_t *c, mpfr_t f, uint64_t precision){
+static void init_c(unsigned long int sigma, uint32_t ell, uint8_t *c, mpfr_t f, uint64_t precision){
   int32_t i, j;
   int32_t columns = precision / 8;
   mpfr_t y, t, z;
@@ -21,6 +21,9 @@ static void init_c(uint32_t ell, uint8_t *c, mpfr_t f, uint64_t precision){
 
 
   mpfr_set_ui(y, 1, GMP_RNDN);
+
+  fprintf(stderr, "static const uint8_t c_bliss_%d_%d_%d[] = {\n", (int)sigma, ell, (int)precision);
+
  
   for(i = 0; i < ell; i++){
 
@@ -47,8 +50,6 @@ static void init_c(uint32_t ell, uint8_t *c, mpfr_t f, uint64_t precision){
       fprintf(stderr, "%3d, ", byte);
 	
 
-      
-
       /* ? */
       mpfr_sub_ui(z, z, (uint64_t) c[i*16+j], GMP_RNDN);
 
@@ -59,7 +60,9 @@ static void init_c(uint32_t ell, uint8_t *c, mpfr_t f, uint64_t precision){
     mpfr_mul_ui(y,y, 2, GMP_RNDN); 
     
   }
-  
+
+  fprintf(stderr, "};\n");
+
   mpfr_clear(t);
   mpfr_clear(z);
   mpfr_clear(y);
@@ -134,7 +137,7 @@ int main(int argc, char* argv[]){
     uint8_t* c = calloc(16 * ell, sizeof(uint8_t));
 
     if(c !=  NULL){ 
-      init_c(ell, c, f, precision);
+      init_c(sigma, ell, c, f, precision);
     }
 
 
