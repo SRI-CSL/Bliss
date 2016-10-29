@@ -4,6 +4,69 @@
 #include <mpfr.h>
 
 
+static void init_c(uint32_t ell, uint8_t *c, mpfr_t f, uint64_t precision){
+  int32_t i, j;
+  int32_t columns = precision / 8;
+  mpfr_t y, t, z;
+  uint8_t byte;
+
+  mpfr_init2(t, precision);
+  mpfr_init2(z, precision);
+  mpfr_init2(y, precision);
+
+  
+  mpfr_set_ui(t, 8, GMP_RNDN);
+  /* t = 2^8 */
+  mpfr_exp2(t, t, GMP_RNDN);
+
+
+  mpfr_set_ui(y, 1, GMP_RNDN);
+ 
+  for(i = 0; i < ell; i++){
+
+    /*  z = 2^i */
+    mpfr_set(z, y, GMP_RNDN); 
+
+    /*  z = -2^i */
+    mpfr_mul_si(z, z, -1, GMP_RNDN);
+
+    /*  z = -2^i/f      */
+    mpfr_div(z, z, f, GMP_RNDN); 
+
+    /*  z = exp(-2^i/f) */
+    mpfr_exp(z, z, GMP_RNDN); 
+
+    fprintf(stderr, "\t");
+
+    for (j = 0; j < columns; j++) {
+      /*  z = exp(-2^i/f)*2^8  */
+      mpfr_mul(z, z, t, GMP_RNDN); 
+
+      byte = (uint8_t)mpfr_get_ui(z, GMP_RNDD);
+      c[i*16+j] = byte;
+      fprintf(stderr, "%3d, ", byte);
+	
+
+      
+
+      /* ? */
+      mpfr_sub_ui(z, z, (uint64_t) c[i*16+j], GMP_RNDN);
+
+    }
+    fprintf(stderr, "\n");
+    
+    /* y = 2 * y */
+    mpfr_mul_ui(y,y, 2, GMP_RNDN); 
+    
+  }
+  
+  mpfr_clear(t);
+  mpfr_clear(z);
+  mpfr_clear(y);
+
+
+  
+}
 
 
 int main(int argc, char* argv[]){
@@ -14,11 +77,11 @@ int main(int argc, char* argv[]){
 
   } else {
     unsigned long int sigma;
-    uint32_t l;
+    uint32_t ell;
     uint64_t precision;
     
     sigma = atol(argv[1]);
-    l = atoi(argv[2]);
+    ell = atoi(argv[2]);
     precision = atol(argv[3]);
 
     if( (precision < MPFR_PREC_MIN) || (precision >  MPFR_PREC_MAX) ){
@@ -64,9 +127,18 @@ int main(int argc, char* argv[]){
     double F =  mpfr_get_d(f, GMP_RNDN);
     fprintf(stderr, "\nf = %0.1f\n",  F);
 
-    // double ln2_d =  mpfr_get_d(ln2, GMP_RNDN);
     //mpfr_out_str (stderr, 10, 0, ln2, GMP_RNDN);
-    //fprintf(stderr, "\nln(2) = %0.32f\n",  ln2_d);
+
+
+
+    uint8_t* c = calloc(16 * ell, sizeof(uint8_t));
+
+    if(c !=  NULL){ 
+      init_c(ell, c, f, precision);
+    }
+
+
+    
   
     mpfr_clear(ln2);
     mpfr_clear(s);
