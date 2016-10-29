@@ -89,7 +89,7 @@ bool sampler_init(sampler_t *sampler, int64_t stddev, double alpha){
     
     sampler->ell = 64;  /* need to grok the obscure calculation of this */
 
-    sampler->c = malloc(16 * sampler->ell * sizeof(uint8_t));
+    sampler->c = calloc(16 * sampler->ell, sizeof(uint8_t));
     if(sampler->c !=  NULL){ 
       sampler_init_c(sampler->ell, sampler->c, f);
 
