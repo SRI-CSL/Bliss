@@ -6,6 +6,17 @@
 #include <stdbool.h>
 
 
+typedef struct randomizer_s {
+
+  bool (*get_random_bit)(void);
+
+  uint8_t (*get_random_uint8)(void);
+  
+  uint64_t (*get_random_unint64)(void);
+
+} randomizer_t;
+
+
 
 typedef struct entropy_s {
 

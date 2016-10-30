@@ -20,40 +20,43 @@ extern bool sampler_init(sampler_t* sampler, uint32_t stddev, uint32_t ell, uint
 
 extern void sampler_delete(sampler_t* sampler);
 
-/* sampling Bernoulli_p with p a constant in [0, 1] TODO add the length of val ? 
-
-   p is represented as an array of bytes, val.
-
-   returns true is the sampling was successful, false if something went wrong
-
-   accepted will  point to true in the value was accepted, false if it was rejected.
-*/
+/* 
+ * Sampling Bernoulli_p with p a constant in [0, 1] TODO add the length of val ? 
+ *
+ *   p is represented as an array of bytes, val.
+ *
+ *   returns true is the sampling was successful, false if something went wrong
+ *
+ *   accepted will  point to true in the value was accepted, false if it was rejected.
+ */
 extern bool sampler_ber(sampler_t* sampler, const uint8_t* val, bool* accepted);
 
-/* sampling Bernoulli_E with E = exp(-x/(2*sigma*sigma)
-
-   returns true is the sampling was successful, false if something went wrong
-
-   accepted will  point to true in the value was accepted, false if it was rejected.
-
+/* 
+ * Sampling Bernoulli_E with E = exp(-x/(2*sigma*sigma)
+ *
+ *   returns true is the sampling was successful, false if something went wrong
+ *
+ *   accepted will  point to true in the value was accepted, false if it was rejected.
+ *
  */
 extern bool sampler_ber_exp(sampler_t* sampler, uint64_t val, bool* accepted);
 
-/* sampling Bernoulli_C with C = 1/cosh(x/(sigma*sigma)
-
-   returns true is the sampling was successful, false if something went wrong
-
-   accepted will  point to true in the value was accepted, false if it was rejected.
-
+/* Sampling Bernoulli_C with C = 1/cosh(x/(sigma*sigma)
+ *
+ *   returns true is the sampling was successful, false if something went wrong
+ *
+ *   accepted will  point to true in the value was accepted, false if it was rejected.
+ *
  */
 extern bool sampler_ber_cosh(sampler_t* sampler, int64_t val, bool* accepted);
 
-/* sampling Bernoulli_C with C = 1/cosh(x/(sigma*sigma)
-
-   returns true is the sampling was successful, false if something went wrong
-
-   accepted will  point to true in the value was accepted, false if it was rejected.
-
+/* 
+ * Sampling the Gaussian distribution exp(-x^2/(2*sigma*sigma))
+ *
+ *   returns true is the sampling was successful, false if something went wrong
+ *
+ *   accepted will  point to true in the value was accepted, false if it was rejected.
+ *
  */
 extern bool sampler_ber_gauss(sampler_t* sampler, int64_t val, bool* accepted);
 

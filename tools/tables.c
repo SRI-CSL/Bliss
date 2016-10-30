@@ -149,7 +149,7 @@ int main(int argc, char* argv[]){
     mpfr_clear(f);
     mpfr_clear(tmp);
     
-    
+    free(c);
     
     exit(EXIT_SUCCESS);
   }
