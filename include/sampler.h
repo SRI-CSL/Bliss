@@ -9,10 +9,11 @@ typedef struct sampler_s {
   entropy_t entropy;   /* BD thinks we should use a function pointer; rather than hard code 
 			  this sepcific implementation. Seems reasonable. TODO.
 		       */
-  const uint8_t *c;          /* the table we will use (from tables.h) */
-  uint32_t sigma;
+  const uint8_t *c;    /* the table we will use (from tables.h) */
+  uint32_t sigma;      /* the standard deviation of the distribution */
   uint32_t ell;        /* rows in the table     */
-  uint32_t precision;  /* columns = precision/8 */
+  uint32_t precision;  /* precision used in computing the tables */
+  uint32_t columns;    /* columns = precision/8 */
 } sampler_t;
 
 
@@ -49,7 +50,7 @@ extern bool sampler_ber(sampler_t* sampler, const uint8_t* val, bool* accepted);
  *   accepted will  point to true in the value was accepted, false if it was rejected.
  *
  */
-extern bool sampler_ber_exp(sampler_t* sampler, uint64_t val, bool* accepted);
+extern bool sampler_ber_exp(sampler_t* sampler, uint32_t val, bool* accepted);
 
 /* Sampling Bernoulli_C with C = 1/cosh(x/(sigma*sigma)
  *
