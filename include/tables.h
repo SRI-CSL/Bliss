@@ -17,6 +17,12 @@
  *
  */
 
+static const uint16_t k_sigma_215_64 = 254;
+
+static const uint16_t k_sigma_bits_215_64 = 8;
+
+static const double f_215_64 = 93076.9;
+
 static const uint8_t c_bliss_215_21_64[] = {
 	255, 255,  75, 191, 247,  94,  30,  52,
 	255, 254, 151, 128, 109, 166,  88, 143,
@@ -40,6 +46,12 @@ static const uint8_t c_bliss_215_21_64[] = {
 	  0, 234, 131,  37, 182,  53, 201, 231,
 	  0,   0, 214, 212,   4,  32, 184,  94,
 };
+
+static const uint16_t k_sigma_215_128 = 254;
+
+static const uint16_t k_sigma_bits_215_128 = 8;
+
+static const double f_215_128 = 93076.9;
 
 static const uint8_t c_bliss_215_21_128[] = {
 	255, 255,  75, 191, 247,  94,  30,  51, 147, 246,  89,  59,  99, 248,  26, 128,
@@ -65,6 +77,12 @@ static const uint8_t c_bliss_215_21_128[] = {
 	  0,   0, 214, 212,   4,  32, 184,  94,  84,  90, 244, 139,  48,  69,  33,  38,
 };
 
+static const uint16_t k_sigma_250_64 = 295;
+
+static const uint16_t k_sigma_bits_250_64 = 9;
+
+static const double f_250_64 = 125550.5;
+
 static const uint8_t c_bliss_250_21_64[] = {
 	255, 255, 122,  95,  16, 128,  14, 195,
 	255, 254, 244, 190, 102, 192, 187, 142,
@@ -88,6 +106,12 @@ static const uint8_t c_bliss_250_21_64[] = {
 	  3, 238, 181, 190, 138,  94,  50, 234,
 	  0,  15, 118, 216, 230, 142, 121, 211,
 };
+
+static const uint16_t k_sigma_250_128 = 295;
+
+static const uint16_t k_sigma_bits_250_128 = 9;
+
+static const double f_250_128 = 125550.5;
 
 static const uint8_t c_bliss_250_21_128[] = {
 	255, 255, 122,  95,  16, 128,  14, 195,  60,  90, 166, 191, 205,  26, 144, 204,
@@ -114,6 +138,12 @@ static const uint8_t c_bliss_250_21_128[] = {
 };
 
 
+static const uint16_t k_sigma_271_64 = 320;
+
+static const uint16_t k_sigma_bits_271_64 = 9;
+
+static const double f_271_64 = 147732.0;
+
 static const uint8_t c_bliss_271_22_64[] = {
 	255, 255, 142, 111, 102,   2, 141,  88,
 	255, 255,  28, 222, 254, 102,  20,  79,
@@ -138,6 +168,12 @@ static const uint8_t c_bliss_271_22_64[] = {
 	  0,  54,  49,  19,  64,  40, 218, 222,
 	  0,   0,  11, 120, 189, 135, 113,  62,
 };
+
+static const uint16_t k_sigma_271_128 = 320;
+
+static const uint16_t k_sigma_bits_271_128 = 9;
+
+static const double f_271_128 = 147732.0;
 
 static const uint8_t c_bliss_271_22_128[] = {
 	255, 255, 142, 111, 102,   2, 141,  87, 150,  42,  18,  70,   6, 224,  18,  70,
@@ -184,6 +220,45 @@ static inline const uint8_t* get_table(uint32_t sigma, uint32_t ell, uint32_t pr
   }
 
 }
+
+
+static inline uint16_t get_k_sigma(uint32_t sigma, uint32_t precision){
+
+  if(precision != 64 && precision != 128){ return 0; }
+
+  switch(sigma){
+  case 215:
+    return precision == 64 ?  k_sigma_215_64  :   k_sigma_215_128;
+  case 250:
+    return precision == 64 ?  k_sigma_250_64  :   k_sigma_250_128;
+  case 271:
+    return precision == 64 ?  k_sigma_271_64  :   k_sigma_271_128;
+  default:
+    return 0;
+  }
+
+}
+
+static inline uint16_t get_k_sigma_bits(uint32_t sigma, uint32_t precision){
+  if(precision != 64 && precision != 128){ return 0; }
+
+  switch(sigma){
+  case 215:
+    return precision == 64 ?  k_sigma_bits_215_64  :   k_sigma_bits_215_128;
+  case 250:
+    return precision == 64 ?  k_sigma_bits_250_64  :   k_sigma_bits_250_128;
+  case 271:
+    return precision == 64 ?  k_sigma_bits_271_64  :   k_sigma_bits_271_128;
+  default:
+    return 0;
+  }
+
+}
+
+static const uint16_t k_sigma_bits_271_128 = 9;
+
+static const double f_271_128 = 147732.0;
+
 
 
 

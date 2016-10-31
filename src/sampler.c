@@ -13,6 +13,10 @@ bool sampler_init(sampler_t *sampler, uint32_t sigma, uint32_t ell, uint32_t pre
     sampler->precision = precision;
     sampler->columns = sampler->precision / 8;
     sampler->c = get_table(sigma, ell, precision);
+    if(sampler->c != NULL){
+      sampler->k_sigma = get_k_sigma(sigma, precision);
+      sampler->k_sigma_bits = get_k_sigma_bits(sigma, precision);
+    }
     return sampler->c != NULL;
   }
   return false;

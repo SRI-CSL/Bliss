@@ -22,7 +22,7 @@ static void init_c(unsigned long int sigma, uint32_t ell, uint8_t *c, mpfr_t f, 
 
   mpfr_set_ui(y, 1, GMP_RNDN);
 
-  fprintf(stderr, "static const uint8_t c_bliss_%d_%d_%d[] = {\n", (int)sigma, ell, (int)precision);
+  fprintf(stderr, "\nstatic const uint8_t c_bliss_%d_%d_%d[] = {\n", (int)sigma, ell, (int)precision);
 
  
   for(i = 0; i < ell; i++){
@@ -71,6 +71,16 @@ static void init_c(unsigned long int sigma, uint32_t ell, uint8_t *c, mpfr_t f, 
   
 }
 
+static uint32_t  get_bits(uint64_t num){
+  uint32_t retval = 0;
+
+  while(num > 0){
+    num >>= 1;
+    retval++;
+  }
+  return retval;
+}
+
 
 int main(int argc, char* argv[]){
 
@@ -79,11 +89,11 @@ int main(int argc, char* argv[]){
     exit(EXIT_FAILURE);
 
   } else {
-    unsigned long int sigma;
+    uint32_t sigma;
     uint32_t ell;
     uint64_t precision;
     
-    sigma = atol(argv[1]);
+    sigma = atoi(argv[1]);
     ell = atoi(argv[2]);
     precision = atol(argv[3]);
 
@@ -109,8 +119,6 @@ int main(int argc, char* argv[]){
     mpfr_set_ui(ln2, 2, GMP_RNDN);
     mpfr_log(ln2, ln2, GMP_RNDN);     /* ln2 = ln(2) */
     mpfr_set_ui(s, sigma, GMP_RNDN);  /* s = sigma */
-    fprintf(stderr, "\ns = %"PRIu64"\n",  (uint64_t)mpfr_get_d(s, GMP_RNDN));
-
 
     mpfr_mul_ui(tmp, ln2, 2, GMP_RNDN);  /* tmp = (2*ln 2)     */
 
@@ -121,14 +129,15 @@ int main(int argc, char* argv[]){
 
 
     uint64_t k_sigma = (uint64_t)mpfr_get_d(ks, GMP_RNDN);
-    fprintf(stderr, "\nk_sigma = %"PRIu64"\n",  k_sigma);
-
+    fprintf(stderr, "\nstatic const uint16_t k_sigma_%d_%d = %"PRIu64";\n", (int)sigma, (int)precision,  k_sigma);
+    fprintf(stderr, "\nstatic const uint16_t k_sigma_bits_%d_%d = %"PRIu32";\n", (int)sigma, (int)precision,  get_bits(k_sigma));
+    
 
     mpfr_sqr(f, ks, GMP_RNDN);         /* f = k_sigma^2 */
     mpfr_div(f, f, ln2, GMP_RNDN);     /* f = k_sigma^2 / ln 2*/
 
     double F =  mpfr_get_d(f, GMP_RNDN);
-    fprintf(stderr, "\nf = %0.1f\n",  F);
+    fprintf(stderr, "\nstatic const double f_%d_%d = %0.1f;\n", (int)sigma, (int)precision,  F); //iam: could do better than  %0.1f, use precision?
 
     //mpfr_out_str (stderr, 10, 0, ln2, GMP_RNDN);
 

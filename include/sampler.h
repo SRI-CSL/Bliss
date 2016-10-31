@@ -6,14 +6,16 @@
 
 
 typedef struct sampler_s {
-  entropy_t entropy;   /* BD thinks we should use a function pointer; rather than hard code 
-			  this sepcific implementation. Seems reasonable. TODO.
-		       */
-  const uint8_t *c;    /* the table we will use (from tables.h) */
-  uint32_t sigma;      /* the standard deviation of the distribution */
-  uint32_t ell;        /* rows in the table     */
-  uint32_t precision;  /* precision used in computing the tables */
-  uint32_t columns;    /* columns = precision/8 */
+  entropy_t entropy;     /* BD thinks we should use a function pointer; rather than hard code
+                          *  this sepcific implementation. Seems reasonable. TODO.
+                          */
+  const uint8_t *c;      /* the table we will use (from tables.h) */
+  uint32_t sigma;        /* the standard deviation of the distribution */
+  uint32_t ell;          /* rows in the table     */
+  uint32_t precision;    /* precision used in computing the tables */
+  uint32_t columns;      /* columns = precision/8 */
+  uint16_t k_sigma;      /* k_sigma = ceiling[ sqrt(2*ln 2) * sigma ]  */
+  uint16_t k_sigma_bits; /* number of significant bits in k_sigma */
 } sampler_t;
 
 
