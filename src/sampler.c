@@ -33,8 +33,8 @@ void sampler_delete(sampler_t *sampler){
 bool sampler_ber(sampler_t* sampler, const uint8_t* p, bool* accepted){
   if(sampler != NULL && p != NULL && accepted != NULL){
     uint8_t i, uc;
-    for(i = 0; i < sampler->columns; i++){ 
-      uc = entropy_random_uint8(&sampler->entropy);
+    for(i = 0; i < sampler->columns; i++){
+      if(!entropy_random_uint8(&sampler->entropy, &uc)){ return false; }
       if(uc < *p){ *accepted = true; return true; }
       if(uc > *p){ *accepted = false; return true; }
       p++;
@@ -69,19 +69,63 @@ bool sampler_ber_exp(sampler_t* sampler, uint32_t x, bool* accepted){
 }
 
 /* Sampling Bernoulli_C with C = 1/cosh(x/(sigma*sigma) */
-bool sampler_ber_cosh(sampler_t* sampler, int64_t x, bool* accepted){
+bool sampler_ber_cosh(sampler_t* sampler, int32_t x, bool* accepted){
+  bool rbit;
   if(sampler != NULL && accepted != NULL){
     x = x < 0 ? -x : x;
     x <<= 1;
     while(true){
       if(!sampler_ber_exp(sampler, x, accepted)){ return false; }
       if(*accepted){ return true; }
-      if(entropy_random_bit(&sampler->entropy)){
+      if(!entropy_random_bit(&sampler->entropy, &rbit)){ return false; }
+      if(!rbit){
 	if(!sampler_ber_exp(sampler, x, accepted)){ return false; }
 	if(!(*accepted)){ return true; }
       }
     }
-    
+    return true;
+  }
+  return false;
+}
+
+/* Sample the sign according to the binary distribution  */
+
+static const int32_t max_sample_count  = 16;
+
+extern bool sampler_pos_binary(sampler_t* sampler, int32_t* valp){
+  if(sampler != NULL && valp != NULL){
+    uint32_t u, i;
+    while(true){
+      
+      for(i = 0; i <= max_sample_count; i++){
+	if(!entropy_random_bits(&sampler->entropy,  i ? (2*i - 1) : 1, &u)){ return false; }
+	if(u == 0){ *valp = i; return true; }
+	if((u >> 1) != 0){  break; }
+      }
+
+      if(i >  max_sample_count){
+	return false;
+      }
+    }
+  }
+  return false;
+}
+
+
+
+/* 
+ * Sampling the Gaussian distribution exp(-x^2/(2*sigma*sigma))
+ *
+ *   returns true is the sampling was successful, false if something went wrong
+ *
+ *   accepted will  point to true in the value was accepted, false if it was rejected.
+ *
+ */
+extern bool sampler_ber_gauss(sampler_t* sampler, int32_t val, bool* accepted){
+  if(sampler != NULL && accepted != NULL){
+
+
+
     return true;
   }
   return false;

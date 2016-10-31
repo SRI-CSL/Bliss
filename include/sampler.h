@@ -61,7 +61,13 @@ extern bool sampler_ber_exp(sampler_t* sampler, uint32_t val, bool* accepted);
  *   accepted will  point to true in the value was accepted, false if it was rejected.
  *
  */
-extern bool sampler_ber_cosh(sampler_t* sampler, int64_t val, bool* accepted);
+extern bool sampler_ber_cosh(sampler_t* sampler, int32_t val, bool* accepted);
+
+
+
+extern bool sampler_pos_binary(sampler_t* sampler, int32_t* valp);
+
+
 
 /* 
  * Sampling the Gaussian distribution exp(-x^2/(2*sigma*sigma))
@@ -71,7 +77,7 @@ extern bool sampler_ber_cosh(sampler_t* sampler, int64_t val, bool* accepted);
  *   accepted will  point to true in the value was accepted, false if it was rejected.
  *
  */
-extern bool sampler_ber_gauss(sampler_t* sampler, int64_t val, bool* accepted);
+extern bool sampler_ber_gauss(sampler_t* sampler, int32_t val, bool* accepted);
 
 
 

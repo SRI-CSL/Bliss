@@ -255,11 +255,4 @@ static inline uint16_t get_k_sigma_bits(uint32_t sigma, uint32_t precision){
 
 }
 
-static const uint16_t k_sigma_bits_271_128 = 9;
-
-static const double f_271_128 = 147732.0;
-
-
-
-
 #endif
