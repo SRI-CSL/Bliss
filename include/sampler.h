@@ -9,14 +9,24 @@ typedef struct sampler_s {
   entropy_t entropy;   /* BD thinks we should use a function pointer; rather than hard code 
 			  this sepcific implementation. Seems reasonable. TODO.
 		       */
-  uint8_t *c;          /* the table we will use (from tables.h) */
-  uint32_t stddev;
+  const uint8_t *c;          /* the table we will use (from tables.h) */
+  uint32_t sigma;
   uint32_t ell;        /* rows in the table     */
   uint32_t precision;  /* columns = precision/8 */
 } sampler_t;
 
 
-extern bool sampler_init(sampler_t* sampler, uint32_t stddev, uint32_t ell, uint32_t precision);
+/*
+ *    Initialize a sampler:
+ *
+ *       sigma: the standard deviation
+ *          ell: the number of significant bits (i.e. the number of rows in the table.h)
+ *    precision: the precision, (i.e. precision = 8 * the number of columns in the table.h)
+ *
+ *    See table.h for the currently accepted values.
+ *
+ */
+extern bool sampler_init(sampler_t* sampler, uint32_t sigma, uint32_t ell, uint32_t precision);
 
 extern void sampler_delete(sampler_t* sampler);
 

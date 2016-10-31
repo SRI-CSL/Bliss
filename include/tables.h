@@ -164,4 +164,27 @@ static const uint8_t c_bliss_271_22_128[] = {
 	  0,   0,  11, 120, 189, 135, 113,  62, 143, 175, 118, 239, 190, 120, 189, 250,
 };
 
+
+/* crufty error checking for now */
+static inline const uint8_t* get_table(uint32_t sigma, uint32_t ell, uint32_t precision){
+
+  if(ell != 21 && ell != 22){ return NULL; }
+
+  if(precision != 64 && precision != 128){ return NULL; }
+
+  switch(sigma){
+  case 215:
+    return precision == 64 ?  c_bliss_215_21_64  :   c_bliss_215_21_128;
+  case 250:
+    return precision == 64 ?  c_bliss_250_21_64  :   c_bliss_250_21_128;
+  case 271:
+    return precision == 64 ?  c_bliss_271_22_64  :   c_bliss_271_22_128;
+  default:
+    return NULL;
+  }
+
+}
+
+
+
 #endif

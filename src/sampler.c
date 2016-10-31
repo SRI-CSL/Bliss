@@ -6,18 +6,19 @@
 
 
 
-bool sampler_init(sampler_t *sampler, uint32_t stddev, uint32_t ell, uint32_t precision){
+bool sampler_init(sampler_t *sampler, uint32_t sigma, uint32_t ell, uint32_t precision){
   if(sampler != NULL){
-    sampler->stddev = stddev;
+    sampler->sigma = sigma;
     sampler->ell = ell;
     sampler->precision = precision;
+    sampler->c = get_table(sigma, ell, precision);
+    return sampler->c != NULL;
   }
   return false;
 }
 
 void sampler_delete(sampler_t *sampler){
   if(sampler != NULL){
-    free(sampler->c);
     entropy_delete(&sampler->entropy);
   }
 }
@@ -28,7 +29,7 @@ void sampler_delete(sampler_t *sampler){
 bool sampler_ber(sampler_t* sampler, const uint8_t* p, bool* accepted){
   if(sampler != NULL && p != NULL && accepted != NULL){
     uint8_t i, uc;
-    for(i = 0; i < 16; i++){
+    for(i = 0; i < 16; i++){  //iam: 16 looks to be the precision/8; right?
       uc = entropy_random_uint8(&sampler->entropy);
       if(uc < *p){ *accepted = true; return true; }
       if(uc > *p){ *accepted = false; return true; }
