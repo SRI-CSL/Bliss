@@ -12,12 +12,11 @@ endif
 
 LIBRARYNAME=libbliss
 
-
 ifeq (Darwin, $(findstring Darwin, ${OS}))
 LIBRARY = ${LIBRARYNAME}.dylib
 LIBFLAGS = -dynamiclib
-LDFLAGS = -lmpfr -lgmp
-CFLAGS = -DDARWIN
+LDFLAGS = -lmpfr -lgmp -L/usr/local/opt/openssl/lib -lcrypto
+CFLAGS = -DDARWIN -I/usr/local/opt/openssl/include
 else
 LIBRARY = ${LIBRARYNAME}.so              
 LIBFLAGS = -shared -Wl,-soname,${LIBRARY}
