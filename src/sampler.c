@@ -88,17 +88,24 @@ bool sampler_ber_cosh(sampler_t* sampler, int32_t x, bool* accepted){
   return false;
 }
 
-/* Sample the sign according to the binary distribution  */
+/* 
+ * 
+ * Sample the sign according to the binary distribution 
+ *
+ * Source: strongswan/src/libstrongswan/plugins/bliss/bliss_sampler.c
+ *
+ */
 
 static const int32_t max_sample_count  = 16;
 
-extern bool sampler_pos_binary(sampler_t* sampler, int32_t* valp){
+bool sampler_pos_binary(sampler_t* sampler, uint32_t* valp){
   if(sampler != NULL && valp != NULL){
-    uint32_t u, i;
+    uint32_t u, i, j;
     while(true){
       
       for(i = 0; i <= max_sample_count; i++){
-	if(!entropy_random_bits(&sampler->entropy,  i ? (2*i - 1) : 1, &u)){ return false; }
+	j = i ? (2*i - 1) : 1;
+	if(!entropy_random_bits(&sampler->entropy,  j, &u)){ return false; }
 	if(u == 0){ *valp = i; return true; }
 	if((u >> 1) != 0){  break; }
       }
@@ -118,13 +125,42 @@ extern bool sampler_pos_binary(sampler_t* sampler, int32_t* valp){
  *
  *   returns true is the sampling was successful, false if something went wrong
  *
- *   accepted will  point to true in the value was accepted, false if it was rejected.
+ *   If successful, valp will point to the generated value.
+ *
+ *  Source: strongswan/src/libstrongswan/plugins/bliss/bliss_sampler.c
  *
  */
-extern bool sampler_ber_gauss(sampler_t* sampler, int32_t val, bool* accepted){
-  if(sampler != NULL && accepted != NULL){
+bool sampler_ber_gauss(sampler_t* sampler, int32_t *valp){
+  if(sampler != NULL && valp != NULL){
+    bool accepted;
+    uint32_t u, e, x, y, val_pos;
 
+    while(true) {
 
+      if(!sampler_pos_binary(sampler, &x)){ return false; }
+
+      do {
+
+	if(!entropy_random_bits(&sampler->entropy,  sampler->k_sigma_bits, &y)){ return false; }
+
+      } while ( y >= sampler->k_sigma_bits );
+
+      e = y * (y + 2 * sampler->k_sigma * x);
+
+      if(!sampler_ber_exp(sampler, e, &accepted)){ return false; }
+
+      if(accepted){
+
+	if(!entropy_random_bits(&sampler->entropy, 1, &u)){ return false; }
+
+	if( x || y || u ){ break; }
+
+      }
+
+    }
+
+    val_pos = sampler->k_sigma * x + y;
+    *valp = u ? val_pos : - val_pos;
 
     return true;
   }
