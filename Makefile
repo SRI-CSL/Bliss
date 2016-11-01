@@ -20,7 +20,7 @@ CFLAGS = -DDARWIN -I/usr/local/opt/openssl/include
 else
 LIBRARY = ${LIBRARYNAME}.so              
 LIBFLAGS = -shared -Wl,-soname,${LIBRARY}
-LDFLAGS =  -lmpfr -lgmp
+LDFLAGS =  -lmpfr -lgmp -lcrypto
 CFLAGS = -DLINUX
 endif
 
