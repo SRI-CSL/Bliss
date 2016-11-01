@@ -22,17 +22,16 @@ typedef struct randomizer_s {
 } randomizer_t;
 
 
-static const uint32_t epool_hash_count = 10;
-static const uint32_t hash_len_uint8 =  SHA512_DIGEST_LENGTH;
-static const uint32_t hash_len_uint64 = SHA512_DIGEST_LENGTH / sizeof(uint64_t);
+#define EPOOL_HASH_COUNT 10
+#define HASH_LEN_UINT64  SHA512_DIGEST_LENGTH / sizeof(uint64_t)
 
 
 /*  Based on the DDLL version */
 typedef struct entropy_s {
   uint64_t   bit_pool;
-  uint8_t    char_pool[hash_len_uint8 * epool_hash_count];
-  uint64_t   int_pool[hash_len_uint64 * epool_hash_count];
-  uint8_t    seed[hash_len_uint8];
+  uint8_t    char_pool[SHA512_DIGEST_LENGTH * EPOOL_HASH_COUNT];
+  uint64_t   int_pool[HASH_LEN_UINT64 * EPOOL_HASH_COUNT];
+  uint8_t    seed[SHA512_DIGEST_LENGTH];
   uint32_t   bit_index;
   uint32_t   char_index;
   uint32_t   int_index;

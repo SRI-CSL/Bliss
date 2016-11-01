@@ -36,9 +36,9 @@ static void char_pool_refresh(entropy_t* entropy){
   if(entropy != NULL){
     uint32_t i;
     uint8_t *hash = (uint8_t *)(entropy->char_pool);
-    for (i = 0; i < epool_hash_count; i++){
+    for (i = 0; i < EPOOL_HASH_COUNT; i++){
       sha512(entropy, hash);
-      hash += hash_len_uint8;
+      hash += SHA512_DIGEST_LENGTH;
     }
     entropy->char_index = 0;
   }
@@ -48,9 +48,9 @@ static void int_pool_refresh(entropy_t* entropy){
   if(entropy != NULL){
     uint32_t i;
     uint8_t *hash = (uint8_t *)(entropy->int_pool);
-    for (i = 0; i < epool_hash_count; i++){
+    for (i = 0; i < EPOOL_HASH_COUNT; i++){
       sha512(entropy, hash);
-      hash += hash_len_uint8;
+      hash += SHA512_DIGEST_LENGTH;
     }
     entropy->int_index = 0;
   }
@@ -59,10 +59,12 @@ static void int_pool_refresh(entropy_t* entropy){
 
 bool entropy_init(entropy_t* entropy){
   if(entropy != NULL){
+    size_t nobjs;
     //iam: how portable is this?
     entropy->fp = fopen("/dev/urandom", "r");
     if(entropy->fp == NULL){ return false; }
-    if(fread(entropy->seed, sizeof(uint8_t), hash_len_uint8, entropy->fp) != hash_len_uint8){
+    nobjs = fread(entropy->seed, sizeof(uint8_t), SHA512_DIGEST_LENGTH, entropy->fp);
+    if(nobjs != SHA512_DIGEST_LENGTH){
       entropy_delete(entropy);
       return false; 
     }
@@ -102,7 +104,7 @@ extern bool entropy_random_bit(entropy_t* entropy, bool* rbit){
 
 extern bool entropy_random_uint8(entropy_t* entropy, uint8_t* rchar){
   if(entropy != NULL){
-    if(entropy->char_index >= hash_len_uint8 * epool_hash_count){
+    if(entropy->char_index >= SHA512_DIGEST_LENGTH * EPOOL_HASH_COUNT){
       char_pool_refresh(entropy);
     }
     *rchar = entropy->int_pool[entropy->char_index++];
@@ -135,7 +137,7 @@ extern bool entropy_random_bits(entropy_t* entropy, uint32_t num_bits, uint32_t*
 
 extern bool entropy_random_uint64(entropy_t* entropy, uint64_t* rint){
   if(entropy != NULL){
-    if(entropy->int_index >= hash_len_uint64 * epool_hash_count){
+    if(entropy->int_index >= HASH_LEN_UINT64 * EPOOL_HASH_COUNT){
       int_pool_refresh(entropy);
     }
     *rint = entropy->int_pool[entropy->int_index++];
