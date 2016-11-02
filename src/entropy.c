@@ -124,7 +124,7 @@ extern bool entropy_random_bits(entropy_t* entropy, uint32_t num_bits, uint32_t*
       }
 
       retval <<= 1;
-      retval |= entropy->bit_pool;
+      retval |= entropy->bit_pool & 1;
       entropy->bit_index++;
       entropy->bit_pool >>= 1;
       num_bits--;
