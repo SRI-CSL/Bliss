@@ -130,7 +130,7 @@ bool sampler_pos_binary(sampler_t* sampler, uint32_t* valp){
  *  Source: strongswan/src/libstrongswan/plugins/bliss/bliss_sampler.c
  *
  */
-bool sampler_ber_gauss(sampler_t* sampler, int32_t *valp){
+bool sampler_gauss(sampler_t* sampler, int32_t *valp){
   if(sampler != NULL && valp != NULL){
     bool accepted;
     uint32_t u, e, x, y, val_pos;
@@ -145,6 +145,7 @@ bool sampler_ber_gauss(sampler_t* sampler, int32_t *valp){
 
       } while ( y >= sampler->k_sigma_bits );
 
+      
       e = y * (y + 2 * sampler->k_sigma * x);
 
       if(!sampler_ber_exp(sampler, e, &accepted)){ return false; }
@@ -156,6 +157,7 @@ bool sampler_ber_gauss(sampler_t* sampler, int32_t *valp){
 	if( x || y || u ){ break; }
 
       }
+
 
     }
 

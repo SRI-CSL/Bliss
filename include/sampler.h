@@ -64,7 +64,6 @@ extern bool sampler_ber_exp(sampler_t* sampler, uint32_t val, bool* accepted);
 extern bool sampler_ber_cosh(sampler_t* sampler, int32_t val, bool* accepted);
 
 
-
 extern bool sampler_pos_binary(sampler_t* sampler, uint32_t* valp);
 
 
@@ -77,7 +76,7 @@ extern bool sampler_pos_binary(sampler_t* sampler, uint32_t* valp);
  *   If successful, valp will point to the generated value.
  *
  */
-extern bool sampler_ber_gauss(sampler_t* sampler, int32_t *valp);
+extern bool sampler_gauss(sampler_t* sampler, int32_t *valp);
 
 
 
