@@ -10,7 +10,8 @@ static sampler_t sampler;
 
 int main(void){
   int i;
-  uint32_t val;
+  uint32_t uval;
+  int32_t val;
   
   if(!sampler_init(&sampler, 271, 22, 128)){
     fprintf(stderr, "error initializing sampler\n");
@@ -21,7 +22,7 @@ int main(void){
   for(i=0; i<NTESTS; i++)
     {
       t[i] = cpucycles();
-      sampler_pos_binary(&sampler, &val);
+      sampler_pos_binary(&sampler, &uval);
     }
   print_results("sampler_pos_binary: ", t, NTESTS);
 
