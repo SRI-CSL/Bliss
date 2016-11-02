@@ -150,6 +150,7 @@ bool sampler_gauss(sampler_t* sampler, int32_t *valp){
 
       if(!sampler_ber_exp(sampler, e, &accepted)){ return false; }
 
+      
       if(accepted){
 
 	if(!entropy_random_bits(&sampler->entropy, 1, &u)){ return false; }

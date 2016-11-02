@@ -32,7 +32,6 @@ int main(void){
   for(i=0; i<NTESTS; i++)
     {
       t[i] = cpucycles();
-      fprintf(stderr, "%d\n", i);
       sampler_gauss(&sampler, &val);
     }
   print_results("sampler_gauss: ", t, NTESTS);

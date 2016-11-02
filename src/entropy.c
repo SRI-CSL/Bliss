@@ -95,7 +95,7 @@ extern bool entropy_random_bit(entropy_t* entropy, bool* rbit){
     if(entropy->bit_index >= 64){
       bit_pool_refresh(entropy);
     }
-    *rbit = entropy->bit_pool;
+    *rbit = entropy->bit_pool & 1;
     entropy->bit_pool >>= 1;
     return true;
   }
@@ -125,6 +125,7 @@ extern bool entropy_random_bits(entropy_t* entropy, uint32_t num_bits, uint32_t*
 
       retval <<= 1;
       retval |= entropy->bit_pool;
+      entropy->bit_index++;
       entropy->bit_pool >>= 1;
       num_bits--;
     }
