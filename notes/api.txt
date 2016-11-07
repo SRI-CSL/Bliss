@@ -1,0 +1,991 @@
+Received: from EXCHANGE-HUB01.SRI.COM (128.18.87.18) by Exchange-hub07.sri.com
+ (130.33.207.23) with Microsoft SMTP Server (TLS) id 14.3.266.1; Fri, 28 Oct
+ 2016 11:29:35 -0400
+Received: from brightmail-external4.sri.com (128.18.84.11) by
+ exchange-hub01.SRI.COM (128.18.87.23) with Microsoft SMTP Server id
+ 14.3.266.1; Fri, 28 Oct 2016 08:29:35 -0700
+X-AuditID: 8012540b-aafff70000003cc9-a2-58136edc69b4
+Received: from wsget2.nist.gov (wsget2.nist.gov [129.6.13.151])	(using TLS
+ with cipher AES256-SHA (256/256 bits))	(Client did not present a certificate)
+	by  (mailgate.sri.com) with SMTP id 20.76.15561.CDE63185; Fri, 28 Oct 2016
+ 08:29:33 -0700 (PDT)
+Received: from WSXGHUB1.xchange.nist.gov (129.6.18.96) by wsget2.nist.gov
+ (129.6.13.151) with Microsoft SMTP Server (TLS) id 14.3.319.2; Fri, 28 Oct
+ 2016 11:29:22 -0400
+Received: from postmark.nist.gov (129.6.16.94) by WSXGHUB1.xchange.nist.gov
+ (129.6.18.96) with Microsoft SMTP Server (TLS) id 8.3.485.1; Fri, 28 Oct 2016
+ 11:29:31 -0400
+Received: from postmark.nist.gov (localhost.localdomain [127.0.0.1])	by
+ postmark.nist.gov (8.13.8/8.13.1) with ESMTP id u9SFTMUE031050;	Fri, 28 Oct
+ 2016 11:29:23 -0400
+Received: from WSXGHUB1.xchange.nist.gov (wsxghub1.xchange.nist.gov
+	[129.6.18.96])	by postmark.nist.gov (8.13.8/8.13.1) with ESMTP id
+ u9SFTA5A031042	for <pqc-forum@mailserver3.nist.gov>; Fri, 28 Oct 2016
+ 11:29:10 -0400
+Received: from wsget2.nist.gov (129.6.13.151) by WSXGHUB1.xchange.nist.gov
+	(129.6.18.96) with Microsoft SMTP Server (TLS) id 8.3.485.1;	Fri, 28 Oct 2016
+ 11:29:09 -0400
+Received: from gcc01-dm2-obe.outbound.protection.outlook.com (23.103.198.54)
+	by mailserver3.nist.gov (129.6.13.151) with Microsoft SMTP Server id
+	14.3.319.2; Fri, 28 Oct 2016 11:29:00 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=nistgov.onmicrosoft.com; s=selector1-nist-gov;
+	h=From:Date:Subject:Message-ID:Content-Type:MIME-Version;
+	bh=NG9usI7+h2qLHd/bz1Za9bHzPjj8gcf4qU9nPs2Pizk=;
+	b=fESm9DzaCsxZEygUWsdvyuzoPTfEdPc1K4tSLS1eMconRwqttm7viuOv4EcLyEWiDUrkz5SjYMg8jw8uFsz9CY8pVSBpSLb1R8cCOoKFCcDD8yO4Vz/f96aPc7W3TQjRlLsavPETzzCepwHDwec3skWTa0YC406zfx8+T1XcahM=
+Received: from DM5PR09MB1420.namprd09.prod.outlook.com (10.173.171.10) by
+	DM5PR09MB1420.namprd09.prod.outlook.com (10.173.171.10) with Microsoft	SMTP
+ Server (version=TLS1_2,	cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384_P384) id
+	15.1.693.12; Fri, 28 Oct 2016 15:29:08 +0000
+Received: from DM5PR09MB1420.namprd09.prod.outlook.com ([10.173.171.10]) by
+	DM5PR09MB1420.namprd09.prod.outlook.com ([10.173.171.10]) with mapi id
+	15.01.0693.009; Fri, 28 Oct 2016 15:29:08 +0000
+From: "Moody, Dustin (Fed)" <dustin.moody@nist.gov>
+To: pqc-forum <pqc-forum@nist.gov>
+Thread-Topic: API for PQC algorithms
+Thread-Index: AdIxL8qELoPoG0xoTbmR3umOQijdpw==
+Date: Fri, 28 Oct 2016 15:29:08 +0000
+Message-ID: <DM5PR09MB14204BD03327BA84ED0633FDE5AD0@DM5PR09MB1420.namprd09.prod.outlook.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+x-originating-ip: [129.6.227.113]
+x-ms-office365-filtering-correlation-id: 3d6e5310-f2af-47d7-cb35-08d3ff4728df
+x-microsoft-exchange-diagnostics: 1; DM5PR09MB1420;
+	7:WtxmU1DgDgBRygJRWqPjHItIEwq7Xd5pu4Bs7tHNnAW261NqLVcNMO9fLwno4k755bDAUndbKR5+3cPPnnvWsx57ZmHzhlYjZxWGV6/d1KIGyLyrjTPPLvXbjXm4rJectfBZ+s6AUWHm/o/uy+17ZmD6yQTwOV1uEYE+enrxS6G5wMTZS2AmWzFj91ZS5LGGyAqzJhnZaq06uzBbRSpeDko+jn9w/JCdklAW/qKOAGLB1GKxT4+Zi/9gQ41EEgUN5zOZZGMa1IG9dhiJauF4padVPAUmPbbkWG5UP43so75F2IydVzZFPo9BSVK8aqxHK5mMMUV7AyZzVnglSaCwyp7PHRGKPC4Mg7m1FsAWYR4=
+x-microsoft-antispam: UriScan:;BCL:0;PCL:0;RULEID:;SRVR:DM5PR09MB1420;
+x-ld-processed: 2ab5d82f-d8fa-4797-a93e-054655c61dec,ExtAddr
+x-microsoft-antispam-prvs: <DM5PR09MB1420B3D514118D24EDC2F522E5AD0@DM5PR09MB1420.namprd09.prod.outlook.com>
+x-exchange-antispam-report-test: UriScan:(21748063052155);
+x-exchange-antispam-report-cfa-test: BCL:0; PCL:0;
+	RULEID:(6040176)(601004)(2401047)(8121501046)(5005006)(10201501046)(3002001)(6055026);
+	SRVR:DM5PR09MB1420; BCL:0; PCL:0; RULEID:; SRVR:DM5PR09MB1420; 
+x-forefront-prvs: 0109D382B0
+x-forefront-antispam-report: SFV:NSPM;
+	SFS:(10019020)(6009001)(7916002)(199003)(189002)(92566002)(10400500002)(74316002)(50986999)(66066001)(5002640100001)(33656002)(54356999)(2906002)(19625215002)(101416001)(9686002)(450100001)(3480700004)(102836003)(790700001)(6116002)(586003)(229853001)(8936002)(2900100001)(3846002)(122556002)(15975445007)(110136003)(7696004)(3280700002)(19300405004)(6636002)(77096005)(5660300001)(16236675004)(68736007)(107886002)(81156014)(81166006)(19580395003)(8676002)(97736004)(189998001)(7846002)(8666005)(7736002)(3660700001)(87936001)(11100500001)(76576001)(106356001)(86362001)(105586002)(99286002)(7059030);
+	DIR:OUT; SFP:1102; SCL:1; SRVR:DM5PR09MB1420;
+	H:DM5PR09MB1420.namprd09.prod.outlook.com; FPR:; SPF:None;
+	PTR:InfoNoRecords; A:1; MX:1; LANG:en; 
+received-spf: None (protection.outlook.com: nist.gov does not designate
+	permitted sender hosts)
+spamdiagnosticoutput: 1:99
+spamdiagnosticmetadata: NSPM
+X-MS-Exchange-CrossTenant-originalarrivaltime: 28 Oct 2016 15:29:08.1887 (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 2ab5d82f-d8fa-4797-a93e-054655c61dec
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM5PR09MB1420
+Subject: [Pqc-forum] API for PQC algorithms
+X-BeenThere: pqc-forum@nist.gov
+X-Mailman-Version: 2.1.9
+Precedence: list
+List-Id: NIST PQC forum <pqc-forum.nist.gov>
+List-Unsubscribe: <https://email.nist.gov/mailman/listinfo/pqc-forum>,
+	<mailto:pqc-forum-request@nist.gov?subject=unsubscribe>
+List-Archive: <https://email.nist.gov/pipermail/pqc-forum>
+List-Post: <mailto:pqc-forum@nist.gov>
+List-Help: <mailto:pqc-forum-request@nist.gov?subject=help>
+List-Subscribe: <https://email.nist.gov/mailman/listinfo/pqc-forum>,
+	<mailto:pqc-forum-request@nist.gov?subject=subscribe>
+Content-Type: multipart/mixed;
+	boundary="===============8408313529312058082=="
+Sender: <pqc-forum-bounces@nist.gov>
+Errors-To: pqc-forum-bounces@nist.gov
+X-NIST-MailScanner-Information:
+Return-Path: pqc-forum-bounces@nist.gov
+Authentication-Results: symauth.service.identifier
+X-Brightmail-Tracker: H4sIAAAAAAAAA2WUe0wcVRTGuTO7y7BwcZjlcVhooROaqlDUWG01TX0krZrGBA1J8ZHQAaa7
+	yy67uLNLQa2hRrEi2jbEAispEJFWitbUqDS2KW5RBIFKsbHBYrAQFRoeEVrwUXQed2G2/jP5
+	7u87955z7rkZhuaGoq2MWO4TvW7BxZvMhv0mXLdx1G3Ju7u1M2lLc9eo4WH0eGPjRygHPWve
+	WiS6HGWi965tu832/sVuuvTKDar8k6UOqhLdHKCqURQD7CYY+PZnWZsZjl1GMN0/RRYdCOpn
+	r0WuLKZuzpu0xQkElTMzJGwMwfDnF1adN9sv0driKwQjC2fVhYE9QMPpmjbiHKHg+Nc/kT3f
+	IPil5x1aqcbE3gu9H7SbFB3P8jARmDdWI0bWGTDf4tNwNlz98AekaAO7Hn6bGVA1Zp+Hpqu/
+	GxWN2ERY7OtQG6TZJBiZaCLNstB65gKt6QSYHF82anodDC42Ev4kjLxxxajUBmwrDbOBKqQZ
+	O2D6u/pITW+FmdOTZLMTps/fIJsfhAOHewgfQPDa2GZNp8LRyUaDdmjABE2tS+qhHCvAUmCA
+	OoQ2B3TFBtSG4qC3YcKg8Rzo+HXUeGsMzXpgrPcM4VnQ/OUfJk1nQlvLNTqk+7vGqf/z1fjw
+	XGnwxXSjHMPIOgWOLTPNCLej1AKvw2b3lQgO18bQC9yULXkd2YWeklNIfouVXG50Jzr1d1YQ
+	sQziY3D+bkseZxTKpIqSIHIyFJ+A53bJKLbAU1RhFyR7vtfvEiU+HifbZIxXcIHf5eSt+KQo
+	U8sKdYt7JZfok1Pza/GlNNlLWvEkv1TqKHR4/FK+3+sKImBo+di6PcqxRULFi6LXoyULohTG
+	wCfh/tyGXRxrE3yiUxRLRW/IpZjIINrLMDzgWUHeHecVbWL5HofLF4qRNzcrDqt31IrX4OaH
+	ZCNRb+iKXofPKUVb9fatdVNMlPIxB5GNiZE7qFUvRioVSiSHjeS34HiFxoSomjsZHyyWIReC
+	urxrcHe6UlbICs/Zh15HzD9HFsYozuD2uEVrEh62K+0p4Xa/e6VvayI+2RWXx92mM5TU1lT8
+	qcITdHw1uzUdH1fcZJ0bXkDoN3YRrWfMpAYLRhEREVyMPJgSh4/0TeKmUKH8uiy4tlC5BIfb
+	t3ozHH6pQIbRBKoXAzhdeYZxhOnuJRXXK/NIIE54VVPyACjlCdlYZQA+wacfwL9p6gAIJQP4
+	M00dAIFhA4jQBkCs8EzWSsRuGBQ9xd+nPFFzvfuBHGN3QUveW8Nc10Lm5Sj3Yzuf6XnV/Mi+
+	wTsOvbehNouKtKG5cxkHUz7bPvpo9VnOwD+34/3LP/aVZ7xcnBkb8fS7F09U5cLQ7XWDczUN
+	MQv2usXOt69n399Q6dxXf9+Wtuiq83+9MD60PfPYYNnaVz6OzXpqf3vyNt4g2YV77qS9kvAf
+	lAPxP2QGAAA=
+X-MS-Exchange-Organization-AVStamp-Mailbox: SMEXw]nP;1286300;0;This mail has
+ been scanned by Trend Micro ScanMail for Microsoft Exchange;
+X-MS-Exchange-Organization-SCL: 0
+X-MS-Exchange-Organization-AuthSource: exchange-hub01.SRI.COM
+X-MS-Exchange-Organization-AuthAs: Anonymous
+MIME-Version: 1.0
+
+--===============8408313529312058082==
+Content-Language: en-US
+Content-Type: multipart/alternative;
+	boundary="_000_DM5PR09MB14204BD03327BA84ED0633FDE5AD0DM5PR09MB1420namp_"
+
+--_000_DM5PR09MB14204BD03327BA84ED0633FDE5AD0DM5PR09MB1420namp_
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+We wanted to provide the updated API we are planning on using for PQC algor=
+ithms (signatures, encryption, KEMs).
+
+Let us know of any suggestions.  Thanks,
+
+Dustin Moody
+NIST
+
+
+
+PQC - API notes
+
+Most of the API information is derived from the eBATS: ECRYPT Benchmarking =
+of Asymmetric Systems (https://bench.cr.yp.to/ebats.html). This has been do=
+ne to facilitate benchmarking algorithm performance. Please look at the eBA=
+TS page for more information on how to submit an algorithm for performance =
+benchmarking.  There are two sets of API calls listed for each primitive. T=
+he first set is the API call directly from the eBATS page, or something ver=
+y similar for the Key Encapsulation Mechanism section. The second set of ca=
+lls is for testing purposes. The calls extend the eBATS calls for functions=
+ that utilize randomness by providing a pointer to specify a randomness str=
+ing. This will allow algorithms that utilize randomness to be able to provi=
+de reproducible results.  For example, this will allow testing of KAT files=
+ and other sample values.
+
+Public-key Signatures
+See https://bench.cr.yp.to/call-sign.html for more information on Public-ke=
+y Signature API and performance testing.
+
+The first thing to do is to create a file called api.h. This file contains =
+the following four lines (with the sizes set to the appropriate values):
+     #define CRYPTO_SECRETKEYBYTES 256
+     #define CRYPTO_PUBLICKEYBYTES 85
+     #define CRYPTO_BYTES 128
+     #define CRYPTO_RANDOMBYTES 64
+
+indicating that your software uses a 256-byte (2048-bit) secret key, an 85-=
+byte (680-bit) public key, at most 128 bytes of overhead in a signed messag=
+e compared to the original message, and 64 bytes of random input.
+
+Then create a file called sign.c with the following function calls:
+
+            eBATS calls
+                        Generates a keypair - pk is the public key and sk i=
+s the secret key.
+
+          int crypto_sign_keypair(
+              unsigned char *pk,
+              unsigned char *sk
+          )
+
+Sign a message: sm is the signed message, m is the original message, and sk=
+ is the secret key.
+
+          int crypto_sign(
+              unsigned char *sm, unsigned long long *smlen,
+              const unsigned char *m, unsigned long long mlen,
+              const unsigned char *sk
+          )
+
+Verify a message signature: m is the original message, sm is the signed mes=
+sage, pk is the public key.
+
+          int crypto_sign_open(
+              const unsigned char *m, unsigned long long *mlen,
+              const unsigned char *sm, unsigned long long smlen,
+              const unsigned char *pk
+          )
+
+            KAT calls
+          int crypto_sign_keypair_KAT(
+              unsigned char *pk,
+              unsigned char *sk,
+              const unsigned char *randomness
+          )
+
+          int crypto_sign_KAT(
+              unsigned char *sm, unsigned long long *smlen,
+              const unsigned char *m, unsigned long long mlen,
+              const unsigned char *sk,
+              const unsigned char *randomness
+          )
+
+
+Public-key Encryption
+See https://bench.cr.yp.to/call-encrypt.html for more information on Public=
+-key Encryption API and performance testing.
+
+The first thing to do is to create a file called api.h. This file contains =
+the following four lines (with the sizes set to the appropriate values):
+     #define CRYPTO_SECRETKEYBYTES 256
+     #define CRYPTO_PUBLICKEYBYTES 64
+     #define CRYPTO_BYTES 48
+     #define CRYPTO_RANDOMBYTES 64
+
+indicating that your software uses a 256-byte (2048-bit) secret key, a 64-b=
+yte (512-bit) public key, at most 48 bytes of overhead in an encrypted mess=
+age compared to the original message, and 64 bytes of random input.
+
+Then create a file called encrypt.c with the following function calls:
+
+            eBATS calls
+                        Generates a keypair - pk is the public key and sk i=
+s the secret key.
+
+          int crypto_encrypt_keypair(
+              unsigned char *pk,
+              unsigned char *sk
+          )
+
+                        Encrypt a plaintext: c is the ciphertext, m is the =
+plaintext, and pk is the public key.
+
+          int crypto_encrypt(
+              unsigned char *c, unsigned long long *clen,
+              const unsigned char *m, unsigned long long mlen,
+              const unsigned char *pk
+          )
+
+                        Decrypt a ciphertext: m is the plaintext, c is the =
+ciphertext, and sk is the secret key.
+
+          int crypto_encrypt_open(
+              unsigned char *m, unsigned long long *mlen,
+              const unsigned char *c, unsigned long long clen,
+              const unsigned char *sk
+          )
+
+            KAT calls
+          int crypto_encrypt_keypair_KAT(
+              unsigned char *pk,
+              unsigned char *sk,
+              const unsigned char *randomness
+          )
+
+          int crypto_encrypt_KAT(
+              unsigned char *c, unsigned long long *clen,
+              const unsigned char *m, unsigned long long mlen,
+              const unsigned char *pk,
+              const unsigned char *randomness
+          )
+
+
+Key Encapsulation Mechanism (KEM)
+The calls in the eBATS specification do not meet the calls specified in the=
+ call for algorithms. However, attempts were made to match the specificatio=
+ns for the other algorithms.
+
+The first thing to do is to create a file called api.h. This file contains =
+the following four lines (with the sizes set to the appropriate values):
+     #define CRYPTO_SECRETKEYBYTES 192
+     #define CRYPTO_PUBLICKEYBYTES 64
+     #define CRYPTO_BYTES 64
+     #define CRYPTO_CIPHERTEXTBYTES 128
+     #define CRYPTO_RANDOMBYTES 64
+
+indicating that your software uses a 192-byte (1536-bit) secret key, a 64-b=
+yte (512-bit) public key, a 64-byte (512-bit) shared secret, at most a 128-=
+byte (1024-bit) ciphertext, and 64 bytes of random input.
+
+Then create a file called kem.c with the following function calls:
+
+            eBATS-like calls
+
+                        Generates a keypair - pk is the public key and sk i=
+s the secret key.
+
+          int crypto_kem_keygenerate(
+              unsigned char *pk,
+              unsigned char *sk
+          )
+
+Encapsulate - pk is the public key, ct is a key encapsulation message (ciph=
+ertext), ss is the shared secret.
+
+          int crypto_kem_encapsulate(
+              const unsigned char *pk,
+              unsigned char *ct,
+              unsigned char *ss
+          )
+
+Decapsulate - ct is a key encapsulation message (ciphertext), sk is the pri=
+vate key, ss is the shared secret
+
+          int crypto_kem_decapsulate(
+              const unsigned char *ct,
+              const unsigned char *sk,
+              unsigned char *ss
+          )
+
+
+            KAT calls
+          int crypto_kem_keygenerate(
+              unsigned char *pk,
+              unsigned char *sk,
+              const unsigned char *randomness
+          )
+
+          int crypto_kem_encapsulate(
+              const unsigned char *pk,
+              unsigned char *ct,
+              unsigned char *ss,
+              const unsigned char *randomness
+          )
+
+
+
+
+
+--_000_DM5PR09MB14204BD03327BA84ED0633FDE5AD0DM5PR09MB1420namp_
+Content-Type: text/html; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+<html xmlns:v=3D"urn:schemas-microsoft-com:vml" xmlns:o=3D"urn:schemas-micr=
+osoft-com:office:office" xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
+xmlns:m=3D"http://schemas.microsoft.com/office/2004/12/omml" xmlns=3D"http:=
+//www.w3.org/TR/REC-html40"><head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dus-ascii"=
+>
+<meta name=3D"Generator" content=3D"Microsoft Word 15 (filtered medium)">
+<style><!--
+/* Font Definitions */
+@font-face
+	{font-family:Helvetica;
+	panose-1:2 11 6 4 2 2 2 2 2 4;}
+@font-face
+	{font-family:Courier;
+	panose-1:2 7 4 9 2 2 5 2 4 4;}
+@font-face
+	{font-family:"Cambria Math";
+	panose-1:2 4 5 3 5 4 6 3 2 4;}
+@font-face
+	{font-family:Calibri;
+	panose-1:2 15 5 2 2 2 4 3 2 4;}
+@font-face
+	{font-family:Times;
+	panose-1:2 2 6 3 5 4 5 2 3 4;}
+/* Style Definitions */
+p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:11.0pt;
+	font-family:"Calibri",sans-serif;}
+a:link, span.MsoHyperlink
+	{mso-style-priority:99;
+	color:#0563C1;
+	text-decoration:underline;}
+a:visited, span.MsoHyperlinkFollowed
+	{mso-style-priority:99;
+	color:#954F72;
+	text-decoration:underline;}
+span.EmailStyle17
+	{mso-style-type:personal-compose;
+	font-family:"Calibri",sans-serif;
+	color:windowtext;}
+.MsoChpDefault
+	{mso-style-type:export-only;
+	font-family:"Calibri",sans-serif;}
+@page WordSection1
+	{size:8.5in 11.0in;
+	margin:1.0in 1.0in 1.0in 1.0in;}
+div.WordSection1
+	{page:WordSection1;}
+--></style><!--[if gte mso 9]><xml>
+<o:shapedefaults v:ext=3D"edit" spidmax=3D"1026" />
+</xml><![endif]--><!--[if gte mso 9]><xml>
+<o:shapelayout v:ext=3D"edit">
+<o:idmap v:ext=3D"edit" data=3D"1" />
+</o:shapelayout></xml><![endif]-->
+</head>
+<body lang=3D"EN-US" link=3D"#0563C1" vlink=3D"#954F72">
+<div class=3D"WordSection1">
+<p class=3D"MsoNormal">We wanted to provide the updated API we are planning=
+ on using for PQC algorithms (signatures, encryption, KEMs).&nbsp;
+<o:p></o:p></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class=3D"MsoNormal">Let us know of any suggestions.&nbsp; Thanks,<o:p></=
+o:p></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class=3D"MsoNormal">Dustin Moody<o:p></o:p></p>
+<p class=3D"MsoNormal">NIST<o:p></o:p></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Helvetica&quot;,sans-serif">PQC - API notes<o:p></o:p></span></p=
+>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Helvetica&quot;,sans-serif"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Helvetica&quot;,sans-serif">Most of the API information is deriv=
+ed from the
+</span><b><span style=3D"font-family:&quot;Times&quot;,serif">eBATS: ECRYPT=
+ Benchmarking of Asymmetric Systems
+</span></b><span style=3D"font-family:&quot;Helvetica&quot;,sans-serif">(ht=
+tps://bench.cr.yp.to/ebats.html). This has been done to facilitate benchmar=
+king algorithm performance. Please look at the eBATS page for more informat=
+ion on how to submit an algorithm for performance
+ benchmarking.&nbsp; There are two sets of API calls listed for each primit=
+ive. The first set is the API call directly from the eBATS page, or somethi=
+ng very similar for the Key Encapsulation Mechanism section. The second set=
+ of calls is for testing purposes. The
+ calls extend the eBATS calls for functions that utilize randomness by prov=
+iding a pointer to specify a randomness string. This will allow algorithms =
+that utilize randomness to be able to provide reproducible results.&nbsp; F=
+or example, this will allow testing of
+ KAT files and other sample values.<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Helvetica&quot;,sans-serif"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Helvetica&quot;,sans-serif">Public-key Signatures<o:p></o:p></sp=
+an></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Helvetica&quot;,sans-serif">See
+</span><span style=3D"font-size:16.0pt;font-family:&quot;Times&quot;,serif"=
+>https://bench.cr.yp.to/call-sign.html</span><span style=3D"font-size:16.0p=
+t;font-family:&quot;Helvetica&quot;,sans-serif">
+</span><span style=3D"font-family:&quot;Helvetica&quot;,sans-serif">for mor=
+e information on Public-key Signature API and performance testing.<o:p></o:=
+p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Helvetica&quot;,sans-serif"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Helvetica&quot;,sans-serif">The first thing to do is to create a=
+ file called
+<i>api.h</i>. This file contains the following four lines (with the sizes s=
+et to the appropriate values):<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp; #define CRYPTO_SECR=
+ETKEYBYTES 256<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp; #define CRYPTO_PUBL=
+ICKEYBYTES 85<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp; #define CRYPTO_BYTE=
+S 128<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp; #define CRYPTO_RAND=
+OMBYTES 64<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Helvetica&quot;,sans-serif">indicating that your software uses a=
+ 256-byte (2048-bit) secret key, an 85-byte (680-bit) public key,
+<i>at most</i> 128 bytes of overhead in a signed message compared to the or=
+iginal message, and 64 bytes of random input.</span><span style=3D"font-siz=
+e:13.0pt;font-family:Courier"><o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:12.0pt;font-family:&quot;Helvetica&quot;,sans-serif"><o:p>&nbsp;</o:p></=
+span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Helvetica&quot;,sans-serif">Then create a file called
+<i>sign.c</i> with the following function calls:<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Helvetica&quot;,sans-serif"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Helvetica&quot;,sans-serif">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; eBATS calls<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Helvetica&quot;,sans-serif">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nb=
+sp;&nbsp;&nbsp;&nbsp;&nbsp; Generates a keypair -
+<i>pk</i> is the public key and <i>sk</i> is the secret key.<o:p></o:p></sp=
+an></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Helvetica&quot;,sans-serif"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp; int crypto_sign_keypair(<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; unsigned char *pk,<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; unsigned char *sk<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp; )<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" style=3D"margin-left:1.0in;text-autospace:none"><spa=
+n style=3D"font-family:&quot;Helvetica&quot;,sans-serif">Sign a message:
+<i>sm</i> is the signed message, <i>m</i> is the original message, and <i>s=
+k</i> is the secret key.</span><span style=3D"font-size:12.0pt;font-family:=
+&quot;Helvetica&quot;,sans-serif"><o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Helvetica&quot;,sans-serif"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp; int crypto_sign(<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; unsigned char *sm, unsigned long long *s=
+mlen,<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; const unsigned char *m, unsigned long lo=
+ng mlen,<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; const unsigned char *sk<o:p></o:p></span=
+></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp; )<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" style=3D"margin-left:1.0in;text-autospace:none"><spa=
+n style=3D"font-family:&quot;Helvetica&quot;,sans-serif">Verify a message s=
+ignature:
+<i>m</i> is the original message, <i>sm</i> is the signed message, <i>pk</i=
+> is the public key.</span><span style=3D"font-size:13.0pt;font-family:Cour=
+ier"><o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp; int crypto_sign_open(<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; const unsigned char *m, unsigned long lo=
+ng *mlen,<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; const unsigned char *sm, unsigned long l=
+ong smlen,<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; const unsigned char *pk<o:p></o:p></span=
+></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp; )<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:12.0pt;font-family:&quot;Helvetica&quot;,sans-serif"><o:p>&nbsp;</o:p></=
+span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Helvetica&quot;,sans-serif">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; KAT calls<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp; int crypto_sign_keypair_KAT(<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; unsigned char *pk,<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; unsigned char *sk,<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; const unsigned char *randomness<o:p></o:=
+p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp; )<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp; int crypto_sign_KAT(<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; unsigned char *sm, unsigned long long *s=
+mlen,<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; const unsigned char *m, unsigned long lo=
+ng mlen,<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; const unsigned char *sk,<o:p></o:p></spa=
+n></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; const unsigned char *randomness<o:p></o:=
+p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp; )<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:12.0pt;font-family:&quot;Helvetica&quot;,sans-serif"><o:p>&nbsp;</o:p></=
+span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Helvetica&quot;,sans-serif"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Helvetica&quot;,sans-serif">Public-key Encryption<o:p></o:p></sp=
+an></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Helvetica&quot;,sans-serif">See
+</span><span style=3D"font-size:16.0pt;font-family:&quot;Times&quot;,serif"=
+>https://bench.cr.yp.to/call-encrypt.html</span><span style=3D"font-size:16=
+.0pt;font-family:&quot;Helvetica&quot;,sans-serif">
+</span><span style=3D"font-family:&quot;Helvetica&quot;,sans-serif">for mor=
+e information on Public-key Encryption API and performance testing.<o:p></o=
+:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Helvetica&quot;,sans-serif"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Helvetica&quot;,sans-serif">The first thing to do is to create a=
+ file called
+<i>api.h</i>. This file contains the following four lines (with the sizes s=
+et to the appropriate values):<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp; #define CRYPTO_SECR=
+ETKEYBYTES 256<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp; #define CRYPTO_PUBL=
+ICKEYBYTES 64<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp; #define CRYPTO_BYTE=
+S 48<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp; &nbsp;&nbsp;&nbsp;#define CRYPTO_RAND=
+OMBYTES 64<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Helvetica&quot;,sans-serif">indicating that your software uses a=
+ 256-byte (2048-bit) secret key, a 64-byte (512-bit) public key,
+<i>at most</i> 48 bytes of overhead in an encrypted message compared to the=
+ original message, and 64 bytes of random input.</span><span style=3D"font-=
+size:13.0pt;font-family:Courier"><o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:12.0pt;font-family:&quot;Helvetica&quot;,sans-serif"><o:p>&nbsp;</o:p></=
+span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Helvetica&quot;,sans-serif">Then create a file called
+<i>encrypt.c</i> with the following function calls:<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Helvetica&quot;,sans-serif"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Helvetica&quot;,sans-serif">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; eBATS calls<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Helvetica&quot;,sans-serif">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nb=
+sp;&nbsp;&nbsp;&nbsp;&nbsp; Generates a keypair -
+<i>pk</i> is the public key and <i>sk</i> is the secret key.<o:p></o:p></sp=
+an></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Helvetica&quot;,sans-serif"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp; int crypto_encrypt_keypair(<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; unsigned char *pk,<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; unsigned char *sk<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp; )<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Helvetica&quot;,sans-serif">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nb=
+sp;&nbsp;&nbsp;&nbsp;&nbsp; Encrypt a plaintext:
+<i>c</i> is the ciphertext, <i>m</i> is the plaintext, and <i>pk</i> is the=
+ public key.</span><span style=3D"font-size:13.0pt;font-family:Courier"><o:=
+p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp; int crypto_encrypt(<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; unsigned char *c, unsigned long long *cl=
+en,<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; const unsigned char *m, unsigned long lo=
+ng mlen,<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; const unsigned char *pk<o:p></o:p></span=
+></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp; )<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Helvetica&quot;,sans-serif">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nb=
+sp;&nbsp;&nbsp;&nbsp;&nbsp; Decrypt a ciphertext:
+<i>m</i> is the plaintext, <i>c</i> is the ciphertext, and <i>sk</i> is the=
+ secret key.</span><span style=3D"font-size:13.0pt;font-family:Courier"><o:=
+p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp; int crypto_encrypt_open(<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; unsigned char *m, unsigned long long *ml=
+en,<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; const unsigned char *c, unsigned long lo=
+ng clen,<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; const unsigned char *sk<o:p></o:p></span=
+></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp; )</span><span style=3D"font-size:12.0pt;font-family:&quot;Helvet=
+ica&quot;,sans-serif"><o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Helvetica&quot;,sans-serif"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Helvetica&quot;,sans-serif">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; KAT calls<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp; int crypto_encrypt_keypair_KAT(<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; unsigned char *pk,<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; unsigned char *sk,<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; const unsigned char *randomness<o:p></o:=
+p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp; )<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp; int crypto_encrypt_KAT(<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; unsigned char *c, unsigned long long *cl=
+en,<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; const unsigned char *m, unsigned long lo=
+ng mlen,<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; const unsigned char *pk,<o:p></o:p></spa=
+n></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; const unsigned char *randomness<o:p></o:=
+p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp; )<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:12.0pt;font-family:&quot;Helvetica&quot;,sans-serif"><o:p>&nbsp;</o:p></=
+span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Helvetica&quot;,sans-serif"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Helvetica&quot;,sans-serif">Key Encapsulation Mechanism (KEM)<o:=
+p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Helvetica&quot;,sans-serif">The calls in the eBATS specification=
+ do not meet the calls specified in the call for algorithms. However, attem=
+pts were made to match the specifications for the
+ other algorithms. <o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Helvetica&quot;,sans-serif"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Helvetica&quot;,sans-serif">The first thing to do is to create a=
+ file called
+<i>api.h</i>. This file contains the following four lines (with the sizes s=
+et to the appropriate values):<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp; #define CRYPTO_SECR=
+ETKEYBYTES 192<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp; #define CRYPTO_PUBL=
+ICKEYBYTES 64<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp; #define CRYPTO_BYTE=
+S 64<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp; &nbsp;&nbsp;&nbsp;#define CRYPTO_CIPH=
+ERTEXTBYTES 128<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp; #define CRYPTO_RAND=
+OMBYTES 64<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Helvetica&quot;,sans-serif">indicating that your software uses a=
+ 192-byte (1536-bit) secret key, a 64-byte (512-bit) public key, a 64-byte =
+(512-bit) shared secret, at most a 128-byte (1024-bit)
+ ciphertext, and 64 bytes of random input.</span><span style=3D"font-size:1=
+2.0pt;font-family:&quot;Helvetica&quot;,sans-serif"><o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Helvetica&quot;,sans-serif"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Helvetica&quot;,sans-serif">Then create a file called
+<i>kem.c</i> with the following function calls:<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Helvetica&quot;,sans-serif"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Helvetica&quot;,sans-serif">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; eBATS-like calls<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Helvetica&quot;,sans-serif">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nb=
+sp;&nbsp;&nbsp;&nbsp;&nbsp; Generates a keypair -
+<i>pk</i> is the public key and <i>sk</i> is the secret key.</span><span st=
+yle=3D"font-size:13.0pt;font-family:Courier"><o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp; int crypto_kem_keygenerate(<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; unsigned char *pk,<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; unsigned char *sk<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp; )<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" style=3D"margin-left:1.0in;text-autospace:none"><spa=
+n style=3D"font-family:&quot;Helvetica&quot;,sans-serif">Encapsulate -<i> p=
+k</i> is the public key,
+<i>ct</i> is a key encapsulation message (ciphertext), <i>ss</i> is the sha=
+red secret.</span><span style=3D"font-size:13.0pt;font-family:Courier"><o:p=
+></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp; int crypto_kem_encapsulate(<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; const unsigned char *pk,<o:p></o:p></spa=
+n></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; unsigned char *ct,<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; unsigned char *ss<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp; )<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" style=3D"margin-left:1.0in;text-autospace:none"><spa=
+n style=3D"font-family:&quot;Helvetica&quot;,sans-serif">Decapsulate -
+<i>ct</i> is a key encapsulation message (ciphertext), <i>sk</i> is the pri=
+vate key,
+<i>ss</i> is the shared secret</span><span style=3D"font-size:12.0pt;font-f=
+amily:&quot;Helvetica&quot;,sans-serif"><o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp; int crypto_kem_decapsulate(<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; const unsigned char *ct,<o:p></o:p></spa=
+n></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; const unsigned char *sk,<o:p></o:p></spa=
+n></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; unsigned char *ss<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp; )<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:12.0pt;font-family:&quot;Helvetica&quot;,sans-serif"><o:p>&nbsp;</o:p></=
+span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Helvetica&quot;,sans-serif">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; KAT calls</span><span style=3D"font-size:13.=
+0pt;font-family:Courier"><o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp; int crypto_kem_keygenerate(<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; unsigned char *pk,<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; unsigned char *sk,<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; const unsigned char *randomness<o:p></o:=
+p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp; )<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp; int crypto_kem_encapsulate(<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; const unsigned char *pk,<o:p></o:p></spa=
+n></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; unsigned char *ct,<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; unsigned char *ss,<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; const unsigned char *randomness<o:p></o:=
+p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp; )</span><span style=3D"font-size:12.0pt;font-family:&quot;Helvet=
+ica&quot;,sans-serif"><o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:13.0pt;font-family:Courier"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-si=
+ze:12.0pt;font-family:&quot;Helvetica&quot;,sans-serif"><o:p>&nbsp;</o:p></=
+span></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+</div>
+</body>
+</html>
+
+--_000_DM5PR09MB14204BD03327BA84ED0633FDE5AD0DM5PR09MB1420namp_--
+
+--===============8408313529312058082==
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+pqc-forum mailing list
+pqc-forum@nist.gov
+(_internal_name)s
+
+--===============8408313529312058082==--
