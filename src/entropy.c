@@ -12,6 +12,8 @@ static void sha512(entropy_t* entropy, uint8_t* hash)
   SHA512_Final(hash, &sha512);
   
   //iam: what is this about?
+  //tl: You're generating randomness as SHA512(counter++), 
+  //this does the "++" part.
   for (i = 0; i < SHA512_DIGEST_LENGTH; i++)
     {
       if (entropy->seed[i] != 255)
