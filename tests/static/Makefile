@@ -9,10 +9,8 @@ endif
 
 
 ifeq (Darwin, $(findstring Darwin, ${OS}))
-LDFLAGS = -lmpfr -lgmp -L/usr/local/opt/openssl/lib -lcrypto  ../../lib/libbliss.dylib
 CFLAGS = -DDARWIN -I/usr/local/opt/openssl/include
 else
-LDFLAGS =  -lmpfr -lgmp -lcrypto  -L../../lib/libbliss.so
 CFLAGS = -DLINUX
 endif
 
@@ -31,14 +29,11 @@ TESTS = speed  sample
 TEST_SRCS = $(addsuffix .c, ${TESTS})
 
 all: ${TEST_SRCS}
-	for test in ${TESTS} ; do ${CC} ${CFLAGS} $$test.c ${OBJS} ${LIBS} -o $$test ; done
+	for test in ${TESTS} ; do ${CC} ${CFLAGS} $$test.c ${OBJS} -lcrypto -o $$test; done
 
 
 
 check: all
-ifeq (Darwin, $(findstring Darwin, ${OS}))
-	for test in ${TESTS} ; do install_name_tool -change lib/libbliss.dylib ${PWD}/../../lib/libbliss.dylib  ./$$test; done
-endif
 	for test in ${TESTS} ; do ./$$test; done
 
 
