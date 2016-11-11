@@ -402,7 +402,7 @@ void shake128(unsigned char *output, unsigned int outputByteLen, const unsigned 
 }
 
 
-void sha3256(unsigned char *output, const unsigned char *input, unsigned int inputByteLen)
+void sha3_256(unsigned char *output, const unsigned char *input, unsigned int inputByteLen)
 {
   uint64_t s[25];
   unsigned char t[SHA3_256_RATE];
@@ -411,5 +411,17 @@ void sha3256(unsigned char *output, const unsigned char *input, unsigned int inp
   keccak_absorb(s, SHA3_256_RATE, input, inputByteLen, 0x06);
   keccak_squeezeblocks(t, 1, s, SHA3_256_RATE);
   for(i=0;i<32;i++)
+    output[i] = t[i];
+}
+
+void sha3_512(unsigned char *output, const unsigned char *input, unsigned int inputByteLen)
+{
+  uint64_t s[25];
+  unsigned char t[SHA3_512_RATE];  
+  int i;
+
+  keccak_absorb(s, SHA3_512_RATE, input, inputByteLen, 0x06);
+  keccak_squeezeblocks(t, 1, s, SHA3_512_RATE);
+  for(i=0;i<64;i++)
     output[i] = t[i];
 }
