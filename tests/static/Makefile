@@ -9,7 +9,7 @@ endif
 
 
 ifeq (Darwin, $(findstring Darwin, ${OS}))
-CFLAGS = -DDARWIN -I/usr/local/opt/openssl/include
+CFLAGS = -DDARWIN
 else
 CFLAGS = -DLINUX
 endif
@@ -22,14 +22,11 @@ OBJDIR=../../obj
 OBJ_GLOBS = $(addsuffix /*.o,${OBJDIR})
 OBJS = $(sort $(wildcard ${OBJ_GLOBS}))
 
-LIBS +=-lpthread  -lmpfr -lgmp ${LDFLAGS}
-
-
-TESTS = speed  sample
+TESTS = speed sample test_bernoulli
 TEST_SRCS = $(addsuffix .c, ${TESTS})
 
 all: ${TEST_SRCS}
-	for test in ${TESTS} ; do ${CC} ${CFLAGS} $$test.c ${OBJS} -lcrypto -o $$test; done
+	for test in ${TESTS} ; do ${CC} ${CFLAGS} $$test.c ${OBJS} -o $$test; done
 
 
 

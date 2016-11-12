@@ -1,5 +1,7 @@
-#ifndef SHAKE128_H
-#define SHAKE128_H
+#ifndef __SHAKE128_H
+#define __SHAKE128_H
+
+#include <stdint.h>
 
 #define SHAKE128_RATE 168
 #define SHA3_256_RATE 136
@@ -15,4 +17,4 @@ extern void sha3_256(unsigned char *output, const unsigned char *input, unsigned
 
 extern void sha3_512(unsigned char *output, const unsigned char *input, unsigned int inputByteLen);
 
-#endif
+#endif /* __SHAKE128_H */
