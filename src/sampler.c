@@ -134,12 +134,13 @@ bool sampler_pos_binary(sampler_t *sampler, uint32_t *x) {
  *
  * returns true is the sampling was successful, false if something went wrong
  *
- * If successful, valp will point to the generated value.
+ * If successful, the generated value is stored in *valp.
  *
  * Source: strongswan/src/libstrongswan/plugins/bliss/bliss_sampler.c
  *
+ * Combination of Algorithms 11 and 12 from DDLL.
  */
-bool sampler_gauss(sampler_t* sampler, int32_t *valp) {
+bool sampler_gauss(sampler_t *sampler, int32_t *valp) {
   uint32_t u, e, x, y, val_pos;
 
   while (true) {

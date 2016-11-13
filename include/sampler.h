@@ -75,9 +75,9 @@ extern bool sampler_pos_binary(sampler_t *sampler, uint32_t *x);
 /* 
  * Sampling the Gaussian distribution exp(-x^2/(2*sigma*sigma))
  *
- *   returns true is the sampling was successful, false if something went wrong
+ * returns true is the sampling was successful, false if something went wrong
  *
- *   If successful, valp will point to the generated value.
+ * If successful, the generated value is returned in *valp.
  *
  */
 extern bool sampler_gauss(sampler_t *sampler, int32_t *valp);
