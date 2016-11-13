@@ -25,7 +25,7 @@ static void increment_seed(entropy_t *entropy) {
  * Then increment the entropy->seed.
  *
  * - hash must be an array of n * SHA3_512_DIGEST_LENGTH btyes 
- *   (i.e., 64 bytes)
+ *   (i.e., n * 64 bytes)
  */
 static void refresh(entropy_t *entropy, uint8_t *hash, uint32_t n) {
   assert(n > 0);
