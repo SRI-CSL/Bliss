@@ -93,7 +93,8 @@ bool sampler_ber_cosh(sampler_t* sampler, int32_t x) {
 
 
 /* 
- * Sample the sign according to the binary distribution 
+ * Sample a non-negative integer according to the binary discrete
+ * Guassian distribution.
  *
  * Source: strongswan/src/libstrongswan/plugins/bliss/bliss_sampler.c
  *
@@ -131,14 +132,14 @@ bool sampler_pos_binary(sampler_t *sampler, uint32_t *x) {
 /* 
  * Sampling the Gaussian distribution exp(-x^2/(2*sigma*sigma))
  *
- *   returns true is the sampling was successful, false if something went wrong
+ * returns true is the sampling was successful, false if something went wrong
  *
- *   If successful, valp will point to the generated value.
+ * If successful, valp will point to the generated value.
  *
- *  Source: strongswan/src/libstrongswan/plugins/bliss/bliss_sampler.c
+ * Source: strongswan/src/libstrongswan/plugins/bliss/bliss_sampler.c
  *
  */
-bool sampler_gauss(sampler_t* sampler, int32_t *valp){
+bool sampler_gauss(sampler_t* sampler, int32_t *valp) {
   uint32_t u, e, x, y, val_pos;
 
   while (true) {
@@ -148,7 +149,7 @@ bool sampler_gauss(sampler_t* sampler, int32_t *valp){
 
     do {
       y = entropy_random_bits(&sampler->entropy, sampler->k_sigma_bits);     
-    } while (y >= sampler->k_sigma_bits);
+    } while (y >= sampler->k_sigma);
 
     e = y * (y + 2 * sampler->k_sigma * x);
     
@@ -162,5 +163,6 @@ bool sampler_gauss(sampler_t* sampler, int32_t *valp){
 
   val_pos = sampler->k_sigma * x + y;
   *valp = u ? val_pos : - val_pos;
+
   return true;
 }

@@ -63,7 +63,8 @@ extern bool sampler_ber_exp(sampler_t *sampler, uint32_t x);
 extern bool sampler_ber_cosh(sampler_t *sampler, int32_t x);
 
 /*
- * Sample an integer according to the distribution 2^(-x^2)
+ * Sample a non-negative integer according to the probability density 
+ * p(x) = 2^(-x^2)
  * - return true if this succeeds, false otherwise
  * - the sampled integer is returned in *x
  */
