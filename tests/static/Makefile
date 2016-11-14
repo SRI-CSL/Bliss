@@ -22,7 +22,7 @@ OBJDIR=../../obj
 OBJ_GLOBS = $(addsuffix /*.o,${OBJDIR})
 OBJS = $(sort $(wildcard ${OBJ_GLOBS}))
 
-TESTS = speed sample test_bernoulli
+TESTS = speed sample test_bernoulli test_pos_binary test_gaussian
 TEST_SRCS = $(addsuffix .c, ${TESTS})
 
 all: ${TEST_SRCS}
