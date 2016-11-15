@@ -111,7 +111,7 @@ bool sampler_pos_binary(sampler_t *sampler, uint32_t *x) {
     return true;
   }
 
-  for (i = 1; i <= MAX_SAMPLE_COUNT; i++) {
+  for (i=1; i <= MAX_SAMPLE_COUNT; i++) {
     u = entropy_random_bits(&sampler->entropy, 2*i - 1);
     if (u == 0) {
       *x = i; 
@@ -121,6 +121,10 @@ bool sampler_pos_binary(sampler_t *sampler, uint32_t *x) {
       goto restart;
     }
   }
+
+  // BD: why don't we just return *x=0 or *x=17 here and call it a success?
+  // This is so unlikely to happen that it shouldn't make a difference and that
+  // would simplify the API.
 
   // failed after 16 iterations
   return false;
