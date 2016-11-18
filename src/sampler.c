@@ -131,6 +131,28 @@ bool sampler_pos_binary(sampler_t *sampler, uint32_t *x) {
 }
 
 
+/*
+ * Variant: doesn't fail
+ */
+uint32_t sampler_pos_binary2(sampler_t *sampler) {
+  uint32_t u, i;
+
+ restart:
+  if (entropy_random_bit(&sampler->entropy)) {
+    return 0;
+  }
+
+  for (i=1; i <= MAX_SAMPLE_COUNT; i++) {
+    u = entropy_random_bits(&sampler->entropy, 2*i - 1);
+    if (u == 0) {
+      return i;
+    }
+    if (u >> 1 != 0) { 
+      goto restart;
+    }
+  }
+  return 0; // default value. Extremely unlikely to ever be reached
+}
 
 
 /* 
@@ -170,4 +192,31 @@ bool sampler_gauss(sampler_t *sampler, int32_t *valp) {
   *valp = u ? val_pos : - val_pos;
 
   return true;
+}
+
+/*
+ * Variant implementation: return the sampled value and doesn't fail.
+ */
+int32_t sampler_gauss2(sampler_t *sampler) {
+  uint32_t u, e, x, y, val_pos;
+
+  while (true) {
+    x = sampler_pos_binary2(sampler);
+
+    do {
+      y = entropy_random_bits(&sampler->entropy, sampler->k_sigma_bits);     
+    } while (y >= sampler->k_sigma);
+
+    e = y * (y + 2 * sampler->k_sigma * x);
+    
+    if (sampler_ber_exp(sampler, e)) {
+      u = entropy_random_bit(&sampler->entropy);
+      if (x || y || u) { 
+	break; 
+      }
+    }
+  }
+
+  val_pos = sampler->k_sigma * x + y;
+  return u ? val_pos : - val_pos;
 }
