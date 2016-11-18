@@ -47,6 +47,18 @@ int main(void){
   }
   print_results("sampler_gauss: ", t, NTESTS);
 
+  for (i=0; i<NTESTS; i++) {
+    t[i] = cpucycles();
+    uval = sampler_pos_binary2(&sampler);
+  }
+  print_results("sampler_pos_binary2: ", t, NTESTS);
+
+  for(i=0; i<NTESTS; i++) {
+    t[i] = cpucycles();
+    val = sampler_gauss2(&sampler);
+  }
+  print_results("sampler_gauss2: ", t, NTESTS);
+
   fprintf(stderr, "sampler OK\n");
 
   return EXIT_SUCCESS;
