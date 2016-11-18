@@ -1,6 +1,8 @@
 #ifndef __TABLES_H
 #define __TABLES_H
 
+#include <stdint.h>
+
 /*
  * Get access to internal tables for Gaussian sampling.
  *
