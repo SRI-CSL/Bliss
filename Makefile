@@ -41,19 +41,19 @@ all: ${TARGET}
 
 
 $(TARGET): $(OBJ) | lib
-	$(CC) $(LIBFLAGS) ${OPT} $(OBJ) $(LDFLAGS) -o $@  
+	$(CC) $(LIBFLAGS) $(OBJ) $(LDFLAGS) -o $@  
 
 obj:
 	mkdir -p obj
 
 obj/%.o: src/%.c | obj
-	${CC} ${CFLAGS} ${OPT} $< -c -o $@
+	${CC} ${CFLAGS} $< -c -o $@
 
 obj/%.o: src/%.c | obj
-	${CC} ${CFLAGS} ${OPT} $< -c -o $@
+	${CC} ${CFLAGS} $< -c -o $@
 
 obj/%.o: src/${LF_QUEUE}/%.c | obj
-	${CC} ${CFLAGS} ${OPT} $< -c -o $@
+	${CC} ${CFLAGS} $< -c -o $@
 
 
 lib:
