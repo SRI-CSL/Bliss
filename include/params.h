@@ -6,7 +6,7 @@
  * We are working over ZZ[x] / (x^N +1) 
  * with coefficients modulo Q = 12289.
  * 
- * N = 1024
+ * N = 1024 (or 512)
  * Q = 12289
  *
  */
