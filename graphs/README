@@ -1,0 +1,5 @@
+To generate the graphs with gnuplot:
+
+set terminal svg
+set ouput "filename.svg"
+plot [-1000:1000] "gaussian2.data" with line

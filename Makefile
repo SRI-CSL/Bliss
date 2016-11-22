@@ -24,7 +24,7 @@ LDFLAGS =
 CFLAGS = -DLINUX
 endif
 
-CFLAGS += -fPIC -Wall -O2 -I./include  -I./arch/${ARCH}
+CFLAGS += -fPIC -Wall -O3 -I./include  -I./arch/${ARCH}
 
 SRC_GLOBS = $(addsuffix /*.c,src)
 SRC = $(sort $(wildcard $(SRC_GLOBS)))
