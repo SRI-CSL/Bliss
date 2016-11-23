@@ -117,7 +117,8 @@ bool sampler_pos_binary(sampler_t *sampler, uint32_t *x) {
       *x = i; 
       return true;
     }
-    if (u >> 1 != 0) { 
+    //    if (u >> 1 != 0) { 
+    if (u != 1) {
       goto restart;
     }
   }
@@ -147,7 +148,8 @@ uint32_t sampler_pos_binary2(sampler_t *sampler) {
     if (u == 0) {
       return i;
     }
-    if (u >> 1 != 0) { 
+    //    if (u >> 1 != 0) { 
+    if (u != 1) {
       goto restart;
     }
   }
