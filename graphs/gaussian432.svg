@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"  standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg 
+<svg
  width="600" height="480"
  viewBox="0 0 600 480"
  xmlns="http://www.w3.org/2000/svg"
@@ -258,4 +258,5 @@
 	<path stroke='black'  d='M78.8,16.7 L78.8,444.0 L575.0,444.0 L575.0,16.7 L78.8,16.7 Z  '/></g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
-
+</g>
+</svg>
