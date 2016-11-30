@@ -25,7 +25,7 @@ typedef struct {
 void bliss_b_private_key_delete(bliss_private_key_t *private_key);
 
 /* Allocate (uninitialized space) for the private key. 
- * Sets the kind field on the key to the given value (if valid).
+ * Sets the kind field on the key to the given value (if valid?).
  * Returns true on success, or false on failure (and sets errno to the appropriate value)
  * (IAM2BD: do we want to return an int code instead? like the API?)
  */
@@ -41,9 +41,24 @@ bool bliss_b_private_key_gen(bliss_private_key_t *private_key);
 
 /* PUBLIC KEY API */
 
+/* Delete the memory associated with the public_key */
+void bliss_b_public_key_delete(bliss_public_key_t *public_key);
+
+/* Allocate (uninitialized space) for the public key. 
+ * Sets the kind field on the key to the given value (if valid?).
+ * Returns true on success, or false on failure (and sets errno to the appropriate value)
+ * (IAM2BD: do we want to return an int code instead? like the API?)
+ */
+bool bliss_b_public_key_init(bliss_public_key_t *public_key, int32_t kind);
 
 
-
+/* Generate a new public key from the given generated private_key. 
+ * The public_key should already be initialized.
+ * In particular it should have a valid kind set, and that kind should match the
+ * private key kind.
+ * (IAM2BD: Do we want to roll init and gen into one function)
+ */
+bool bliss_b_public_key_gen(bliss_private_key_t *private_key, bliss_public_key_t *public_key);
 
 
 
