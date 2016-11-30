@@ -2,7 +2,11 @@
 
 
 // Roots of unity. q = 7681  n = 256
-// iam: need to figure out how to generate these
+// w is a primitive root of unity (i.e. w^n mod q = 1)
+// psi is the square root of w  (i.e. a 2n primitive root
+// of unity (i.i.e  psi^2n mod q = 1))
+// in this table w = 2028 and psi = 7146
+// and this table is [psi^0, psi^1, psi^2, ...  psi^(n - 1)]
 const int w7681n256[256] = {
         1,  7146,  2028,  5722,  3449,  5906,  4862,  2689,
      5413,  7463,  1415,  3394,  4607,   856,  2900,    62,
@@ -39,6 +43,7 @@ const int w7681n256[256] = {
 };
 
 // iam: need to figure out how to generate these
+// this table is [- (psi^0)/n, - (psi^1)/n, - (psi^2)/n, ...  - (psi^(n - 1))/n]
 const int r7681n256[256] = {
        30,  6993,  7073,  2678,  3617,   517,  7602,  3860,
      1089,  1141,  4045,  1967,  7633,  2637,  2509,  1860,
