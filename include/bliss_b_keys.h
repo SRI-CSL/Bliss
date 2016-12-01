@@ -34,10 +34,10 @@ typedef struct {
  * 
  * Returns 0 on success, or a negative error code on failure.
  */
-int32_t bliss_b_private_key_gen(bliss_private_key_t *private_key, bliss_kind_t kind, entropy_t *entropy);
+extern int32_t bliss_b_private_key_gen(bliss_private_key_t *private_key, bliss_kind_t kind, entropy_t *entropy);
 
 /* Delete the memory associated with the private_key */
-void bliss_b_private_key_delete(bliss_private_key_t *private_key);
+extern void bliss_b_private_key_delete(bliss_private_key_t *private_key);
 
 
 /* PUBLIC KEY API */
@@ -46,11 +46,11 @@ void bliss_b_private_key_delete(bliss_private_key_t *private_key);
  * from the given generated private_key. 
  * Returns 0 on success, or a negative error code on failure.
  */
-int32_t bliss_b_public_key_extract(bliss_public_key_t *public_key, const bliss_private_key_t *private_key);
+extern int32_t bliss_b_public_key_extract(bliss_public_key_t *public_key, const bliss_private_key_t *private_key);
 
 
 /* Delete the memory associated with the public_key */
-void bliss_b_public_key_delete(bliss_public_key_t *public_key);
+extern void bliss_b_public_key_delete(bliss_public_key_t *public_key);
 
 #endif
 
