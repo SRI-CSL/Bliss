@@ -3,9 +3,9 @@
 
 #include <stdint.h>
 
-const int32_t BLISS_B_NO_ERROR = 0;
+#define BLISS_B_NO_ERROR  0
 
-const int32_t BLISS_B_NO_MEM =  -1;
+#define BLISS_B_NO_MEM   -1
 
 
 
