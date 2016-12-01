@@ -6,6 +6,9 @@
 #include "entropy.h"
 
 /* bliss-b private key */
+//the only reason we do not declare f,g, and a to be [512] arrays
+//is that down the track we may need to beef n up to say 1024 and beyond.
+//so this way we stay less committed to a fixed n.
 typedef struct {
   bliss_param_t p;                   /* parameter set          */
   int32_t *f;                        /* sparse polynomial f    */
