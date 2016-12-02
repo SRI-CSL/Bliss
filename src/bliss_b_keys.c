@@ -1,4 +1,6 @@
 #include <assert.h>
+#include <stdio.h>
+#include <inttypes.h>
 
 #include "bliss_b_errors.h"
 #include "bliss_b_params.h"
@@ -100,7 +102,7 @@ int32_t bliss_b_private_key_gen(bliss_private_key_t *private_key, bliss_kind_t k
   int32_t i, j, x;
   int32_t *t = NULL, *u = NULL;
   
-  const bliss_param_t *p;  
+  bliss_param_t *p;  
 
   assert(private_key != NULL);
 
@@ -141,7 +143,7 @@ int32_t bliss_b_private_key_gen(bliss_private_key_t *private_key, bliss_kind_t k
   ntt32_fft(t, p->n, p->q, p->w);
 
   /* find an invertible f  */
-  for (j = 0; j < 99999; i++) {     //IAM: why 99999 ?
+  for (j = 0; j < 99999; j++) {     //IAM: why 99999 ?
 
     /* randomize f  */
     uniform_poly(private_key->f, p->n, p->nz1, p->nz2, j != 0, entropy);
@@ -213,9 +215,39 @@ void bliss_b_private_key_delete(bliss_private_key_t *private_key){
 
 
 int32_t bliss_b_public_key_extract(bliss_public_key_t *public_key, const bliss_private_key_t *private_key){
+  int32_t n, i;
+  int32_t *a, *b;
+  const bliss_param_t *p;
+  
+  assert(private_key != NULL && private_key->a != NULL);
 
 
+  p = &private_key->p;
+
+  n = p->n;
+
+  b = private_key->a;
+  
+  /* we calloc so we do not have to zero them out later */
+  a = calloc(n, sizeof(int32_t));
+  if (a == NULL) {
+    goto fail;
+  }
+
+  for(i = 0; i < n; i++){
+    a[i] = b[i];
+  }
+  
+  public_key->p = *p;
+  
   return BLISS_B_NO_ERROR;
+  
+ fail:
+  
+  bliss_b_private_key_delete((bliss_private_key_t *)private_key);
+  
+  return BLISS_B_NO_MEM;
+
 }
 
 

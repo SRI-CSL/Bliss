@@ -3,10 +3,14 @@
 
 #include <stdint.h>
 
-#define BLISS_B_NO_ERROR  0
 
-#define BLISS_B_NO_MEM   -1
+typedef enum {
 
+  BLISS_B_NO_ERROR = 0,
+
+  BLISS_B_NO_MEM =  -1
+
+} bliss_b_error_t;
 
 
 
