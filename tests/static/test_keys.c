@@ -49,7 +49,7 @@ int main(int argc, char* argv[]){
       
     }
     
-    fprintf(stdout, "BILSS_B_%d\n", j);
+    fprintf(stdout, "BLISS_B_%d\n", j);
     print_results("bliss_b_private_key_gen bliss_b_public_key_extract: ", t, NTESTS);
     
   }

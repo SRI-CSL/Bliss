@@ -19,36 +19,36 @@
    - zero: whether v should be zeroed out first, if false v is assumed to be zeroed out.
    - entropy: an initialized source of randomness
 
- */
-void uniform_poly(int32_t v[], int n, int nz1, int nz2, bool zero, entropy_t *entropy)
+*/
+static void uniform_poly(int32_t v[], int n, int nz1, int nz2, bool zero, entropy_t *entropy)
 {
-    int i, j;
-    uint64_t x;
+  int i, j;
+  uint64_t x;
 
-    if (zero) {
-      for (i = 0; i < n; i++)
-        v[i] = 0;
-    }
+  if (zero) {
+    for (i = 0; i < n; i++)
+      v[i] = 0;
+  }
     
-    i = 0;
-    while (i < nz1) {
-      x = entropy_random_uint64(entropy);  //iam: do we really need 64 bits of randomness? seems like overkill.
-        j = (x >> 1) % n;
-        if (v[j] != 0)
-            continue;
-        v[j] = x & 1 ? 1 : -1;
-        i++;
-    }
+  i = 0;
+  while (i < nz1) {
+    x = entropy_random_uint64(entropy);  //iam: do we really need 64 bits of randomness? seems like overkill.
+    j = (x >> 1) % n;
+    if (v[j] != 0)
+      continue;
+    v[j] = x & 1 ? 1 : -1;
+    i++;
+  }
 
-    i = 0;
-    while (i < nz2) {
-        x = entropy_random_uint64(entropy); //iam: do we really need 64 bits of randomness? seems like overkill.
-        j = (x >> 1) % n;
-        if (v[j] != 0)
-            continue;
-        v[j] = x & 1 ? 2 : -2;
-        i++;
-    }
+  i = 0;
+  while (i < nz2) {
+    x = entropy_random_uint64(entropy); //iam: do we really need 64 bits of randomness? seems like overkill.
+    j = (x >> 1) % n;
+    if (v[j] != 0)
+      continue;
+    v[j] = x & 1 ? 2 : -2;
+    i++;
+  }
 }
 
 
@@ -133,7 +133,7 @@ int32_t bliss_b_private_key_gen(bliss_private_key_t *private_key, bliss_kind_t k
 
   /* g = 2g - 1 */
   for (i = 0; i < p->n; i++)      
-        private_key->g[i] *= 2;
+    private_key->g[i] *= 2;
   private_key->g[0]--;
    
   for (i = 0; i < p->n; i++)
@@ -143,7 +143,7 @@ int32_t bliss_b_private_key_gen(bliss_private_key_t *private_key, bliss_kind_t k
   ntt32_fft(t, p->n, p->q, p->w);
 
   /* find an invertible f  */
-  for (j = 0; j < 99999; j++) {     //IAM: why 99999 ?
+  for (j = 0; j < 4; j++) {     
 
     /* randomize f  */
     uniform_poly(private_key->f, p->n, p->nz1, p->nz2, j != 0, entropy);
