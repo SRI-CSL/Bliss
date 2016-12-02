@@ -55,11 +55,11 @@ void uniform_poly(int32_t v[], int n, int nz1, int nz2, bool zero, entropy_t *en
 static inline int32_t bliss_b_private_key_init(bliss_private_key_t *private_key, bliss_kind_t kind){
   int32_t n;
   int32_t *f = NULL, *g = NULL, *a = NULL;
-  bliss_param_t p;  
+  const bliss_param_t *p;  
 
-  p = bliss_b_params[kind];
+  p = &bliss_b_params[kind];
   
-  n = p.n;
+  n = p->n;
 
   /* we calloc so we do not have to zero them out later */
   f = calloc(n, sizeof(int32_t));
@@ -79,7 +79,7 @@ static inline int32_t bliss_b_private_key_init(bliss_private_key_t *private_key,
     goto fail;
   }
 
-  private_key->p = p;
+  private_key->p = *p;
   private_key->f = f;
   private_key->g = g;
   private_key->a = a;
@@ -231,7 +231,7 @@ int32_t bliss_b_public_key_extract(bliss_public_key_t *public_key, const bliss_p
   /* we calloc so we do not have to zero them out later */
   a = calloc(n, sizeof(int32_t));
   if (a == NULL) {
-    goto fail;
+    return BLISS_B_NO_MEM;
   }
 
   for(i = 0; i < n; i++){
@@ -242,12 +242,6 @@ int32_t bliss_b_public_key_extract(bliss_public_key_t *public_key, const bliss_p
   
   return BLISS_B_NO_ERROR;
   
- fail:
-  
-  bliss_b_private_key_delete((bliss_private_key_t *)private_key);
-  
-  return BLISS_B_NO_MEM;
-
 }
 
 
