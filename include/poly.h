@@ -4,6 +4,9 @@
 #include <stdint.h>
 #include "params.h"
 
+/* iam: not our polyniomials; these will disappear sooner or later */
+
+
 typedef struct {
   uint16_t coeffs[PARAM_N];
 } poly __attribute__ ((aligned (32)));

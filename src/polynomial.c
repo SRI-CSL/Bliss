@@ -1,0 +1,71 @@
+#include <assert.h>
+#include <inttypes.h>
+#include <stdio.h>
+#include <stdbool.h>
+#include "entropy.h"
+#include "polynomial.h"
+
+
+/*
+   Constructs a random polyomial
+
+   - v: where the random polynomial is stored
+   - n: the length of the polynomial
+   - nz1: the number of coefficients that are +-1
+   - nz2: the number of coefficients that are +-2
+   - zero: whether v should be zeroed out first, if false, v is assumed to be zeroed out.
+   - entropy: an initialized source of randomness
+
+*/
+void uniform_poly(int32_t v[], int n, int nz1, int nz2, bool zero, entropy_t *entropy)
+{
+  int i, j;
+  uint64_t x;
+
+  if (zero) {
+    for (i = 0; i < n; i++)
+      v[i] = 0;
+  }
+
+  i = 0;
+  while (i < nz1) {
+    x = entropy_random_uint64(entropy);  //iam: do we really need 64 bits of randomness? seems like overkill.
+    j = (x >> 1) % n;
+    if (v[j] != 0)
+      continue;
+    v[j] = x & 1 ? 1 : -1;
+    i++;
+  }
+
+  i = 0;
+  while (i < nz2) {
+    x = entropy_random_uint64(entropy); //iam: do we really need 64 bits of randomness? seems like overkill.
+    j = (x >> 1) % n;
+    if (v[j] != 0)
+      continue;
+    v[j] = x & 1 ? 2 : -2;
+    i++;
+  }
+}
+
+
+void fprint_poly(FILE* fp, int32_t v[], int32_t n){
+  int32_t i;
+  bool first;
+  assert(0 < n);
+
+  first = true;
+
+  for(i = 0; i < n; i++){
+    if(v[i] != 0){
+      if(first){
+        first = false;
+      } else {
+        fprintf(fp, " + ");
+      }
+      fprintf(fp, "%"PRIi32"x^%"PRIi32, v[i], i);
+    }
+  }
+  fprintf(fp, "\n");
+
+}

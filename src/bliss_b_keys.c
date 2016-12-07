@@ -6,59 +6,19 @@
 #include "bliss_b_params.h"
 #include "bliss_b_keys.h"
 #include "entropy.h"
+#include "polynomial.h"
 
 #include "ntt_blzzd.h"
 
-/* 
-   Constructs a random polyomial
-
-   - v: where the random polynomial is stored 
-   - n: the length of the polynomial
-   - nz1: the number of coefficients that are +-1
-   - nz2: the number of coefficients that are +-2
-   - zero: whether v should be zeroed out first, if false v is assumed to be zeroed out.
-   - entropy: an initialized source of randomness
-
-*/
-static void uniform_poly(int32_t v[], int n, int nz1, int nz2, bool zero, entropy_t *entropy)
-{
-  int i, j;
-  uint64_t x;
-
-  if (zero) {
-    for (i = 0; i < n; i++)
-      v[i] = 0;
-  }
-    
-  i = 0;
-  while (i < nz1) {
-    x = entropy_random_uint64(entropy);  //iam: do we really need 64 bits of randomness? seems like overkill.
-    j = (x >> 1) % n;
-    if (v[j] != 0)
-      continue;
-    v[j] = x & 1 ? 1 : -1;
-    i++;
-  }
-
-  i = 0;
-  while (i < nz2) {
-    x = entropy_random_uint64(entropy); //iam: do we really need 64 bits of randomness? seems like overkill.
-    j = (x >> 1) % n;
-    if (v[j] != 0)
-      continue;
-    v[j] = x & 1 ? 2 : -2;
-    i++;
-  }
-}
 
 
 static inline int32_t bliss_b_private_key_init(bliss_private_key_t *private_key, bliss_kind_t kind){
   int32_t n;
   int32_t *f = NULL, *g = NULL, *a = NULL;
-  const bliss_param_t *p;  
+  const bliss_param_t *p;
 
   p = &bliss_b_params[kind];
-  
+
   n = p->n;
 
   /* we calloc so we do not have to zero them out later */
@@ -67,7 +27,7 @@ static inline int32_t bliss_b_private_key_init(bliss_private_key_t *private_key,
     goto fail;
   }
 
-  /* we calloc so we do not have to zero them out later */  
+  /* we calloc so we do not have to zero them out later */
   g = calloc(n, sizeof(int32_t));
   if (g == NULL) {
     goto fail;
@@ -101,8 +61,8 @@ int32_t bliss_b_private_key_gen(bliss_private_key_t *private_key, bliss_kind_t k
   int32_t retcode;
   int32_t i, j, x;
   int32_t *t = NULL, *u = NULL;
-  
-  bliss_param_t *p;  
+
+  bliss_param_t *p;
 
   assert(private_key != NULL);
 
@@ -126,24 +86,24 @@ int32_t bliss_b_private_key_gen(bliss_private_key_t *private_key, bliss_kind_t k
     goto fail;
   }
 
-  
+
 
   /* randomize g */
   uniform_poly(private_key->g, p->n, p->nz1, p->nz2, false, entropy);
 
   /* g = 2g - 1 */
-  for (i = 0; i < p->n; i++)      
+  for (i = 0; i < p->n; i++)
     private_key->g[i] *= 2;
   private_key->g[0]--;
-   
+
   for (i = 0; i < p->n; i++)
     t[i] = private_key->g[i];
-  
+
   ntt32_xmu(t, p->n, p->q, t, p->w);
   ntt32_fft(t, p->n, p->q, p->w);
 
   /* find an invertible f  */
-  for (j = 0; j < 4; j++) {     
+  for (j = 0; j < 4; j++) {
 
     /* randomize f  */
     uniform_poly(private_key->f, p->n, p->nz1, p->nz2, j != 0, entropy);
@@ -157,7 +117,7 @@ int32_t bliss_b_private_key_gen(bliss_private_key_t *private_key, bliss_kind_t k
     for (i = 0; i < p->n; i++) {
       x = u[i] % p->q;
       if (x == 0)
-	break;
+        break;
       x = ntt32_pwr(x, p->q - 2, p->q);
       u[i] = x;
     }
@@ -168,7 +128,7 @@ int32_t bliss_b_private_key_gen(bliss_private_key_t *private_key, bliss_kind_t k
     ntt32_xmu(private_key->a, p->n, p->q, t, u);
     ntt32_fft(private_key->a, p->n, p->q, p->w);
     ntt32_xmu(private_key->a, p->n, p->q, private_key->a, p->r);
-    
+
     /* retransform (Saarinen says: can we optimize this?) */
     ntt32_cmu(private_key->a, p->n, p->q, private_key->a, -1);    /* flip sign */
     ntt32_flp(private_key->a, p->n, p->q);
@@ -179,13 +139,13 @@ int32_t bliss_b_private_key_gen(bliss_private_key_t *private_key, bliss_kind_t k
     for (i = 0; i < p->n; i++) {
       x = private_key->a[i] % p->q;
       if (x < 0)
-	x += p->q;
+        x += p->q;
       private_key->a[i] = x;
     }
 
     free(t);
     free(u);
-    
+
     return BLISS_B_NO_ERROR;
   }
 
@@ -194,7 +154,7 @@ int32_t bliss_b_private_key_gen(bliss_private_key_t *private_key, bliss_kind_t k
   free(t);
   free(u);
   bliss_b_private_key_delete(private_key);
-  
+
   return BLISS_B_NO_MEM;
 }
 
@@ -218,7 +178,7 @@ int32_t bliss_b_public_key_extract(bliss_public_key_t *public_key, const bliss_p
   int32_t n, i;
   int32_t *a, *b;
   const bliss_param_t *p;
-  
+
   assert(private_key != NULL && private_key->a != NULL);
 
 
@@ -227,7 +187,7 @@ int32_t bliss_b_public_key_extract(bliss_public_key_t *public_key, const bliss_p
   n = p->n;
 
   b = private_key->a;
-  
+
   /* we calloc so we do not have to zero them out later */
   a = calloc(n, sizeof(int32_t));
   if (a == NULL) {
@@ -237,11 +197,11 @@ int32_t bliss_b_public_key_extract(bliss_public_key_t *public_key, const bliss_p
   for(i = 0; i < n; i++){
     a[i] = b[i];
   }
-  
+
   public_key->p = *p;
-  
+
   return BLISS_B_NO_ERROR;
-  
+
 }
 
 
@@ -252,5 +212,3 @@ void bliss_b_public_key_delete(bliss_public_key_t *public_key){
   free(public_key->a);
   public_key->a = NULL;
 }
-
-
