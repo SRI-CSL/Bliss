@@ -14,7 +14,10 @@ void poly_add(poly *r, const poly *a, const poly *b);
 
 void poly_ntt(poly *r);
 void poly_invntt(poly *r);
+void poly_ntt_harvey(poly *r);
+void poly_invntt_harvey(poly *r);
 void poly_pointwise(poly *r, const poly *a, const poly *b);
+void poly_pointwise_naive(poly *r, const poly *a, const poly *b);
 
 void poly_frombytes(poly *r, const unsigned char *a);
 void poly_tobytes(unsigned char *r, const poly *p);

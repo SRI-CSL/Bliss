@@ -28,6 +28,20 @@ int main()
   for(i=0; i<NTESTS; i++)
   {
     t[i] = cpucycles();
+    poly_ntt_harvey(&sk_a);
+  }
+  print_results("poly_ntt_harvey: ", t, NTESTS);
+
+  for(i=0; i<NTESTS; i++)
+  {
+    t[i] = cpucycles();
+    poly_invntt_harvey(&sk_a);
+  }
+  print_results("poly_invntt_harvey: ", t, NTESTS);
+
+  for(i=0; i<NTESTS; i++)
+  {
+    t[i] = cpucycles();
     poly_getnoise(&sk_a,seed,0);
   }
   print_results("poly_getnoise: ", t, NTESTS);
