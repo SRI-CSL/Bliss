@@ -184,7 +184,7 @@ bool sampler_gauss(sampler_t *sampler, int32_t *valp) {
     
     if (sampler_ber_exp(sampler, e)) {
       u = entropy_random_bit(&sampler->entropy);
-      if (x || y || u) { 
+      if (x | y | u) { 
 	break; 
       }
     }
@@ -213,7 +213,7 @@ int32_t sampler_gauss2(sampler_t *sampler) {
     
     if (sampler_ber_exp(sampler, e)) {
       u = entropy_random_bit(&sampler->entropy);
-      if (x || y || u) { 
+      if (x | y | u) { 
 	break; 
       }
     }
