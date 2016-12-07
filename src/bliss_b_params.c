@@ -42,8 +42,8 @@ const int w7681n256[256] = {
      5036,  1771,  4959,  4561,  2423,  1784,  5685,   201
 };
 
-// iam: need to figure out how to generate these
-// this table is [- (psi^0)/n, - (psi^1)/n, - (psi^2)/n, ...  - (psi^(n - 1))/n]
+// iam: this table is [- (psi^0)/n, - (psi^1)/n, - (psi^2)/n, ...  - (psi^(n - 1))/n]
+// but we are not sure why there is a minus here.
 const int r7681n256[256] = {
        30,  6993,  7073,  2678,  3617,   517,  7602,  3860,
      1089,  1141,  4045,  1967,  7633,  2637,  2509,  1860,
@@ -224,10 +224,10 @@ const bliss_param_t bliss_b_params[] = {
     256,                /* n */
     5,                  /* d */
     480,                /* p */
-    30,                 /* kappa */      
-    16,                 /* theta */   
+    30,                 /* kappa */
+    16,                 /* theta */
     542,                /* b_inf */
-    2428 * 2428,        /* L2 norm */   
+    2428 * 2428,        /* L2 norm */
     140,                /* nz1 */
     38,                 /* nz2 */
     17928,              /* pmax */
@@ -236,17 +236,17 @@ const bliss_param_t bliss_b_params[] = {
     w7681n256,          /* w */
     r7681n256,          /* r */
   },
-  
+
   /* bliss-b 1 */
   { BLISS_B_1,          /* kind */
     12289,              /* q */
     512,                /* n */
     10,                 /* d */
     24,                 /* p */
-    23,                 /* kappa */      
-    32,                 /* theta */   
+    23,                 /* kappa */
+    32,                 /* theta */
     2100,               /* b_inf */
-    12872 * 12872,      /* L2 norm */   
+    12872 * 12872,      /* L2 norm */
     154,                /* nz1 */
     0,                  /* nz2 */
     17825,              /* pmax */
@@ -263,10 +263,10 @@ const bliss_param_t bliss_b_params[] = {
     512,                /* n */
     10,                 /* d */
     24,                 /* p */
-    23,                 /* kappa */ 
-    32,                 /* theta */  
+    23,                 /* kappa */
+    32,                 /* theta */
     1563,               /* b_inf */
-    11073 * 11073,      /* L2 norm */  
+    11073 * 11073,      /* L2 norm */
     154,                /* nz1 */
     0,                  /* nz2 */
     17825,              /* pmax */
@@ -283,10 +283,10 @@ const bliss_param_t bliss_b_params[] = {
     512,                /* n */
     9,                  /* d */
     48,                 /* p */
-    30,                 /* kappa */ 
-    48,                 /* theta */  
+    30,                 /* kappa */
+    48,                 /* theta */
     1760,               /* b_inf */
-    10206 * 10206,      /* L2 norm */  
+    10206 * 10206,      /* L2 norm */
     216,                /* nz1 */
     16,                 /* nz2 */
     42270,              /* pmax */
@@ -297,16 +297,16 @@ const bliss_param_t bliss_b_params[] = {
   },
 
   /* bliss-b 4 */
-  
+
   { BLISS_B_4,          /* kind */
     12289,              /* q */
     512,                /* n */
     8,                  /* d */
     96,                 /* p */
-    39,                 /* kappa */ 
-    48,                 /* theta */  
+    39,                 /* kappa */
+    48,                 /* theta */
     1613,               /* b_inf */
-    9901 * 9901,        /* L2 norm */  
+    9901 * 9901,        /* L2 norm */
     231,                /* nz1 */
     31,                 /* nz2 */
     69576,              /* pmax */
@@ -316,6 +316,5 @@ const bliss_param_t bliss_b_params[] = {
     r12289n512,         /* r */
   },
 
-  
-};
 
+};

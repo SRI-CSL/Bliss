@@ -48,22 +48,31 @@ void uniform_poly(int32_t v[], int n, int nz1, int nz2, bool zero, entropy_t *en
   }
 }
 
+static inline int32_t abs(int32_t x){
+  return x < 0 ? -x : x;
+}
 
 void fprint_poly(FILE* fp, int32_t v[], int32_t n){
-  int32_t i;
+  int32_t i, c;
   bool first;
   assert(0 < n);
 
   first = true;
 
   for(i = 0; i < n; i++){
-    if(v[i] != 0){
+    c = v[i];
+    if(c != 0){
       if(first){
         first = false;
+        if(c < 0) fprintf(fp, " - ");
       } else {
-        fprintf(fp, " + ");
+        fprintf(fp, (c < 0) ? " - " : " + ");
       }
-      fprintf(fp, "%"PRIi32"x^%"PRIi32, v[i], i);
+      if (c == 1 || c == -1){
+        fprintf(fp, "x^%"PRIi32, i);
+      } else {
+        fprintf(fp, "%"PRIi32"x^%"PRIi32, abs(c), i);
+      }
     }
   }
   fprintf(fp, "\n");
