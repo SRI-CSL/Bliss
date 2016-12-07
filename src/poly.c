@@ -1,5 +1,6 @@
 #include "poly.h"
 #include "ntt.h"
+#include "ntt_harvey.h"
 #include "reduce.h"
 #include "shake128.h"
 #include "crypto_stream_chacha20.h"
@@ -130,6 +131,13 @@ void poly_pointwise(poly *r, const poly *a, const poly *b)
   }
 }
 
+void poly_pointwise_naive(poly *r, const poly *a, const poly *b) {
+  size_t i;
+  for (i = 0; i < PARAM_N; i++) {
+    r->coeffs[i] = ((uint32_t)a->coeffs[i] * b->coeffs[i])%PARAM_Q;
+  }
+}
+
 void poly_add(poly *r, const poly *a, const poly *b)
 {
   int i;
@@ -148,4 +156,21 @@ void poly_invntt(poly *r)
   bitrev_vector(r->coeffs);
   ntt((uint16_t *)r->coeffs, omegas_inv_montgomery);
   mul_coefficients(r->coeffs, psis_inv_montgomery);
+}
+
+void poly_ntt_harvey(poly *r)
+{
+  mul_pointwise_shoup(r->coeffs, r->coeffs, harvey_psis,
+                      harvey_psis_shoup);  // multiplication by powers of psi
+  ntt_harvey(r->coeffs, harvey_omegas, harvey_omegas_shoup);  // the NTT itself
+  bitrev_vector(r->coeffs);  
+}
+
+void poly_invntt_harvey(poly *r)
+{
+  ntt_harvey(r->coeffs, harvey_omegas_inv,
+             harvey_omegas_inv_shoup);  // inverse NTT
+  bitrev_vector(r->coeffs);                // reverse the vector
+  mul_pointwise_shoup(r->coeffs, r->coeffs, harvey_psis_inv,
+                      harvey_psis_inv_shoup);  // multiply by powers of psi^(-1)
 }
