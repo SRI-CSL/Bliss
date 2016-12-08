@@ -59,16 +59,6 @@ int test_mul_from_KAT_values() {
       //ntt32_cmu(uc, p->n, p->q, uc, -1);    /* flip sign */
       ntt32_flp(uc, p->n, p->q);
 
-    /*
-
-    poly tmp;
-    poly_ntt_harvey(&a[i]);
-    poly_ntt_harvey(&b[i]);
-    poly_pointwise_naive(&tmp, &a[i], &b[i]);
-    poly_invntt_harvey(&tmp);
-
-    */
-
       for (int j = 0; j < p->n; j++) {
         if (uc[j] != c[i][j]) {
           printf("\t Failure at round %d on coeff %d: %"PRIi32" != %"PRIi32".\n", i, j, uc[j], c[i][j]);
@@ -87,7 +77,7 @@ int test_mul_from_KAT_values() {
 }
 
 int main(void){
-  printf("\nTesting poly multiplication (KAT values)\n");
+  printf("\nTesting ntt from blzzd (KAT values)\n");
 
   return test_mul_from_KAT_values();
 }
