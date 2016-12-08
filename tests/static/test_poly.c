@@ -42,7 +42,7 @@ int test_mul_from_KAT_values() {
 }
 
 int main(void){
-  printf("\nTesting poly multiplication (KAT values)\n");
+  printf("\nTesting poly_ntt_harvey (KAT values)\n");
 
   return test_mul_from_KAT_values();
 }

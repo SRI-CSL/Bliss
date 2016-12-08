@@ -5,6 +5,7 @@
 #include "bliss_b_errors.h"
 #include "bliss_b_params.h"
 #include "bliss_b_keys.h"
+#include "bliss_b_utils.h"
 #include "entropy.h"
 #include "polynomial.h"
 
@@ -170,19 +171,22 @@ int32_t bliss_b_private_key_gen(bliss_private_key_t *private_key, bliss_kind_t k
   return BLISS_B_NO_MEM;
 }
 
-/* IAM2BD&TL: Should we zero out the memory to be secure? */
-/* TL:  Yes, also it should not be optimized by the compiler, so one has to resort to weird tricks.
-        See e.g. https://github.com/open-quantum-safe/liboqs/issues/48 */
 void bliss_b_private_key_delete(bliss_private_key_t *private_key){
+  bliss_param_t *p;
 
   assert(private_key != NULL);
 
+  p = &private_key->p;
+
+  zero_memory(private_key->f, p->n);
   free(private_key->f);
   private_key->f = NULL;
 
+  zero_memory(private_key->g, p->n);
   free(private_key->g);
   private_key->g = NULL;
 
+  zero_memory(private_key->a, p->n);
   free(private_key->a);
   private_key->a = NULL;
 }
