@@ -135,6 +135,18 @@ int32_t bliss_b_private_key_gen(bliss_private_key_t *private_key, bliss_kind_t k
     ntt32_xmu(private_key->a, p->n, p->q, private_key->a, p->w);
     ntt32_fft(private_key->a, p->n, p->q, p->w);
 
+    /* TL:  I just understood, it comes from a slight optimization of BLISS
+     *
+     *      During the keygen, we set a_1 = 2a_q mod 2q, where a_q = (2g-1)/f mod q
+     *      But when we use it, we use (zeta*a_1) mod 2q, where zeta = (q-2)^(-1) mod 2q
+     *      Now, zeta*a_1 mod q = -a_q mod q
+     *      Therefore that is what they compute in the keygeneration, and I guess they are 
+     *      doing the computation mod 2q using a "trick" to get the mod 2q in the signing alg.
+     *      see https://github.com/mjosaarinen/blzzrd/blob/master/pubpriv.c#L254
+     *      (This comes from the fact that you can compute mod 2q by coputing mod q, and then 
+     *      looking at the result mod 2)
+     */
+
     /*  normalize a */
     for (i = 0; i < p->n; i++) {
       x = private_key->a[i] % p->q;
@@ -159,6 +171,8 @@ int32_t bliss_b_private_key_gen(bliss_private_key_t *private_key, bliss_kind_t k
 }
 
 /* IAM2BD&TL: Should we zero out the memory to be secure? */
+/* TL:  Yes, also it should not be optimized by the compiler, so one has to resort to weird tricks.
+        See e.g. https://github.com/open-quantum-safe/liboqs/issues/48 */
 void bliss_b_private_key_delete(bliss_private_key_t *private_key){
 
   assert(private_key != NULL);
