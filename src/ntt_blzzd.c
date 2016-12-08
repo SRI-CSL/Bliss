@@ -169,4 +169,3 @@ void ntt32_flp(int32_t v[], size_t n, int32_t q)
         v[i] = x;
     }
 }
-

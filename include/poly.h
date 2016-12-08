@@ -4,6 +4,9 @@
 #include <stdint.h>
 #include "params.h"
 
+/* iam: not our polyniomials; these will disappear sooner or later */
+
+
 typedef struct {
   uint16_t coeffs[PARAM_N];
 } poly __attribute__ ((aligned (32)));
@@ -14,7 +17,10 @@ void poly_add(poly *r, const poly *a, const poly *b);
 
 void poly_ntt(poly *r);
 void poly_invntt(poly *r);
+void poly_ntt_harvey(poly *r);
+void poly_invntt_harvey(poly *r);
 void poly_pointwise(poly *r, const poly *a, const poly *b);
+void poly_pointwise_naive(poly *r, const poly *a, const poly *b);
 
 void poly_frombytes(poly *r, const unsigned char *a);
 void poly_tobytes(unsigned char *r, const poly *p);
