@@ -1,3 +1,5 @@
+SHELL=/bin/sh
+
 ARCH ?= $(shell uname -m)
 
 OS=$(shell uname)
@@ -9,13 +11,14 @@ endif
 
 
 ifeq (Darwin, $(findstring Darwin, ${OS}))
-CFLAGS = -DDARWIN
+CPPFLAGS = -DDARWIN
 else
-CFLAGS = -DLINUX
+CPPFLAGS = -DLINUX
 endif
 
 
-CFLAGS += -Wall -I../../include/ -I../../arch/${ARCH} -ggdb
+CPPFLAGS +=  -I../../include/ -I../../arch/${ARCH} 
+CFLAGS += -std=gnu99 -Wall -ggdb
 
 
 OBJDIR=../../obj
@@ -28,7 +31,9 @@ TESTS = speed sample test_keys test_bernoulli test_pos_binary test_pos_binary2 \
 TEST_SRCS = $(addsuffix .c, ${TESTS})
 
 all: ${TEST_SRCS}
-	for test in ${TESTS} ; do ${CC} ${CFLAGS} $$test.c ${OBJS} -o $$test; done
+	for test in ${TESTS} ; \
+	  do ${CC} ${CFLAGS} $(CPPFLAGS) $$test.c ${OBJS} -o $$test; \
+	done
 
 
 

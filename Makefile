@@ -16,15 +16,16 @@ ifeq (Darwin, $(findstring Darwin, ${OS}))
 LIBRARY = ${LIBRARYNAME}.dylib
 LIBFLAGS = -dynamiclib
 LDFLAGS = 
-CFLAGS = -DDARWIN
+CPPFLAGS = -DDARWIN
 else
 LIBRARY = ${LIBRARYNAME}.so              
 LIBFLAGS = -shared -Wl,-soname,${LIBRARY}
 LDFLAGS =
-CFLAGS = -DLINUX
+CPPFLAGS = -DLINUX
 endif
 
-CFLAGS += -fPIC -Wall -O3 -I./include  -I./arch/${ARCH}
+CPPFLAGS += -I./include  -I./arch/${ARCH}
+CFLAGS += -std=c99 -fPIC -Wall -O3
 
 SRC_GLOBS = $(addsuffix /*.c,src)
 SRC = $(sort $(wildcard $(SRC_GLOBS)))
@@ -47,13 +48,10 @@ obj:
 	mkdir -p obj
 
 obj/%.o: src/%.c | obj
-	${CC} ${CFLAGS} $< -c -o $@
-
-obj/%.o: src/%.c | obj
-	${CC} ${CFLAGS} $< -c -o $@
+	${CC} $(CPPFLAGS) ${CFLAGS} $< -c -o $@
 
 obj/%.o: src/${LF_QUEUE}/%.c | obj
-	${CC} ${CFLAGS} $< -c -o $@
+	${CC} $(CPPFLAGS) ${CFLAGS} $< -c -o $@
 
 
 lib:

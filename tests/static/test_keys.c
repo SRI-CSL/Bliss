@@ -7,10 +7,20 @@
 #include "cpucycles.h"
 #include "tests.h"
 
+// hard-coded seed for testing
+static uint8_t seed[SHA3_512_DIGEST_LENGTH] = {
+  0, 1, 2, 3, 4, 5, 6, 7,
+  0, 1, 2, 3, 4, 5, 6, 7,
+  0, 1, 2, 3, 4, 5, 6, 7,
+  0, 1, 2, 3, 4, 5, 6, 7,
+  0, 1, 2, 3, 4, 5, 6, 7,
+  0, 1, 2, 3, 4, 5, 6, 7,
+  0, 1, 2, 3, 4, 5, 6, 7,
+  0, 1, 2, 3, 4, 5, 6, 7,
+};
 
 
 static entropy_t entropy;
-
 
 static bliss_private_key_t private_key;
 

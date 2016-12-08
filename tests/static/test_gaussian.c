@@ -21,6 +21,21 @@ static sampler_t sampler;
 static uint32_t count[NUM_COUNTERS];
 
 /*
+ * hard-coded seed for testing
+ */
+static uint8_t seed[SHA3_512_DIGEST_LENGTH] = {
+  0, 1, 2, 3, 4, 5, 6, 7,
+  0, 1, 2, 3, 4, 5, 6, 7,
+  0, 1, 2, 3, 4, 5, 6, 7,
+  0, 1, 2, 3, 4, 5, 6, 7,
+  0, 1, 2, 3, 4, 5, 6, 7,
+  0, 1, 2, 3, 4, 5, 6, 7,
+  0, 1, 2, 3, 4, 5, 6, 7,
+  0, 1, 2, 3, 4, 5, 6, 7,
+};
+
+
+/*
  * Generates ntests samples and compute statistics
  */
 static void test_gaussian(sampler_t *sampler, uint32_t ntests) {

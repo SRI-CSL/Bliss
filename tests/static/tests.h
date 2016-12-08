@@ -6,19 +6,6 @@
 
 unsigned long long t[NTESTS];
 
-// hard-coded seed for testing
-static uint8_t seed[SHA3_512_DIGEST_LENGTH] = {
-  0, 1, 2, 3, 4, 5, 6, 7,
-  0, 1, 2, 3, 4, 5, 6, 7,
-  0, 1, 2, 3, 4, 5, 6, 7,
-  0, 1, 2, 3, 4, 5, 6, 7,
-  0, 1, 2, 3, 4, 5, 6, 7,
-  0, 1, 2, 3, 4, 5, 6, 7,
-  0, 1, 2, 3, 4, 5, 6, 7,
-  0, 1, 2, 3, 4, 5, 6, 7,
-};
-
-
 static int cmp_llu(const void *a, const void*b)
 {
   if(*(unsigned long long *)a < *(unsigned long long *)b) return -1;
