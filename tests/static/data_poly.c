@@ -10,7 +10,6 @@
 
  */
 
-
 #define REPETITIONS 100
 
 poly a[REPETITIONS], b[REPETITIONS], c[REPETITIONS];

@@ -23,7 +23,7 @@ OBJ_GLOBS = $(addsuffix /*.o,${OBJDIR})
 OBJS = $(sort $(wildcard ${OBJ_GLOBS}))
 
 TESTS = speed sample test_keys test_bernoulli test_pos_binary test_pos_binary2 \
-        test_gaussian test_gaussian2  test_poly test_ntt
+        test_gaussian test_gaussian2  test_poly test_ntt test_blzzd
 
 TEST_SRCS = $(addsuffix .c, ${TESTS})
 
