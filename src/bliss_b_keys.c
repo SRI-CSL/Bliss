@@ -130,7 +130,7 @@ int32_t bliss_b_private_key_gen(bliss_private_key_t *private_key, bliss_kind_t k
     ntt32_xmu(private_key->a, p->n, p->q, private_key->a, p->r);
 
     /* retransform (Saarinen says: can we optimize this?) */
-    ntt32_cmu(private_key->a, p->n, p->q, private_key->a, -1);    /* flip sign */
+    ntt32_cmu(private_key->a, p->n, p->q, private_key->a, -1);    /* flip sign  IAM&BD: this seems to be wrong. see tests/static/text_blzzd.c */
     ntt32_flp(private_key->a, p->n, p->q);
     ntt32_xmu(private_key->a, p->n, p->q, private_key->a, p->w);
     ntt32_fft(private_key->a, p->n, p->q, p->w);
