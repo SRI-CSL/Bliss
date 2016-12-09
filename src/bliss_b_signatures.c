@@ -16,7 +16,8 @@ void greedy_sc_strongswan(const int32_t *s1, const int32_t *s2, int32_t n, const
 
 	for (i = 0; i < n; i++)
 	{
-		v1[i] = v2[i] = 0;
+      v1[i] = 0;
+      v2[i] = 0;
 	}
 	for (k = 0; k < kappa; k++)
 	{
