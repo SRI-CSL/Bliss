@@ -141,10 +141,10 @@ int32_t bliss_b_private_key_gen(bliss_private_key_t *private_key, bliss_kind_t k
      *      During the keygen, we set a_1 = 2a_q mod 2q, where a_q = (2g-1)/f mod q
      *      But when we use it, we use (zeta*a_1) mod 2q, where zeta = (q-2)^(-1) mod 2q
      *      Now, zeta*a_1 mod q = -a_q mod q
-     *      Therefore that is what they compute in the keygeneration, and I guess they are 
+     *      Therefore that is what they compute in the keygeneration, and I guess they are
      *      doing the computation mod 2q using a "trick" to get the mod 2q in the signing alg.
      *      see https://github.com/mjosaarinen/blzzrd/blob/master/pubpriv.c#L254
-     *      (This comes from the fact that you can compute mod 2q by coputing mod q, and then 
+     *      (This comes from the fact that you can compute mod 2q by coputing mod q, and then
      *      looking at the result mod 2)
      */
 
@@ -156,7 +156,10 @@ int32_t bliss_b_private_key_gen(bliss_private_key_t *private_key, bliss_kind_t k
       private_key->a[i] = x;
     }
 
+    zero_memory(t, p->n * sizeof(int32_t));
     free(t);
+
+    zero_memory(u, p->n * sizeof(int32_t));
     free(u);
 
     return BLISS_B_NO_ERROR;
