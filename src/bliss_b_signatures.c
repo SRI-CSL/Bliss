@@ -9,7 +9,7 @@
  *
  * should be static once we choose one and use it.
  */
-void greedy_sc_strongswan(const int32_t *s1, const int32_t *s2, int32_t n, const uint16_t *c_indices, int32_t kappa, int32_t *v1, int32_t *v2)
+void greedy_sc_strongswan(const int32_t *s1, const int32_t *s2, int32_t n, const uint32_t *c_indices, int32_t kappa, int32_t *v1, int32_t *v2)
 {
 	int32_t i, k, index;
 	int32_t sign;
@@ -67,7 +67,7 @@ void greedy_sc_strongswan(const int32_t *s1, const int32_t *s2, int32_t n, const
  *
  * should be static once we choose one and use it.
  */
-void greedy_sc_blzzd(const int32_t *s1, const int32_t *s2, int32_t n,  const int *c_indices, int32_t kappa, int32_t *v1, int32_t *v2)
+void greedy_sc_blzzd(const int32_t *s1, const int32_t *s2, int32_t n,  const int32_t *c_indices, int32_t kappa, int32_t *v1, int32_t *v2)
 {
     int32_t index, i, k, sign;
 
