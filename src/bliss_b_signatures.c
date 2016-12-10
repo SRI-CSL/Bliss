@@ -8,6 +8,8 @@
  * GreedySC strongswan version
  *
  * should be static once we choose one and use it.
+ *
+ * BD: meh.
  */
 void greedy_sc_strongswan(const int32_t *s1, const int32_t *s2, int32_t n, const uint32_t *c_indices, int32_t kappa, int32_t *v1, int32_t *v2)
 {
@@ -18,42 +20,31 @@ void greedy_sc_strongswan(const int32_t *s1, const int32_t *s2, int32_t n, const
       v1[i] = 0;
       v2[i] = 0;
 	}
-	for (k = 0; k < kappa; k++)
-	{
+	for (k = 0; k < kappa; k++) {
 		index = c_indices[k];
 		sign = 0;
         /* \xi_i = sign(<v, si>) */
-		for (i = 0; i < index; i++)
-          {
+		for (i = 0; i < index; i++) {
 			sign -= (v1[i] * s1[i - index + n] + v2[i] * s2[i - index + n]);
 		}
-		for (i = index; i < n; i++)
-		{
+		for (i = index; i < n; i++)	{
 			sign += (v1[i] * s1[i - index] + v2[i] * s2[i - index]);
 		}
 		/* v = v - \xi_i . si */
-		for (i = 0; i < index; i++)
-		{
-			if (sign > 0)
-			{
+		for (i = 0; i < index; i++) {
+			if (sign > 0) {
 				v1[i] += s1[i - index + n];
 				v2[i] += s2[i - index + n];
-			}
-			else
-			{
+			} else {
 				v1[i] -= s1[i - index + n];
 				v2[i] -= s2[i - index + n];
 			}
 		}
-		for (i = index; i < n; i++)
-		{
-			if (sign > 0)
-			{
+		for (i = index; i < n; i++)	{
+			if (sign > 0) {
 				v1[i] -= s1[i - index];
 				v2[i] -= s2[i - index];
-			}
-			else
-			{
+			} else {
 				v1[i] += s1[i - index];
 				v2[i] += s2[i - index];
 			}
@@ -66,6 +57,8 @@ void greedy_sc_strongswan(const int32_t *s1, const int32_t *s2, int32_t n, const
  * GreedySC blzzd version
  *
  * should be static once we choose one and use it.
+ *
+ * BD: yay!
  */
 void greedy_sc_blzzd(const int32_t *s1, const int32_t *s2, int32_t n,  const int32_t *c_indices, int32_t kappa, int32_t *v1, int32_t *v2)
 {
@@ -80,14 +73,14 @@ void greedy_sc_blzzd(const int32_t *s1, const int32_t *s2, int32_t n,  const int
 
         index = c_indices[k];
         sign = 0;
-
+        /* \xi_i = sign(<v, si>) */
         for (i = 0; i < n - index; i++) {
             sign += s1[i] * v1[index + i] + s2[i] * v2[index + i];
         }
         for (i = n - index; i < n; i++) {
             sign -= s1[i] * v1[index + i - n] + s2[i] * v2[index + i - n];
         }
-
+		/* v = v - \xi_i . si */
         if (sign > 0) {
             for (i = 0; i < n - index; i++) {
                 v1[index + i] -= s1[i];
@@ -115,14 +108,14 @@ void greedy_sc_blzzd(const int32_t *s1, const int32_t *s2, int32_t n,  const int
 
 
 
-int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t private_key, const void *msg, size_t msg_sz, entropy_t *entropy){
+int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t private_key, const uint8_t *msg, size_t msg_sz, entropy_t *entropy){
 
 
   return BLISS_B_NO_ERROR;
 }
 
 
-int32_t bliss_b_verify(bliss_signature_t *signature,  const bliss_public_key_t public_key, const void *msg, size_t msg_sz){
+int32_t bliss_b_verify(bliss_signature_t *signature,  const bliss_public_key_t public_key, const uint8_t *msg, size_t msg_sz){
 
 
   return BLISS_B_NO_ERROR;
