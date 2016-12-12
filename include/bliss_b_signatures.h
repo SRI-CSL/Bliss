@@ -25,10 +25,10 @@ typedef struct {
  *  Returns 0 on success, or a negative error code on failure.
  */
 
-extern int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t private_key, const uint8_t *msg, size_t msg_sz, entropy_t *entropy);
+extern int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *private_key, const uint8_t *msg, size_t msg_sz, entropy_t *entropy);
 
 
-extern int32_t bliss_b_verify(bliss_signature_t *signature,  const bliss_public_key_t public_key, const uint8_t *msg, size_t msg_sz);
+extern int32_t bliss_b_verify(bliss_signature_t *signature,  const bliss_public_key_t *public_key, const uint8_t *msg, size_t msg_sz);
 
 
 extern void bliss_signature_delete(bliss_signature_t *signature);

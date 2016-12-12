@@ -8,7 +8,9 @@ typedef enum {
 
   BLISS_B_NO_ERROR = 0,
 
-  BLISS_B_NO_MEM =  -1
+  BLISS_B_NO_MEM =  -1,
+
+  BLISS_B_BAD_DATA = -2
 
 } bliss_b_error_t;
 
