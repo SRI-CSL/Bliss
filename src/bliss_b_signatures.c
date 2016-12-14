@@ -3,6 +3,7 @@
 #include "bliss_b_keys.h"
 #include "bliss_b_signatures.h"
 #include "bliss_b_utils.h"
+#include "ntt_blzzd.h"
 
 
 
@@ -106,6 +107,29 @@ int32_t bliss_b_verify(bliss_signature_t *signature,  const bliss_public_key_t *
     }
   }
 
+  /*
+
+    // v = v + C * q
+    bliss_c_oracle(my_idx, p->kappa, p->n, sign->cseed, p->theta);
+    for (i = 0; i < p->kappa; i++)
+        v[my_idx[i]] = (v[my_idx[i]] + p->q) % (2 * p->q);
+
+    // drop bits and add z
+    for (i = 0; i < p->n; i++) {
+        tmp = (((v[i] + (1 << (p->d - 1))) >> p->d) + sign->z[i]) % p->p;
+        if (tmp < 0)
+            tmp += p->p;
+        v[i] = tmp;
+    }
+
+    // run the hash on input
+    bliss_cseed(cseed, p->theta, mu, mu_len, v, p->n);
+    if (memcmp(cseed, sign->cseed, p->theta) != 0) {
+        free(v);
+        return -5;
+    }
+
+  */
 
   
   return retval;
