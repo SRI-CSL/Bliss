@@ -42,8 +42,38 @@ const int w7681n256[256] = {
      5036,  1771,  4959,  4561,  2423,  1784,  5685,   201
 };
 
-// iam: this table is [- (psi^0)/n, - (psi^1)/n, - (psi^2)/n, ...  - (psi^(n - 1))/n]
-// but we are not sure why there is a minus here.
+/*
+ * iam: this table is [- (psi^0)/n, - (psi^1)/n, - (psi^2)/n, ...  - (psi^(n - 1))/n]
+ * but we are not sure why there is a minus here.
+ *
+ * BD: got it. That's because the code does not use an inverse nnt,
+ * but applies the same ntt twice. The multiplication starts with
+ *
+ *     c = ntt(ntt(a * w) * ntt(b * w))
+ *
+ * instead of this
+ * 
+ *     d = inv_ntt(ntt(a * w) * ntt(b * w)),
+ *
+ * where '*' means elementwise multiplication. The coefficients of c are
+ * the same as in d but in a different order:
+ *
+ *  c[0] = d[0]
+ *  c[i] = d[n - i]  for i=1 to n-1
+ *
+ * To get the final result, we must multiply d[i] by 1/n * 1/psi^i.
+ * To get the same thing in c, we multiply c[i] by 1/n * 1/psi^(n - i). 
+ * That's what the table r is about:
+ *
+ *   r[i] = 1/n * 1/psi^(n - i)
+ *        = 1/n * psi^i * 1/psi^n
+ *        = - (psi^i)/n            because psi^n = -1.
+ *
+ * Then the code applies a permutation to c to put the coefficients in
+ * the right order. There's a slight inefficiency since multiplying c[0]
+ * by r[0] gives the opposite of what we want (wrong sign). This gets
+ * adjusted too in the permutation code.
+ */
 const int r7681n256[256] = {
        30,  6993,  7073,  2678,  3617,   517,  7602,  3860,
      1089,  1141,  4045,  1967,  7633,  2637,  2509,  1860,
