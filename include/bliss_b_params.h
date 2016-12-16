@@ -13,8 +13,12 @@ typedef struct {
   int32_t q;            /* field modulus  */
   int32_t n;            /* ring size (x^n+1)  */
   int32_t d;            /* bit drop shift  */
-  int32_t p;            /* magic modulus  */
+  int32_t mod_p;        /* magic modulus  */
   int32_t kappa;        /* index vector size  */
+  int32_t q2;           /* 2 * field modulus  */
+  int32_t q_inv;        /* floor(2^32/q)      */
+  int32_t q2_inv;       /* floor(2^32/q2)     */
+  int32_t one_q2;        /* 1/(q+2) mod 2q     */
   size_t  theta;        /* cseed in bytes  */
   int32_t b_inf;        /* infinite norm  */
   int32_t b_l2;         /* L2 norm  */
