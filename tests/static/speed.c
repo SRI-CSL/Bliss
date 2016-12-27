@@ -5,6 +5,7 @@
 #include "cpucycles.h"
 #include "tests.h"
 #include "bliss_b_params.h"
+#include "blzzd1024_tables.h"
 #include "ntt_blzzd.h"
 
 int main()
@@ -60,7 +61,16 @@ int main()
     t[i] = cpucycles();
     ntt32_fft(blzzd_a, p->n, p->q, p->w);
   }
-  print_results("ntt32_fft: ", t, NTESTS);
+  print_results("ntt32_fft (512): ", t, NTESTS);
+
+  int32_t blzzd_b[1024];
+  for(i=0; i<NTESTS; i++)
+  {
+    t[i] = cpucycles();
+    ntt32_fft(blzzd_b, 1024, 12289, w12289n1024);
+  }
+  print_results("ntt32_fft (1024): ", t, NTESTS);
+
 
   return 0;
 }

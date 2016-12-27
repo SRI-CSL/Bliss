@@ -9,21 +9,19 @@
 
 // Find NTT roots of unity.
 // Return w[1] or 0 on failure (g is not a generator).
-int32_t ntt32_wgn(int32_t w[], size_t n, int32_t q, int32_t g);
+int32_t ntt32_wgn(int32_t w[], uint32_t n, int32_t q, int32_t g);
 
 // FFT operation (forward and inverse).
-void ntt32_fft(int32_t v[], size_t n, int32_t q, const int32_t w[]);
+void ntt32_fft(int32_t v[], uint32_t n, int32_t q, const int32_t w[]);
 
 // Flip the order after inverse FFT.
-void ntt32_flp(int32_t v[], size_t n, int32_t q);
+void ntt32_flp(int32_t v[], uint32_t n, int32_t q);
 
 // Elementvise vector product  v = t (*) u
-void ntt32_xmu(int32_t v[], size_t n, int32_t q,
-    const int32_t t[], const int32_t u[]);
+void ntt32_xmu(int32_t v[], uint32_t n, int32_t q, const int32_t t[], const int32_t u[]);
 
 // Multiply vector with a scalar  v = v * c
-void ntt32_cmu(int32_t v[], size_t n, int32_t q,
-    const int32_t t[], int32_t c);
+void ntt32_cmu(int32_t v[], uint32_t n, int32_t q, const int32_t t[], int32_t c);
 
 // Compute x^e (mod n).
 int32_t ntt32_pwr(int32_t x, int32_t e, int32_t n);

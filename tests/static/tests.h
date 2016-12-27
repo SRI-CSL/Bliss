@@ -2,7 +2,7 @@
 
 #include "entropy.h"
 
-#define NTESTS 1024
+#define NTESTS 10240
 
 unsigned long long t[NTESTS];
 
