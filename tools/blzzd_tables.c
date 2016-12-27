@@ -135,7 +135,7 @@ int main(int argc, char *argv[]) {
     exit(EXIT_FAILURE);    
   }
   if (x >= 0xFFFF) {
-    fprintf(stderr, "The moduls is too large: max = %"PRIu32"\n", (uint32_t)0xFFFF);
+    fprintf(stderr, "The modulus is too large: max = %"PRIu32"\n", (uint32_t)0xFFFF);
     exit(EXIT_FAILURE);    
   }
   q = (uint32_t) x;
