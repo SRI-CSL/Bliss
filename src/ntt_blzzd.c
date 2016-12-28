@@ -77,6 +77,14 @@ int32_t ntt32_wgn(int32_t w[], uint32_t n, int32_t q, int32_t g)
 // BD: modified to use 32-bit arithmetic (don't use ntt32_muln), 
 // which is safe if q is less than 2^16. 
 // Also forced intermediate results to be between 0 and q-1.
+static inline int32_t adjust_after_sub(int32_t x, int32_t q) {
+  return x < 0 ? x + q : x;
+}
+
+static inline int32_t adjust_after_add(int32_t x, int32_t q) {
+  return x >= q ? x - q : x;
+}
+
 void ntt32_fft(int32_t v[], uint32_t n, int32_t q, const int32_t w[]) {
   uint32_t i, j, k, l;
   int32_t x, y;
@@ -103,10 +111,8 @@ void ntt32_fft(int32_t v[], uint32_t n, int32_t q, const int32_t w[]) {
 
     for (k = 0; k < n; k += i + i) {
       x = v[k + i];
-      v[k + i] = v[k] - x;
-      if (v[k + i] < 0) v[k + i] += q;
-      v[k] = v[k] + x;
-      if (v[k] > q) v[k] -= q;
+      v[k + i] = adjust_after_sub(v[k] - x, q);
+      v[k] = adjust_after_add(v[k] + x, q);
     }
 
     for (j = 1; j < i; j++) {
@@ -114,10 +120,8 @@ void ntt32_fft(int32_t v[], uint32_t n, int32_t q, const int32_t w[]) {
       for (k = j; k < n; k += i + i) {
 	//	x = ntt32_muln(v[k + i], y, q);
 	x = (v[k + i] * y) % q;
-	v[k + i] = v[k] - x;
-	if (v[k + i] < 0) v[k + i] += q;
-	v[k] = v[k] + x;
-	if (v[k] > q) v[k] -= q;
+	v[k + i] = adjust_after_sub(v[k] - x, q);
+	v[k] = adjust_after_add(v[k] + x, q);
       }
     }
 

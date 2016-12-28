@@ -18,7 +18,7 @@ endif
 
 
 CPPFLAGS +=  -I../../include/ -I../../arch/${ARCH} 
-CFLAGS += -std=gnu99 -Wall -ggdb
+CFLAGS += -std=gnu99 -Wall -O3
 
 
 OBJDIR=../../obj
