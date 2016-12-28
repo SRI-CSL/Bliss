@@ -71,6 +71,34 @@ int main()
   }
   print_results("ntt32_fft (1024): ", t, NTESTS);
 
+  for(i=0; i<NTESTS; i++)
+  {
+    t[i] = cpucycles();
+    ntt32_fft1024_var1(blzzd_b, 12289, w12289n1024);
+  }
+  print_results("ntt32_fft1024_var1: ", t, NTESTS);
+
+  for(i=0; i<NTESTS; i++)
+  {
+    t[i] = cpucycles();
+    ntt32_fft1024_var2(blzzd_b, 12289, w12289n1024);
+  }
+  print_results("ntt32_fft1024_var2: ", t, NTESTS);
+
+  for(i=0; i<NTESTS; i++)
+  {
+    t[i] = cpucycles();
+    ntt32_fft1024_var3(blzzd_b, 12289, w12289n1024);
+  }
+  print_results("ntt32_fft1024_var3: ", t, NTESTS);
+
+  for(i=0; i<NTESTS; i++)
+  {
+    t[i] = cpucycles();
+    ntt32_fft1024_var4(blzzd_b, 12289, w12289n1024);
+  }
+  print_results("ntt32_fft1024_var4: ", t, NTESTS);
+
 
   return 0;
 }
