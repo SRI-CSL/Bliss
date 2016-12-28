@@ -41,48 +41,22 @@ int32_t ntt32_pwr(int32_t x, int32_t e, int32_t n)
     return y;
 }
 
-// Find NTT roots of unity.
-//  Return w[1] or 0 on failure (g is not a generator).
 
-int32_t ntt32_wgn(int32_t w[], uint32_t n, int32_t q, int32_t g)
-{
-    uint32_t i;
-    int32_t x, y;
-
-    // reduce order to 2n
-    x = ntt32_pwr(g, (q - 1) / (n << 1), q);
-
-    y = x;                              // test order via repeated squaring
-    for (i = 1; i < 2 * n; i <<= 1) {
-        y = ntt32_sqrn(y, q);
-        if (y == 1)
-            break;
-    }
-    if (i != n)
-        return 0;                       // return 0 on failure
-
-    w[0] = 1;
-    w[1] = x;
-    y = x;
-
-    for (i = 2; i < n; i++) {
-        y = ntt32_muln(y, x, q);
-        w[i] = y;
-    }
-
-    return x;
-}
-
-// FFT operation (forward and inverse).  
-// BD: modified to use 32-bit arithmetic (don't use ntt32_muln), 
-// which is safe if q is less than 2^16. 
-// Also forced intermediate results to be between 0 and q-1.
-static inline int32_t adjust_after_sub(int32_t x, int32_t q) {
+/*
+ * FFT operation (forward and inverse).  
+ *
+ * BD: modified to use 32-bit arithmetic (don't use ntt32_muln), 
+ * which is safe if q is less than 2^16.
+ * Also forced intermediate results to be between 0 and q-1.
+ */
+static inline int32_t sub_mod(int32_t x, int32_t y, int32_t q) {
+  x -= y;
   return x < 0 ? x + q : x;
 }
 
-static inline int32_t adjust_after_add(int32_t x, int32_t q) {
-  return x >= q ? x - q : x;
+static inline int32_t add_mod(int32_t x, int32_t y, int32_t q) {
+  x += y;
+  return x - q >= 0 ? x - q : x;
 }
 
 void ntt32_fft(int32_t v[], uint32_t n, int32_t q, const int32_t w[]) {
@@ -108,11 +82,10 @@ void ntt32_fft(int32_t v[], uint32_t n, int32_t q, const int32_t w[]) {
   l = n;         // BD: avoid division n/i in the loop
   for (i = 1; i < n; i <<= 1) {
     //    l = n / i;
-
     for (k = 0; k < n; k += i + i) {
       x = v[k + i];
-      v[k + i] = adjust_after_sub(v[k] - x, q);
-      v[k] = adjust_after_add(v[k] + x, q);
+      v[k + i] = sub_mod(v[k], x, q);
+      v[k] = add_mod(v[k], x, q);
     }
 
     for (j = 1; j < i; j++) {
@@ -120,8 +93,8 @@ void ntt32_fft(int32_t v[], uint32_t n, int32_t q, const int32_t w[]) {
       for (k = j; k < n; k += i + i) {
 	//	x = ntt32_muln(v[k + i], y, q);
 	x = (v[k + i] * y) % q;
-	v[k + i] = adjust_after_sub(v[k] - x, q);
-	v[k] = adjust_after_add(v[k] + x, q);
+	v[k + i] = sub_mod(v[k], x, q);
+	v[k] = add_mod(v[k], x, q);
       }
     }
 
@@ -167,3 +140,4 @@ void ntt32_flp(int32_t v[], uint32_t n, int32_t q) {
   }
   v[0] = q - v[0];
 }
+

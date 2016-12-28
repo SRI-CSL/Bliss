@@ -7,10 +7,6 @@
 #include <stdint.h>
 #include <stddef.h>
 
-// Find NTT roots of unity.
-// Return w[1] or 0 on failure (g is not a generator).
-int32_t ntt32_wgn(int32_t w[], uint32_t n, int32_t q, int32_t g);
-
 // FFT operation (forward and inverse).
 void ntt32_fft(int32_t v[], uint32_t n, int32_t q, const int32_t w[]);
 
