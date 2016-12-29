@@ -91,10 +91,10 @@ void ntt32_fft(int32_t v[], uint32_t n, int32_t q, const int32_t w[]) {
     for (j = 1; j < i; j++) {
       y = w[j * l];
       for (k = j; k < n; k += i + i) {
-	//	x = ntt32_muln(v[k + i], y, q);
-	x = (v[k + i] * y) % q;
-	v[k + i] = sub_mod(v[k], x, q);
-	v[k] = add_mod(v[k], x, q);
+        //	x = ntt32_muln(v[k + i], y, q);
+        x = (v[k + i] * y) % q;
+        v[k + i] = sub_mod(v[k], x, q);
+        v[k] = add_mod(v[k], x, q);
       }
     }
 
@@ -116,8 +116,7 @@ void ntt32_xmu(int32_t v[], uint32_t n, int32_t q, const int32_t t[], const int3
 
 // Multiply with a scalar  v = t * c.
 // BD: modified to use 32bit arithmetic
-void ntt32_cmu(int32_t v[], uint32_t n, int32_t q,
-	       const int32_t t[], int32_t c) {
+void ntt32_cmu(int32_t v[], uint32_t n, int32_t q, const int32_t t[], int32_t c) {
   uint32_t i;
   //  int32_t x;
 
@@ -327,7 +326,6 @@ static const uint16_t bitrev1024[1024] = {
       127,   639,   383,   895,   255,   767,   511,  1023,
 };
 
-
 static void shuffle1024_v3(int32_t v[]) {
   uint32_t i, j;
   int32_t x;
@@ -343,6 +341,9 @@ static void shuffle1024_v3(int32_t v[]) {
 }
 
 
+/*
+ * List of pairs of indices to swap
+ */
 #define BITREV1024_NPAIRS 496
 
 static const uint16_t bitrev1024_pair[BITREV1024_NPAIRS][2] = {
@@ -485,29 +486,30 @@ static void shuffle1024_v4(int32_t v[]) {
   }
 }
 
+/*
+ * FFT (after bit-reverse shuffling)
+ */
 static void ntt32_fft1024_core(int32_t v[], int32_t q, const int32_t w[]) {
-  uint32_t i, j, k, l;
+  uint32_t i, j, k, l, m;
   int32_t x, y;
 
-  l = 1024;         // BD: avoid division n/i in the loop
-  for (i = 1; i < 1024; i <<= 1) {
+  for (i = 1, l = 1024; i < 1024; i <<= 1, l >>= 1) {
+    // invariant: i * l = 1024
     for (k = 0; k < 1024; k += i + i) {
       x = v[k + i];
       v[k + i] = sub_mod(v[k], x, q);
       v[k] = add_mod(v[k], x, q);
     }
 
-    for (j = 1; j < i; j++) {
-      y = w[j * l];
+    for (j = 1, m = l; j < i; j++, m += l) {
+      // m = j * l
+      y = w[m];
       for (k = j; k < 1024; k += i + i) {
-	//	x = ntt32_muln(v[k + i], y, q);
-	x = (v[k + i] * y) % q;
-	v[k + i] = sub_mod(v[k], x, q);
-	v[k] = add_mod(v[k], x, q);
+        x = (v [k + i] * y) % q;
+        v[k + i] = sub_mod(v[k], x, q);
+        v[k] = add_mod(v[k], x, q);
       }
     }
-
-    l >>= 1;
   }
 }
 

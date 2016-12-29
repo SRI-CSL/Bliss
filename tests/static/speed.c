@@ -7,6 +7,7 @@
 #include "bliss_b_params.h"
 #include "blzzd1024_tables.h"
 #include "ntt_blzzd.h"
+#include "ntt_microsoft.h"
 
 int main()
 {
@@ -63,6 +64,12 @@ int main()
   }
   print_results("ntt32_fft (512): ", t, NTESTS);
 
+  for (i=0; i<NTESTS; i++) {
+    t[i] = cpucycles();
+    NTT_CT_std2rev_12289(blzzd_a, psi_rev_ntt512_12289, 512);
+  }
+  print_results("ntt_microsoft (512): ", t, NTESTS);
+
   int32_t blzzd_b[1024];
   for(i=0; i<NTESTS; i++)
   {
@@ -99,6 +106,18 @@ int main()
   }
   print_results("ntt32_fft1024_var4: ", t, NTESTS);
 
+  for (i=0; i<NTESTS; i++) {
+    t[i] = cpucycles();
+    NTT_CT_std2rev_12289(blzzd_b, psi_rev_ntt1024_12289, 1024);
+  }
+  print_results("ntt_microsoft (1024): ", t, NTESTS);
+
+  for (i=0; i<NTESTS; i++) {
+    t[i] = cpucycles();
+    INTT_GS_rev2std_12289(blzzd_b, omegainv_rev_ntt1024_12289,
+			  omegainv7N_rev_ntt1024_12289, Ninv8_ntt1024_12289, 1024);
+  }
+  print_results("inv_ntt_microsoft (1024): ", t, NTESTS);
 
   return 0;
 }
