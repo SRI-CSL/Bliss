@@ -29,7 +29,6 @@ int test_mul_from_KAT_values() {
   #include "data_poly_blzzd1024.c"
 
   for (int i = 0; i < REPETITIONS; i++) {
-
     NTT_CT_std2rev_12289(a[i], psi_rev_ntt1024_12289, PARAMETER_N);
     NTT_CT_std2rev_12289(b[i], psi_rev_ntt1024_12289, PARAMETER_N);
     pmul(a[i], b[i], uc, PARAMETER_N);

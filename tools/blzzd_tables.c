@@ -22,7 +22,7 @@
 /*
  * x^k modulo q
  */
-static uint32_t pow(uint32_t x, uint32_t k, uint32_t q) {
+static uint32_t power(uint32_t x, uint32_t k, uint32_t q) {
   uint32_t y;
 
   assert(q > 0);
@@ -159,14 +159,14 @@ int main(int argc, char *argv[]) {
   psi = (uint32_t) x;
   phi = (psi * psi) % q;
 
-  i = pow(psi, n, q);
+  i = power(psi, n, q);
   if (i != q-1) {
     fprintf(stderr, "invalid psi: %"PRIu32" is not an n-th root of -1  (%"PRIu32"^n = %"PRIu32")\n", psi, psi, i);
     exit(EXIT_FAILURE);
   }
-  assert(pow(phi, n, q) == 1);
+  assert(power(phi, n, q) == 1);
   for (i=1; i<n; i++) {
-    if (pow(psi, i, q) == 1) {
+    if (power(psi, i, q) == 1) {
       fprintf(stderr, "invalid psi: psi^2 is not a primitive n-th root of unity (psi^2 = %"PRIu32")\n", phi);
       fprintf(stderr, "             (psi^2)^"PRIu32" = 1\n");
       exit(EXIT_FAILURE);

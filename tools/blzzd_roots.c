@@ -8,7 +8,7 @@
 /*
  * x^k modulo q
  */
-static uint32_t pow(uint32_t x, uint32_t k, uint32_t q) {
+static uint32_t power(uint32_t x, uint32_t k, uint32_t q) {
   uint32_t y;
 
   assert(q > 0);
@@ -58,12 +58,12 @@ int main(int argc, char* argv[]){
  
   count = 0;
   for (i = 1; i < q; i ++) {
-    test = pow(i, n, q);
+    test = power(i, n, q);
     if (test == q - 1) {
       count ++;
       psi = i;
       phi = (psi * psi) % q;
-      assert(pow(phi, n, q) == 1);
+      assert(power(phi, n, q) == 1);
       printf("solution %-3"PRIu32": psi = %6"PRIu32", phi = psi^2 = %6"PRIu32"\n", count, psi, phi);
     }
   }

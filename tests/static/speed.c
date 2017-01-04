@@ -64,12 +64,6 @@ int main()
   }
   print_results("ntt32_fft (512): ", t, NTESTS);
 
-  for (i=0; i<NTESTS; i++) {
-    t[i] = cpucycles();
-    NTT_CT_std2rev_12289(blzzd_a, psi_rev_ntt512_12289, 512);
-  }
-  print_results("ntt_microsoft (512): ", t, NTESTS);
-
   int32_t blzzd_b[1024];
   for(i=0; i<NTESTS; i++)
   {

@@ -1,5 +1,6 @@
 SHELL=/bin/sh
 
+CC=clang
 ARCH ?= $(shell uname -m)
 
 OS=$(shell uname)

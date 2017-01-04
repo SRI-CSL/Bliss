@@ -1,5 +1,6 @@
 SHELL=/bin/sh
 
+CC=clang
 OS=$(shell uname)
 
 ARCH ?= $(shell uname -m)
@@ -24,7 +25,7 @@ LDFLAGS =
 CPPFLAGS = -DLINUX
 endif
 
-CPPFLAGS += -I./include  -I./arch/${ARCH}
+CPPFLAGS += -I./include  -I./arch/${ARCH} -DNDEBUG
 CFLAGS += -std=c99 -fPIC -Wall -O3
 
 SRC_GLOBS = $(addsuffix /*.c,src)
