@@ -236,6 +236,7 @@ int32_t bliss_b_verify(bliss_signature_t *signature,  const bliss_public_key_t *
 
 void bliss_signature_delete(bliss_signature_t *signature){
   //FIXME: do we need to zero here? iam guesses no.
+  //TL: No, the signature is not a secret
 
   assert(signature != NULL);
 
