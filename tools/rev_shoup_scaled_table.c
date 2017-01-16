@@ -4,9 +4,10 @@
  * Input: q, n, and psi as in blzzd_table:
  * - q = psi^2 is a primitive n-th root of unity modulo q
  *
- * Output: table of powers of phi
- * - w[t + j] = phi^(n/2t)^j for t=1, 2, 4, ..., n/2
- *                          and j=0, ... t-1
+ * Output: table of powers of phi and psi
+ * - w[t + j] = psi^(n/2t) * phi^(n/2t)^bitreverse(j)
+ *    for t=1, 2, 4, ..., n/2
+ *    and j=0, ... t-1
  */
 
 #include <assert.h>
@@ -71,22 +72,37 @@ static bool inverse(uint32_t n, uint32_t q, uint32_t *inv_n) {
 
 
 /*
- * Build the table for n, q, phi
+ * Bitreverse of i, interpreted as a k-bit integer
  */
-static void build_shoup_table(uint32_t *a, uint32_t n, uint32_t q, uint32_t phi) {
-  uint32_t t, j, i;
+static uint32_t reverse(uint32_t i, uint32_t k) {
+  uint32_t x, b, j;
+
+  x = 0;
+  for (j=0; j<k; j++) {
+    b = i & 1;
+    x = (x<<1) | b;
+    i >>= 1;
+  }
+
+  return x;
+}
+
+/*
+ * Build the table for n, q, phi, psi
+ */
+static void build_rev_scaled_shoup_table(uint32_t *a, uint32_t n, uint32_t q, uint32_t phi, uint32_t psi) {
+  uint32_t t, j, i, k;
   uint32_t x, y;
 
   a[0] = 0; // not used
-  i = 1;
-  for (t=1; t<n; t <<= 1) {
-    x = 1;
+  for (t=1, k=0; t<n; t <<= 1, k++) {
+    assert(t == (((uint32_t) 1) << k));
+    x = power(psi, n/(2*t), q);
     y = power(phi, n/(2*t), q);
     for (j=0; j<t; j++) {
-      assert(i == t+j);
-      assert(i < n);
+      i = t + reverse(j, k);
+      assert(t <= i && i < 2*t);
       a[i] = x;
-      i ++;
       x = (x * y) % q;
     }
   }
@@ -189,8 +205,8 @@ int main(int argc, char *argv[]) {
     exit(EXIT_FAILURE);
   }
       
-  build_shoup_table(table, n, q, phi);
-  print_table(stdout, "shoup_ntt", table, n, q);
+  build_rev_scaled_shoup_table(table, n, q, phi, psi);
+  print_table(stdout, "rev_shoup_scaled_ntt", table, n, q);
 
   free(table);
 

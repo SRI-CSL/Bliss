@@ -16,7 +16,6 @@
 #include <inttypes.h>
 
 #include "cpucycles.h"
-#include "poly.h"
 #include "tests.h"
 #include "ntt_blzzd.h"
 #include "blzzd1024_tables.h"
