@@ -30,7 +30,11 @@ void uniform_poly(int32_t v[], int n, int nz1, int nz2, bool zero, entropy_t *en
   i = 0;
   while (i < nz1) {
     x = entropy_random_uint64(entropy);  //iam: do we really need 64 bits of randomness? seems like overkill.
-    j = (x >> 1) % n;
+    // TL: clearly overkill here :) Several options:
+    // - it does not matter so much (key generation is usually not the thing we really want to speed up)
+    // - draw 16 bits of randomness (16>log(n)+1) and do the same
+    // - for one "x" of 64-bit, do the loop 4 times before drawing randomness again
+    j = (x >> 1) % n; // nb: uniform because n is a power of 2
     if (v[j] != 0)
       continue;
     v[j] = x & 1 ? 1 : -1;
@@ -40,7 +44,8 @@ void uniform_poly(int32_t v[], int n, int nz1, int nz2, bool zero, entropy_t *en
   i = 0;
   while (i < nz2) {
     x = entropy_random_uint64(entropy); //iam: do we really need 64 bits of randomness? seems like overkill.
-    j = (x >> 1) % n;
+    // TL: idem
+    j = (x >> 1) % n; // nb: uniform because n is a power of 2
     if (v[j] != 0)
       continue;
     v[j] = x & 1 ? 2 : -2;
