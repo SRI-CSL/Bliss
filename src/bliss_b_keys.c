@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <inttypes.h>
 
 #include "bliss_b_errors.h"
@@ -57,7 +58,11 @@ static inline int32_t bliss_b_private_key_init(bliss_private_key_t *private_key,
 
 }
 
-
+/**
+ * Bliss-b public and sign key generation
+ *        sign key is    f, g small and f invertible
+ *        public key is  a_q = -(2g-1)/f mod q = (2g'+1)/f
+ */
 int32_t bliss_b_private_key_gen(bliss_private_key_t *private_key, bliss_kind_t kind, entropy_t *entropy){
   int32_t retcode;
   int32_t i, j, x;
@@ -147,6 +152,14 @@ int32_t bliss_b_private_key_gen(bliss_private_key_t *private_key, bliss_kind_t k
      *      (This comes from the fact that you can compute mod 2q by coputing mod q, and then
      *      looking at the result mod 2)
      */
+    
+    /* TL: 
+    *       Now that I read that again, I don't know why it's done this way but I think it's actually 
+    *       giving a BLISS-B key.
+    *
+    *       Indeed, a = (2g-1)/f and we compute NTT (-a), i.e. NTT((2*(-g)+1)/f)
+    *       Now the distribution of g is centered, therefore it does not matter.
+    */
 
     /*  normalize a */
     for (i = 0; i < p->n; i++) {
@@ -167,8 +180,13 @@ int32_t bliss_b_private_key_gen(bliss_private_key_t *private_key, bliss_kind_t k
 
  fail:
 
+  if (t) zero_memory(t, p->n * sizeof(int32_t));
   free(t);
+  t = NULL;
+  if (u) zero_memory(u, p->n * sizeof(int32_t));
   free(u);
+  u = NULL;
+
   bliss_b_private_key_delete(private_key);
 
   return BLISS_B_NO_MEM;
