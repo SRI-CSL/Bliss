@@ -111,12 +111,12 @@ int32_t bliss_b_verify(bliss_signature_t *signature,  const bliss_public_key_t *
     return BLISS_B_BAD_DATA;
   }
 
-  if((vector_max_norm(z2, n) << d) > b_inf){
+  if((vector_max_norm(z2, n) << d) > b_inf){ //TL: I don't think there is a <<d here bc. of "drop_bits" (which actually does not drop bits)
     return BLISS_B_BAD_DATA;
   }
 
   if (vector_scalar_product(z1, z1, n) +
-      (vector_scalar_product(z2, z2, n) << (2 * d)) > b_l2){
+      (vector_scalar_product(z2, z2, n) << (2 * d)) > b_l2){ // TL: Idem, I don't think there is a << (2*d)
     return BLISS_B_BAD_DATA;
   }
 
@@ -154,6 +154,7 @@ int32_t bliss_b_verify(bliss_signature_t *signature,  const bliss_public_key_t *
   /* start the real work */
   
   sha3_512(msg_hash, msg, msg_sz);  /* iam: we could directly hash into the first SHA3_512_DIGEST_LENGTH bytes of hash */
+  // TL: yes I think msg_hash is not useful here. It will be useful in sign() because there is a possibility to restart.
 
   /* hash for generating the challenge */
   memmove(hash, msg_hash, msg_hash_sz);
@@ -163,11 +164,11 @@ int32_t bliss_b_verify(bliss_signature_t *signature,  const bliss_public_key_t *
     v[i] = z1[i];
 
   ntt32_xmu(v, n, q, v, w);
-  ntt32_fft(v, n, q, w);
-  ntt32_xmu(v, n, q, v, a);
-  ntt32_fft(v, n, q, w);
-  ntt32_xmu(v, n, q, v, r);
-  ntt32_flp(v, n, q);
+  ntt32_fft(v, n, q, w);      /* v = ntt(v) */
+  ntt32_xmu(v, n, q, v, a);   /* v * a (both in ntt form) */ 
+  ntt32_fft(v, n, q, w); 
+  ntt32_xmu(v, n, q, v, r);   /* v * a in reversed order */
+  ntt32_flp(v, n, q);         /* v * a mod q */
 
   /* IAM2BD: v = a * z here? now? */
   
@@ -177,8 +178,10 @@ int32_t bliss_b_verify(bliss_signature_t *signature,  const bliss_public_key_t *
 
   /* (1/(q + 2)) * a * z1 */
   for (i = 0; i < n; i++){
-	if (v[i] > q) { v[i] -= q;  }  
+	if (v[i] > q) { v[i] -= q;  } // TL: I don't think you need it here, v is already reduce mod q isn't it? 
 	v[i] = modQ(2*v[i]*one_q2, q2, q2_inv);  //iam: why is there a 2 here?
+  // TL: because in BLISS and BLISS-B the public key a_1 = is 2*a_q where a_q was "mod q"
+  // TL: q2 = 2*q right?
   }
 
   /*  + (q/q+2) * c */
@@ -187,11 +190,12 @@ int32_t bliss_b_verify(bliss_signature_t *signature,  const bliss_public_key_t *
   }
 
   /* iam: huh? */
+  /* TL: so we are reconstructing the element to hash, but there is rounding, so we need to do it in the verification again */
   drop_bit_shift(v, v, n, d);
 
   /*  + z_2  mod p. iam: how many different mod algorithms do we need here? */
   for (i = 0; i < n; i++){
-	v[i] += z2[i];
+	v[i] += z2[i]; // TL: I think this is not going to work because you shifted z2 by d bits
 	if (v[i] < 0){
 	  v[i] += mod_p;
 	}
