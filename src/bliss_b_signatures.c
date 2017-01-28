@@ -30,7 +30,17 @@ void drop_bits(int32_t *output, int32_t *input, int32_t n, int32_t d){
   }
 }
 
-/* iam: bliss-06-13-2013 */
+/* iam: bliss-06-13-2013  
+ *
+ *   on page 21 of DDLL: every x between [-q, q) and any positive integer d, x can be uniquely written
+ *   as  x = [x]_d * 2^d  + r where r is in [-2^(d -1), 2^(d -1)).
+ *
+ *   we think this is computing: x --> [x]_d
+ *
+ * we could check this by brute force for q = 12289 and d among 8, 9, 10. Note that this is quite
+ * different from the strongswan version.
+ *
+ */
 void drop_bit_shift(int32_t *output, int32_t *input, int32_t n, int32_t d){
   int32_t i;
   for (i = 0; i < n; i++){
@@ -67,7 +77,7 @@ int32_t bliss_b_verify(bliss_signature_t *signature,  const bliss_public_key_t *
   bliss_b_error_t retval;
   int32_t i, n, q, d, mod_p, q2, q_inv, q2_inv, one_q2, kappa, b_inf, b_l2;
   const bliss_param_t *p;
-  int32_t *a, *z1, *z2, *v = NULL, *indices = NULL;
+  int32_t *a, *z1, *z2, *tz2, *v = NULL, *indices = NULL;
   const int32_t *w, *r;
   uint32_t *c_indices;
 
@@ -101,24 +111,32 @@ int32_t bliss_b_verify(bliss_signature_t *signature,  const bliss_public_key_t *
   c_indices = signature->c;   /* length kappa */
 
 
-  /* do the dropped bit shift */
-  
-  drop_bits(z2, z2, n, d);
+  /* do the dropped bit shift in tz2 (t for temp) */
+
+  tz2 = calloc(n, sizeof(int32_t));
+  if(tz2 ==  NULL){
+     return BLISS_B_NO_MEM;
+  }
+ 
+  drop_bits(tz2, z2, n, d);
   
   /* first check the norms */
 
   if (vector_max_norm(z1, n) > b_inf){
-    return BLISS_B_BAD_DATA;
+    retval = BLISS_B_BAD_DATA;
+    goto fail;
   }
 
-  if((vector_max_norm(z2, n) << d) > b_inf){ //TL: I don't think there is a <<d here bc. of "drop_bits" (which actually does not drop bits)
-    return BLISS_B_BAD_DATA;
+  if(vector_max_norm(tz2, n) > b_inf){
+    retval = BLISS_B_BAD_DATA;
+    goto fail;
   }
 
-  if (vector_scalar_product(z1, z1, n) +
-      (vector_scalar_product(z2, z2, n) << (2 * d)) > b_l2){ // TL: Idem, I don't think there is a << (2*d)
-    return BLISS_B_BAD_DATA;
+  if (vector_scalar_product(z1, z1, n) + vector_scalar_product(tz2, tz2, n)  > b_l2){
+    retval = BLISS_B_BAD_DATA;
+    goto fail;
   }
+
 
 
   /* make working space */
@@ -178,7 +196,7 @@ int32_t bliss_b_verify(bliss_signature_t *signature,  const bliss_public_key_t *
 
   /* (1/(q + 2)) * a * z1 */
   for (i = 0; i < n; i++){
-	if (v[i] > q) { v[i] -= q;  } // TL: I don't think you need it here, v is already reduce mod q isn't it? 
+	assert(0 <= v[i] && v[i] < q);
 	v[i] = modQ(2*v[i]*one_q2, q2, q2_inv);  //iam: why is there a 2 here?
   // TL: because in BLISS and BLISS-B the public key a_1 = is 2*a_q where a_q was "mod q"
   // TL: q2 = 2*q right?
@@ -195,7 +213,7 @@ int32_t bliss_b_verify(bliss_signature_t *signature,  const bliss_public_key_t *
 
   /*  + z_2  mod p. iam: how many different mod algorithms do we need here? */
   for (i = 0; i < n; i++){
-	v[i] += z2[i]; // TL: I think this is not going to work because you shifted z2 by d bits
+	v[i] += z2[i]; 
 	if (v[i] < 0){
 	  v[i] += mod_p;
 	}
@@ -218,6 +236,9 @@ int32_t bliss_b_verify(bliss_signature_t *signature,  const bliss_public_key_t *
 
  fail:
 
+  free(tz2);
+  tz2 = NULL;
+  
   free(v);
   v = NULL;
   
