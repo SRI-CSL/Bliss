@@ -111,7 +111,8 @@ int32_t bliss_b_verify(bliss_signature_t *signature,  const bliss_public_key_t *
   c_indices = signature->c;   /* length kappa */
 
 
-  /* do the dropped bit shift in tz2 (t for temp) */
+  /* do the dropped bit shift in tz2 (t for temp); 
+      iam asks later: why are we doing this again? */
 
   tz2 = calloc(n, sizeof(int32_t));
   if(tz2 ==  NULL){
