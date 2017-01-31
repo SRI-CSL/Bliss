@@ -49,10 +49,58 @@ void drop_bit_shift(int32_t *output, int32_t *input, int32_t n, int32_t d){
 }
 
 
-void generateC(int32_t *indices, size_t indices_sz, int32_t *vector, size_t vector_sz, uint8_t *hash, size_t hash_sz){
+bool generateC(int32_t *indices, size_t kappa, int32_t *n_vector, size_t n, uint8_t *hash, size_t hash_sz){
+  int32_t i, j, index;
+  uint8_t whash[SHA3_512_DIGEST_LENGTH];
+  uint8_t *array;
+  uint8_t repetitions;
+  
+  array = malloc(n);
+  if(array == NULL){
+	return false;
+  }
 
+  
+  //iam: note that the vector could be int16_t * if we really wanted
+  //iam: copy the vector into the front 2 n bytes of hash.
+  for(i = 0; i < n; i++){
 
+	for(j = 0; j < 2; j++){
+	  hash[SHA3_512_DIGEST_LENGTH + (2 * i) + j] = n_vector[i]&((uint8_t)-1);
+	  n_vector[i] >>= 8;
+	}
+	
+  }
 
+  repetitions = 0;
+
+ random_oracle:
+  repetitions++;
+  hash[hash_sz - 1] = repetitions;
+  sha3_512(whash, hash, hash_sz);
+
+  memset(array, 0, n);
+  
+  j = 0;
+
+  //CLASS == 0
+  
+  for(i = 0; i < kappa; ){
+	index = whash[j] % SHA3_512_DIGEST_LENGTH;  //iam: no modulus in bliss code
+	if(!array[index]){
+	  indices[i] = index;
+	  array[index]++;
+	  i++;
+	}
+
+	j++;
+	if(j >= 64){ goto random_oracle; }
+
+  }
+
+  free(array);
+  return true;
+  
 }
 
 
@@ -82,8 +130,8 @@ int32_t bliss_b_verify(bliss_signature_t *signature,  const bliss_public_key_t *
   uint32_t *c_indices;
 
   /* iam: following bliss-06-13-2013 since I get lost when following blzzd  */
-  uint8_t *msg_hash = NULL, *hash = NULL;
-  size_t msg_hash_sz, hash_sz;
+  uint8_t *hash = NULL;
+  size_t hash_sz;
   
   p = &public_key->p;
   a = public_key->a;
@@ -142,22 +190,14 @@ int32_t bliss_b_verify(bliss_signature_t *signature,  const bliss_public_key_t *
 
   /* make working space */
 
-  msg_hash_sz = SHA3_512_DIGEST_LENGTH * sizeof(uint8_t);  //iam: yes I know this is SHA3_512_DIGEST_LENGTH
-  
-  msg_hash = malloc(msg_hash_sz);
-  if(msg_hash ==  NULL){
-    retval = BLISS_B_NO_MEM;
-    goto fail;
-  }
-
-  hash_sz = msg_hash_sz + 2 * n;
+  hash_sz =  SHA3_512_DIGEST_LENGTH + 2 * n;
   
   hash = malloc(hash_sz);
   if(hash ==  NULL){
     retval = BLISS_B_NO_MEM;
     goto fail;
   }
-  
+
   v = calloc(n, sizeof(int32_t));
   if(v ==  NULL){
     retval = BLISS_B_NO_MEM;
@@ -171,12 +211,9 @@ int32_t bliss_b_verify(bliss_signature_t *signature,  const bliss_public_key_t *
   }
 
   /* start the real work */
-  
-  sha3_512(msg_hash, msg, msg_sz);  /* iam: we could directly hash into the first SHA3_512_DIGEST_LENGTH bytes of hash */
-  // TL: yes I think msg_hash is not useful here. It will be useful in sign() because there is a possibility to restart.
 
-  /* hash for generating the challenge */
-  memmove(hash, msg_hash, msg_hash_sz);
+  /* hash the message into the first SHA3_512_DIGEST_LENGTH bytes of the hash */
+  sha3_512(hash, msg, msg_sz);  
 
   /* v = a * z1 */
   for (i = 0; i < n; i++)
@@ -223,7 +260,10 @@ int32_t bliss_b_verify(bliss_signature_t *signature,  const bliss_public_key_t *
 	}
   }
 
-  generateC(indices, kappa, v, n, hash, hash_sz);
+  if(!generateC(indices, kappa, v, n, hash, hash_sz)){
+    retval = BLISS_B_NO_MEM;
+    goto fail;
+  }
 
   retval = 1;
   
@@ -245,9 +285,6 @@ int32_t bliss_b_verify(bliss_signature_t *signature,  const bliss_public_key_t *
   
   free(indices);
   indices = NULL;
-
-  free(msg_hash);
-  msg_hash = NULL;
 
   free(hash);
   hash = NULL;
