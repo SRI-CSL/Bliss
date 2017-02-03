@@ -9,6 +9,7 @@
 
 
 /* iam: comes from FFT.h of bliss-06-13-2013 */
+/* TL: should probably make it constant time */
 int32_t modQ(int32_t x, int32_t q, int32_t q_inv){
 	int64_t y = x;
 	if (y < 0){ y += q; }
@@ -26,7 +27,7 @@ int32_t modQ(int32_t x, int32_t q, int32_t q_inv){
 void drop_bits(int32_t *output, int32_t *input, int32_t n, int32_t d){
   int32_t i;
   for (i = 0; i < n; i++){
-	output[i] = input[i] * (1<<d);
+	output[i] = input[i] * (1<<d); // TL: Probably can do <<d directly. Not sure why I called that drop_bits at that time.
   }
 }
 
@@ -164,6 +165,7 @@ int32_t bliss_b_verify(bliss_signature_t *signature,  const bliss_public_key_t *
 
   /* do the dropped bit shift in tz2 (t for temp);
       iam asks later: why are we doing this again? */
+  // TL: Probably because the infinity and L2 bounds given in BLISS are for "z1" and a "z2" of similar size. This comes from how we assessed security from the attacks.
 
   tz2 = calloc(n, sizeof(int32_t));
   if(tz2 ==  NULL){
@@ -253,6 +255,7 @@ int32_t bliss_b_verify(bliss_signature_t *signature,  const bliss_public_key_t *
   drop_bit_shift(v, v, n, d);
 
   /*  + z_2  mod p. iam: how many different mod algorithms do we need here? */
+  /* TL: Should do this in constant time */
   for (i = 0; i < n; i++){
 	v[i] += z2[i];
 	if (v[i] < 0){
