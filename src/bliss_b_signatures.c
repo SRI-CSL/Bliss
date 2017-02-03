@@ -30,7 +30,7 @@ void drop_bits(int32_t *output, int32_t *input, int32_t n, int32_t d){
   }
 }
 
-/* iam: bliss-06-13-2013  
+/* iam: bliss-06-13-2013
  *
  *   on page 21 of DDLL: every x between [-q, q) and any positive integer d, x can be uniquely written
  *   as  x = [x]_d * 2^d  + r where r is in [-2^(d -1), 2^(d -1)).
@@ -54,22 +54,23 @@ bool generateC(int32_t *indices, size_t kappa, int32_t *n_vector, size_t n, uint
   uint8_t whash[SHA3_512_DIGEST_LENGTH];
   uint8_t *array;
   uint8_t repetitions;
-  
+
   array = malloc(n);
   if(array == NULL){
 	return false;
   }
 
-  
+
   //iam: note that the vector could be int16_t * if we really wanted
   //iam: copy the vector into the front 2 n bytes of hash.
   for(i = 0; i < n; i++){
 
+    //unroll this fucker
 	for(j = 0; j < 2; j++){
 	  hash[SHA3_512_DIGEST_LENGTH + (2 * i) + j] = n_vector[i]&((uint8_t)-1);
 	  n_vector[i] >>= 8;
 	}
-	
+
   }
 
   repetitions = 0;
@@ -80,13 +81,13 @@ bool generateC(int32_t *indices, size_t kappa, int32_t *n_vector, size_t n, uint
   sha3_512(whash, hash, hash_sz);
 
   memset(array, 0, n);
-  
+
   j = 0;
 
-  //CLASS == 0
-  
+  //N = 256
+
   for(i = 0; i < kappa; ){
-	index = whash[j] % SHA3_512_DIGEST_LENGTH;  //iam: no modulus in bliss code
+	index = whash[j];  // index < 256 < N
 	if(!array[index]){
 	  indices[i] = index;
 	  array[index]++;
@@ -98,9 +99,11 @@ bool generateC(int32_t *indices, size_t kappa, int32_t *n_vector, size_t n, uint
 
   }
 
+  // N = 512
+
   free(array);
   return true;
-  
+
 }
 
 
@@ -132,11 +135,11 @@ int32_t bliss_b_verify(bliss_signature_t *signature,  const bliss_public_key_t *
   /* iam: following bliss-06-13-2013 since I get lost when following blzzd  */
   uint8_t *hash = NULL;
   size_t hash_sz;
-  
+
   p = &public_key->p;
   a = public_key->a;
 
-  
+
   n = p->n;
   q = p->q;
   d = p->d;
@@ -150,25 +153,25 @@ int32_t bliss_b_verify(bliss_signature_t *signature,  const bliss_public_key_t *
   r = p->r;
 
   q2 = p->q2;
-  q_inv =  p->q_inv; 
+  q_inv =  p->q_inv;
   q2_inv =  p->q2_inv;
   one_q2 = p->one_q2;
-	
+
   z1 = signature->z1;         /* length n */
   z2 = signature->z2;         /* length n */
   c_indices = signature->c;   /* length kappa */
 
 
-  /* do the dropped bit shift in tz2 (t for temp); 
+  /* do the dropped bit shift in tz2 (t for temp);
       iam asks later: why are we doing this again? */
 
   tz2 = calloc(n, sizeof(int32_t));
   if(tz2 ==  NULL){
      return BLISS_B_NO_MEM;
   }
- 
+
   drop_bits(tz2, z2, n, d);
-  
+
   /* first check the norms */
 
   if (vector_max_norm(z1, n) > b_inf){
@@ -191,7 +194,7 @@ int32_t bliss_b_verify(bliss_signature_t *signature,  const bliss_public_key_t *
   /* make working space */
 
   hash_sz =  SHA3_512_DIGEST_LENGTH + 2 * n;
-  
+
   hash = malloc(hash_sz);
   if(hash ==  NULL){
     retval = BLISS_B_NO_MEM;
@@ -213,7 +216,7 @@ int32_t bliss_b_verify(bliss_signature_t *signature,  const bliss_public_key_t *
   /* start the real work */
 
   /* hash the message into the first SHA3_512_DIGEST_LENGTH bytes of the hash */
-  sha3_512(hash, msg, msg_sz);  
+  sha3_512(hash, msg, msg_sz);
 
   /* v = a * z1 */
   for (i = 0; i < n; i++)
@@ -221,13 +224,13 @@ int32_t bliss_b_verify(bliss_signature_t *signature,  const bliss_public_key_t *
 
   ntt32_xmu(v, n, q, v, w);
   ntt32_fft(v, n, q, w);      /* v = ntt(v) */
-  ntt32_xmu(v, n, q, v, a);   /* v * a (both in ntt form) */ 
-  ntt32_fft(v, n, q, w); 
+  ntt32_xmu(v, n, q, v, a);   /* v * a (both in ntt form) */
+  ntt32_fft(v, n, q, w);
   ntt32_xmu(v, n, q, v, r);   /* v * a in reversed order */
   ntt32_flp(v, n, q);         /* v * a mod q */
 
   /* IAM2BD: v = a * z here? now? */
-  
+
   /*  bliss-06-13-2013 computes  a/(q+2)*z_1+q/(q+2)*c+z_2 =  [(1/(q + 2)) * a * z1] + [(q/q+2) * c] + z_2  mod p */
   /*  iam: there may be some factors missing here; but at least I have something to work with and discuss. */
 
@@ -251,12 +254,12 @@ int32_t bliss_b_verify(bliss_signature_t *signature,  const bliss_public_key_t *
 
   /*  + z_2  mod p. iam: how many different mod algorithms do we need here? */
   for (i = 0; i < n; i++){
-	v[i] += z2[i]; 
+	v[i] += z2[i];
 	if (v[i] < 0){
 	  v[i] += mod_p;
 	}
 	if (v[i] >= mod_p){
-	  v[i] -= mod_p; 
+	  v[i] -= mod_p;
 	}
   }
 
@@ -266,23 +269,23 @@ int32_t bliss_b_verify(bliss_signature_t *signature,  const bliss_public_key_t *
   }
 
   retval = 1;
-  
+
   for (i = 0; i < kappa; i++){
 	if (indices[i] != c_indices[i]){
 	  retval = 0;
 	  break;
 	}
   }
-  
+
 
  fail:
 
   free(tz2);
   tz2 = NULL;
-  
+
   free(v);
   v = NULL;
-  
+
   free(indices);
   indices = NULL;
 
