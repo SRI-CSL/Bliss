@@ -44,8 +44,9 @@ void drop_bits(int32_t *output, int32_t *input, int32_t n, int32_t d){
  */
 void drop_bit_shift(int32_t *output, int32_t *input, int32_t n, int32_t d){
   int32_t i;
-  for (i = 0; i < n; i++){
-	output[i] = (2*input[i] + (1<<d))/(1<<(d + 1));
+
+  for (i = 0; i < n; i++) {
+    output[i] = (2*input[i] + (1<<d))/(1<<(d + 1));
   }
 }
 
@@ -57,21 +58,20 @@ bool generateC(int32_t *indices, size_t kappa, int32_t *n_vector, size_t n, uint
   uint8_t repetitions;
 
   array = malloc(n);
-  if(array == NULL){
-	return false;
+  if (array == NULL) {
+    return false;
   }
 
 
   //iam: note that the vector could be int16_t * if we really wanted
   //iam: copy the vector into the front 2 n bytes of hash.
-  for(i = 0; i < n; i++){
+  for(i = 0; i < n; i++) {
 
     //unroll this fucker
-	for(j = 0; j < 2; j++){
-	  hash[SHA3_512_DIGEST_LENGTH + (2 * i) + j] = n_vector[i]&((uint8_t)-1);
-	  n_vector[i] >>= 8;
-	}
-
+    for(j = 0; j < 2; j++){
+      hash[SHA3_512_DIGEST_LENGTH + (2 * i) + j] = n_vector[i]&((uint8_t)-1);
+      n_vector[i] >>= 8;
+    }    
   }
 
   repetitions = 0;
@@ -101,6 +101,31 @@ bool generateC(int32_t *indices, size_t kappa, int32_t *n_vector, size_t n, uint
   }
 
   // N = 512
+#if 0
+  /*
+   * BD: this implementation (based on Verify.cpp) is not portable.
+   * The result depends on the endianness on the machine
+   * It alsos assumes that unesigned long is 64bits.
+   *
+   * A simple approach: read 8 bytes of array hash at a time
+   * Then construct seven 9-bit numbers out of these eight bytes:
+   */
+  unsigned long extra_bits;
+
+  extra_bits = *((unsigned long *) (&hash[56]));
+
+  for (i=0; i<kappa;) {
+    index = 2*((long) hash[j]) + (extra_bits %2);
+    extra_bits = extra_bits >> 1;
+    if (!arrayValues[index]){
+      indices[i] = index;
+      arrayValues[index]++;
+      i++;
+    }
+    j++;
+    if (j>=56) goto randomOracle;
+  }
+#endif
 
   free(array);
   return true;
