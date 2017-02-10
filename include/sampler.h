@@ -31,8 +31,7 @@ typedef struct sampler_s {
  *
  * Returns true otherwise.
  */
-extern bool sampler_init(sampler_t *sampler, uint32_t sigma, uint32_t ell, uint32_t precision,
-			 const uint8_t *seed);
+extern bool sampler_init(sampler_t *sampler, uint32_t sigma, uint32_t ell, uint32_t precision, const uint8_t *seed);
 
 
 /* 
@@ -68,7 +67,7 @@ extern bool sampler_ber_cosh(sampler_t *sampler, int32_t x);
  * - return true if this succeeds, false otherwise
  * - the sampled integer is returned in *x
  */
-extern bool sampler_pos_binary(sampler_t *sampler, uint32_t *x);
+bextern bool sampler_pos_binary(sampler_t *sampler, uint32_t *x);
 
 /*
  * Variant implementation: return the sampled integer.

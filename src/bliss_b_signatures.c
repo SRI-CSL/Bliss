@@ -5,6 +5,7 @@
 #include "bliss_b_signatures.h"
 #include "bliss_b_utils.h"
 #include "ntt_blzzd.h"
+#include "sampler.h"
 #include "shake128.h"
 
 
@@ -128,12 +129,26 @@ void generateC(int32_t *indices, size_t kappa, int32_t *n_vector, size_t n, uint
   }
 }
 
+/*
+ * hard-coded seed for sampler: need to get this from somewhere
+ */
+static uint8_t seed[SHA3_512_DIGEST_LENGTH] = {
+  0, 1, 2, 3, 4, 5, 6, 7,
+  0, 1, 2, 3, 4, 5, 6, 7,
+  0, 1, 2, 3, 4, 5, 6, 7,
+  0, 1, 2, 3, 4, 5, 6, 7,
+  0, 1, 2, 3, 4, 5, 6, 7,
+  0, 1, 2, 3, 4, 5, 6, 7,
+  0, 1, 2, 3, 4, 5, 6, 7,
+  0, 1, 2, 3, 4, 5, 6, 7,
+};
 
 int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *private_key, const uint8_t *msg, size_t msg_sz, entropy_t *entropy){
+  sampler_t sampler;
   bliss_b_error_t retval;
-  int32_t n, q;
+  int32_t i, n, q;
   const bliss_param_t *p;
-  int32_t *a;
+  int32_t *a, *z1 = NULL, *z2 = NULL;
   uint8_t *hash = NULL;
   size_t hash_sz;
 
@@ -143,11 +158,7 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
   n = p->n;
   q = p->q;
 
-
-  /* 0: compute the hash of the msg */
-
   /* make working space */
-
   hash_sz =  SHA3_512_DIGEST_LENGTH + 2 * n;
 
   hash = malloc(hash_sz);
@@ -156,11 +167,43 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
     goto fail;
   }
 
+
+  z1 = malloc(n * sizeof(int32_t));
+  if(z1 ==  NULL){
+    retval = BLISS_B_NO_MEM;
+    goto fail;
+  }
+
+  z2 = malloc(n * sizeof(int32_t));
+  if(z2 ==  NULL){
+    retval = BLISS_B_NO_MEM;
+    goto fail;
+  }
+
+  //iam: need to make a more educated guess as to what these parameters are.
+  if (! sampler_init(&sampler, 271, 22, 128, seed)) {
+    retval = BLISS_B_BAD_ARGS;
+    goto fail;
+  }
+
+  
+  /* 0: compute the hash of the msg */
+
+
   /* hash the message into the first SHA3_512_DIGEST_LENGTH bytes of the hash */
+
   sha3_512(hash, msg, msg_sz);
   
   /* 1 restart: choose y1, y2 */
 
+ restart:
+
+  for(i = 0; i < n; i++){
+	z1[i] = sampler_gauss2(&sampler);
+	z2[i] = sampler_gauss2(&sampler);
+  }
+
+  
   /* 2: compute u = \xi * a1 * y1 + y2 mod 2q */
 
   /* 3: generateC of u and the hash of the msg */
@@ -179,10 +222,19 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
 	 
 
   return BLISS_B_NO_ERROR;
+
  fail:
 
   free(hash);
   hash = NULL;
+
+  //zero these puppies out
+  free(z1);
+  z1 = NULL;
+
+  //zero these puppies out
+  free(z2);
+  z2 = NULL;
 
   return retval;
   
