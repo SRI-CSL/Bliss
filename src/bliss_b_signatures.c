@@ -26,8 +26,11 @@ int32_t modQ(int32_t x, int32_t q, int32_t q_inv){
 /* iam: bliss-06-13-2013 */
 void drop_bits(int32_t *output, int32_t *input, int32_t n, int32_t d){
   int32_t i;
+
+  assert(0 < d && d < 31);
+
   for (i = 0; i < n; i++){
-	output[i] = input[i] * (1<<d); // TL: Probably can do <<d directly. Not sure why I called that drop_bits at that time.
+    output[i] = input[i] << d;
   }
 }
 
@@ -42,11 +45,16 @@ void drop_bits(int32_t *output, int32_t *input, int32_t n, int32_t d){
  * different from the strongswan version.
  *
  */
-void drop_bit_shift(int32_t *output, int32_t *input, int32_t n, int32_t d){
-  int32_t i;
+void drop_bit_shift(int32_t *output, int32_t *input, int32_t n, int32_t d) {
+  int32_t i, delta, half_delta;
 
+  assert(0 < d && d < 31);
+
+  delta = 1<<d;
+  half_delta = delta >> 1;
   for (i = 0; i < n; i++) {
-    output[i] = (2*input[i] + (1<<d))/(1<<(d + 1));
+    //    output[i] = (2*input[i] + (1<<d))/(1<<(d + 1));
+    output[i] = (input[i] + half_delta) / delta;
   }
 }
 
