@@ -130,16 +130,62 @@ void generateC(int32_t *indices, size_t kappa, int32_t *n_vector, size_t n, uint
 
 
 int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *private_key, const uint8_t *msg, size_t msg_sz, entropy_t *entropy){
+  bliss_b_error_t retval;
   int32_t n, q;
   const bliss_param_t *p;
+  int32_t *a;
+  uint8_t *hash = NULL;
+  size_t hash_sz;
 
   p = &private_key->p;
+  a = private_key->a;
 
   n = p->n;
   q = p->q;
 
 
+  /* 0: compute the hash of the msg */
+
+  /* make working space */
+
+  hash_sz =  SHA3_512_DIGEST_LENGTH + 2 * n;
+
+  hash = malloc(hash_sz);
+  if(hash ==  NULL){
+    retval = BLISS_B_NO_MEM;
+    goto fail;
+  }
+
+  /* hash the message into the first SHA3_512_DIGEST_LENGTH bytes of the hash */
+  sha3_512(hash, msg, msg_sz);
+  
+  /* 1 restart: choose y1, y2 */
+
+  /* 2: compute u = \xi * a1 * y1 + y2 mod 2q */
+
+  /* 3: generateC of u and the hash of the msg */
+
+  /* 4: (v1, v2) = greedySC(c) */
+
+  /* 5: choose a random bit b */
+
+  /* 6: (z1, z2) = (y1, y2) + (-1)^b * (v1, v2) */
+
+  /* 7: continue with sampler_gauss2 probability otherwise restart */
+
+  /* 8: z2 = (drop_bits(u) - drop_bits(u - z2)) mod p  */
+
+  /* return (z1, z2, c) */
+	 
+
   return BLISS_B_NO_ERROR;
+ fail:
+
+  free(hash);
+  hash = NULL;
+
+  return retval;
+  
 }
 
 
@@ -154,7 +200,6 @@ int32_t bliss_b_verify(bliss_signature_t *signature,  const bliss_public_key_t *
   const int32_t *w, *r;
   uint32_t *c_indices;
 
-  /* iam: following bliss-06-13-2013 since I get lost when following blzzd  */
   uint8_t *hash = NULL;
   size_t hash_sz;
 
@@ -165,7 +210,7 @@ int32_t bliss_b_verify(bliss_signature_t *signature,  const bliss_public_key_t *
   n = p->n;
   q = p->q;
   d = p->d;
-  mod_p = p-> mod_p;
+  mod_p = p->mod_p;
 
   kappa = p->kappa;
   b_inf = p->b_inf;
@@ -288,11 +333,11 @@ int32_t bliss_b_verify(bliss_signature_t *signature,  const bliss_public_key_t *
   }
 
   generateC(indices, kappa, v, n, hash, hash_sz);
-  retval = 1;
+  retval = BLISS_B_NO_ERROR;
 
   for (i = 0; i < kappa; i++){
     if (indices[i] != c_indices[i]){
-      retval = 0;
+      retval = BLISS_B_VERIFY_FAIL;
       break;
     }
   }
