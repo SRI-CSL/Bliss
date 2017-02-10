@@ -51,85 +51,73 @@ void drop_bit_shift(int32_t *output, int32_t *input, int32_t n, int32_t d){
 }
 
 
-bool generateC(int32_t *indices, size_t kappa, int32_t *n_vector, size_t n, uint8_t *hash, size_t hash_sz){
-  int32_t i, j, index;
+void generateC(int32_t *indices, size_t kappa, int32_t *n_vector, size_t n, uint8_t *hash, size_t hash_sz){
   uint8_t whash[SHA3_512_DIGEST_LENGTH];
-  uint8_t *array;
-  uint8_t repetitions;
+  uint8_t array[512]; // size we need is either 256 (for Bliss 0) or 512 for others
+  int32_t i, j, index;
+  uint32_t x;
+  uint8_t extra_bits;
 
-  array = malloc(n);
-  if (array == NULL) {
-    return false;
-  }
-
+  assert(n <= 512 && hash_sz == SHA3_512_DIGEST_LENGTH + 2 * n);
 
   //iam: note that the vector could be int16_t * if we really wanted
-  //iam: copy the vector into the front 2 n bytes of hash.
-  for(i = 0; i < n; i++) {
-
-    //unroll this fucker
-    for(j = 0; j < 2; j++){
-      hash[SHA3_512_DIGEST_LENGTH + (2 * i) + j] = n_vector[i]&((uint8_t)-1);
-      n_vector[i] >>= 8;
-    }    
-  }
-
-  repetitions = 0;
-
- random_oracle:
-  repetitions++;
-  hash[hash_sz - 1] = repetitions;
-  sha3_512(whash, hash, hash_sz);
-
-  memset(array, 0, n);
-
-  j = 0;
-
-  //N = 256
-
-  for(i = 0; i < kappa; ){
-	index = whash[j];  // index < 256 < N
-	if(!array[index]){
-	  indices[i] = index;
-	  array[index]++;
-	  i++;
-	}
-
-	j++;
-	if(j >= 64){ goto random_oracle; }
-
-  }
-
-  // N = 512
-#if 0
   /*
-   * BD: this implementation (based on Verify.cpp) is not portable.
-   * The result depends on the endianness on the machine
-   * It alsos assumes that unesigned long is 64bits.
-   *
-   * A simple approach: read 8 bytes of array hash at a time
-   * Then construct seven 9-bit numbers out of these eight bytes:
+   * append the n_vector to the hash array
    */
-  unsigned long extra_bits;
-
-  extra_bits = *((unsigned long *) (&hash[56]));
-
-  for (i=0; i<kappa;) {
-    index = 2*((long) hash[j]) + (extra_bits %2);
-    extra_bits = extra_bits >> 1;
-    if (!arrayValues[index]){
-      indices[i] = index;
-      arrayValues[index]++;
-      i++;
-    }
-    j++;
-    if (j>=56) goto randomOracle;
+  j = SHA3_512_DIGEST_LENGTH;
+  for(i = 0; i < n; i++) {
+    // n_vector[i] is between 0 and mod_p (less than 2^16)
+    x = (uint32_t) n_vector[i];
+    hash[j] = x & 255;
+    hash[j + 1] = (x >> 8);
+    j += 2;
   }
-#endif
 
-  free(array);
-  return true;
+  while (true) {
+    // BD: just to be safe, we shouldn't overwrite the last element of hash
+    // (so that n_vector[n-1] is taken into account).
+    hash[hash_sz - 1] ++;
+    sha3_512(whash, hash, hash_sz);
 
+    memset(array, 0, n);
+
+    if (n == 256) {
+      // Bliss_b 0: we need kappa indices of 8 bits
+      i = 0;
+      for (j=0; j<SHA3_512_DIGEST_LENGTH; j++) {
+	index = whash[j];  // index < 256
+	if(! array[index]) {
+	  indices[i] = index;
+	  array[index] ++;
+	  i ++;
+	  if (i >= kappa) return;
+	}
+      }
+
+    } else {
+      assert(n == 512 && (SHA3_512_DIGEST_LENGTH & 7) == 0);
+      // we need kappa indices of 9 bits
+      i = 0;
+      j = 0;
+      while(j<SHA3_512_DIGEST_LENGTH) {
+	if ((j & 7) == 0) {
+	  // start of a block of 8 bytes
+	  extra_bits = whash[j];
+	  j ++;
+	}
+	index = (whash[j] << 1) | (extra_bits & 1);
+	extra_bits >>= 1;
+	j ++;
+
+	if(! array[index]) {
+	  indices[i] = index;
+	  array[index] ++;
+	  i ++;
+	  if (i >= kappa) return;
+	}
+      }
+    }
+  }
 }
 
 
@@ -291,18 +279,14 @@ int32_t bliss_b_verify(bliss_signature_t *signature,  const bliss_public_key_t *
 	}
   }
 
-  if(!generateC(indices, kappa, v, n, hash, hash_sz)){
-    retval = BLISS_B_NO_MEM;
-    goto fail;
-  }
-
+  generateC(indices, kappa, v, n, hash, hash_sz);
   retval = 1;
 
   for (i = 0; i < kappa; i++){
-	if (indices[i] != c_indices[i]){
-	  retval = 0;
-	  break;
-	}
+    if (indices[i] != c_indices[i]){
+      retval = 0;
+      break;
+    }
   }
 
 
