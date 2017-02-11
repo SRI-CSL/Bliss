@@ -24,16 +24,15 @@ typedef struct sampler_s {
 
 /*
  * Initialize a sampler:
- * - params = Bliss b parameters 
- * - the entropy object to use.
- *
- * The sampler uses the following fields of the params record:
  * - sigma: the standard deviation
  * - ell: the number of significant bits (i.e. the number of rows in the table.h)
  * - precision: the precision, (i.e. precision = 8 * the number of columns in the table.h)
+ * - the entropy object to use.
  *
+ * This returns true (success) if the combination sigma/ell/precision is supported.
+ * (See tables.h)
  */
-extern void sampler_init(sampler_t *sampler, const bliss_b_params_t *params, entropy_t *entropy);
+extern bool sampler_init(sampler_t *sampler, uint32_t sigma, uint32_t ell, uint32_t precision, entropy_t *entropy);
 
 
 /* 
@@ -69,7 +68,7 @@ extern bool sampler_ber_cosh(sampler_t *sampler, int32_t x);
  * - return true if this succeeds, false otherwise
  * - the sampled integer is returned in *x
  */
-bextern bool sampler_pos_binary(sampler_t *sampler, uint32_t *x);
+extern bool sampler_pos_binary(sampler_t *sampler, uint32_t *x);
 
 /*
  * Variant implementation: return the sampled integer.

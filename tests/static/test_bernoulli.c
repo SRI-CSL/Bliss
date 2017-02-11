@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <assert.h>
 
+#include "entropy.h"
 #include "sampler.h"
 #include "cpucycles.h"
 #include "tests.h"
@@ -20,7 +21,10 @@ static uint8_t seed[SHA3_512_DIGEST_LENGTH] = {
 };
 
 
+
 static sampler_t sampler;
+
+static entropy_t entropy;
 
 // bernouilli parameters we try
 // since we initialize the sampler for 128 bit precision,
@@ -55,7 +59,11 @@ static void test_bernoulli(sampler_t *sampler, const uint8_t *p, uint32_t ntests
 }
 
 int main(void){
-  if (! sampler_init(&sampler, 271, 22, 128, seed)) {
+
+
+  entropy_init(&entropy, seed);
+
+  if (! sampler_init(&sampler, 271, 22, 128, &entropy)) {
     fprintf(stderr, "error initializing sampler\n");
     return EXIT_FAILURE;
   }

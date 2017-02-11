@@ -246,7 +246,7 @@ const int r12289n512[512] = {
      5618,  7735,  4094,   540,  8452,  4939,  5118,  5826
 };
 
-const bliss_param_t bliss_b_params[] = {
+static const bliss_param_t bliss_b_params[] = {
 
   /* bliss-b 0 */
   { BLISS_B_0,          /* kind */
@@ -265,10 +265,12 @@ const bliss_param_t bliss_b_params[] = {
     140,                /* nz1 */
     38,                 /* nz2 */
     17928,              /* pmax */
-    100.0,              /* sigma */
+    100,                /* sigma */
     2.44,               /* m */
     w7681n256,          /* w */
     r7681n256,          /* r */
+    21,                 /* ell TODO: CHECK */
+    128,                /* precision */
   },
 
   /* bliss-b 1 */
@@ -288,10 +290,12 @@ const bliss_param_t bliss_b_params[] = {
     154,                /* nz1 */
     0,                  /* nz2 */
     17825,              /* pmax */
-    215.0,              /* sigma */
+    215,                /* sigma */
     1.21,               /* m */
     w12289n512,         /* w */
     r12289n512,         /* r */
+    21,                 /* ell */
+    128,                /* precision */
   },
 
   /* bliss-b 2 */
@@ -312,10 +316,12 @@ const bliss_param_t bliss_b_params[] = {
     154,                /* nz1 */
     0,                  /* nz2 */
     17825,              /* pmax */
-    107.0,              /* sigma */
+    107,                /* sigma */
     2.18,               /* m */
     w12289n512,         /* w */
     r12289n512,         /* r */
+    21,                 /* ell: TODO: just a guess? */
+    128,                /* precision */
   },
 
   /* bliss-b 3 */
@@ -336,10 +342,12 @@ const bliss_param_t bliss_b_params[] = {
     216,                /* nz1 */
     16,                 /* nz2 */
     42270,              /* pmax */
-    250.0,              /* sigma */
+    250,                /* sigma */
     1.40,               /* m */
     w12289n512,         /* w */
     r12289n512,         /* r */
+    21,                 /* ell */
+    128,                /* precision */
   },
 
   /* bliss-b 4 */
@@ -360,11 +368,23 @@ const bliss_param_t bliss_b_params[] = {
     231,                /* nz1 */
     31,                 /* nz2 */
     69576,              /* pmax */
-    271.0,              /* sigma */
+    271,                /* sigma */
     1.61,               /* m */
     w12289n512,         /* w */
     r12289n512,         /* r */
+    22,                 /* ell */
+    128                 /* precision */
   },
 
 
 };
+
+
+bool bliss_params_init(bliss_param_t *params, bliss_kind_t kind){
+  if (BLISS_B_0 <= kind && kind <= BLISS_B_4  && params != NULL) {
+    *params = bliss_b_params[kind];
+    return true;
+  } else {
+    return false;
+  }
+}

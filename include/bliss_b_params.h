@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 /* Names for the five varieties of bliss-b */
 typedef enum { BLISS_B_0, BLISS_B_1, BLISS_B_2, BLISS_B_3, BLISS_B_4 } bliss_kind_t;
@@ -24,7 +25,7 @@ typedef struct {
   int32_t nz1;          /* nonzero +-1  */
   int32_t nz2;          /* nonzero +-2  */
   int32_t pmax;         /* derived from nt, nz2, n, kappa  */
-  double sigma;         /* standard deviation  */
+  uint32_t sigma;       /* standard deviation  */
   double m;             /* repetition rate  */
   const int32_t *w;     /* n roots of unity (mod q)  */
   const int32_t *r;     /* w[i]/n (mod q)  */
@@ -36,8 +37,6 @@ typedef struct {
 } bliss_param_t;
 
 
-
-/* The five varieties of bliss-b */
-extern const bliss_param_t bliss_b_params[]; 
+extern bool bliss_params_init(bliss_param_t *params, bliss_kind_t kind);
 
 #endif

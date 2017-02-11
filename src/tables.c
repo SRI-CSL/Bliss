@@ -214,7 +214,7 @@ const uint8_t* get_table(uint32_t sigma, uint32_t ell, uint32_t precision){
   if (precision != 64 && precision != 128) { 
     return NULL; 
   }
-  switch(sigma){
+  switch(sigma) {
   case 215:
     return precision == 64 ? c_bliss_215_21_64 : c_bliss_215_21_128;
   case 250:

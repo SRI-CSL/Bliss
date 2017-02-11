@@ -132,17 +132,6 @@ void generateC(int32_t *indices, size_t kappa, int32_t *n_vector, size_t n, uint
 /*
  * hard-coded seed for sampler: need to get this from somewhere
  */
-static uint8_t seed[SHA3_512_DIGEST_LENGTH] = {
-  0, 1, 2, 3, 4, 5, 6, 7,
-  0, 1, 2, 3, 4, 5, 6, 7,
-  0, 1, 2, 3, 4, 5, 6, 7,
-  0, 1, 2, 3, 4, 5, 6, 7,
-  0, 1, 2, 3, 4, 5, 6, 7,
-  0, 1, 2, 3, 4, 5, 6, 7,
-  0, 1, 2, 3, 4, 5, 6, 7,
-  0, 1, 2, 3, 4, 5, 6, 7,
-};
-
 int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *private_key, const uint8_t *msg, size_t msg_sz, entropy_t *entropy){
   sampler_t sampler;
   bliss_b_error_t retval;
@@ -181,7 +170,7 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
   }
 
   //iam: need to make a more educated guess as to what these parameters are.
-  if (! sampler_init(&sampler, 271, 22, 128, seed)) {
+  if (!sampler_init(&sampler, p->sigma, p->ell, p->precision, entropy)) {
     retval = BLISS_B_BAD_ARGS;
     goto fail;
   }

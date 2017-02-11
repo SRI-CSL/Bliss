@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <assert.h>
 
+#include "entropy.h"
 #include "sampler.h"
 #include "cpucycles.h"
 #include "tests.h"
@@ -18,6 +19,9 @@ static uint8_t seed[SHA3_512_DIGEST_LENGTH] = {
   0, 1, 2, 3, 4, 5, 6, 7,
   0, 1, 2, 3, 4, 5, 6, 7,
 };
+
+
+static entropy_t entropy;
 
 static sampler_t sampler;
 
@@ -72,7 +76,8 @@ static void test_gaussian(sampler_t *sampler, uint32_t ntests) {
 
 int main(void){
   printf("\nTesting Gaussian sampling\n");
-  if (! sampler_init(&sampler, 271, 22, 128, seed)) {
+  entropy_init(&entropy, seed);
+  if (! sampler_init(&sampler, 271, 22, 128, &entropy)) {
     fprintf(stderr, "error initializing sampler\n");
     return EXIT_FAILURE;
   }

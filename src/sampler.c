@@ -9,15 +9,11 @@
  * - return true if success/false if error
  * - false means that the parameters sigma/ell/precisions are not supported
  */
-bool sampler_init(sampler_t *sampler, const bliss_b_params_t *params, entropy_t *entropy) {
-  uint32_t sigma;
-  uint32_t ell;
-  uint32_t precision;
-
+bool sampler_init(sampler_t *sampler, uint32_t sigma, uint32_t ell, uint32_t precision, entropy_t *entropy) {
   sampler->entropy = entropy;
-  sampler->sigma = params->sigma;
-  sampler->ell = params->ell;
-  sampler->precision = params->precision;
+  sampler->sigma = sigma;
+  sampler->ell = ell;
+  sampler->precision = precision;
   sampler->columns = sampler->precision / 8;
   sampler->c = get_table(sigma, ell, precision);
   if (sampler->c != NULL) {
@@ -41,7 +37,7 @@ bool sampler_ber(sampler_t *sampler, const uint8_t *p) {
   assert(sampler != NULL && p != NULL);
 
   for(i = 0; i < sampler->columns; i++) {
-    uc = entropy_random_uint8(sample->entropy);
+    uc = entropy_random_uint8(sampler->entropy);
     if (uc < p[i]) return true;
     if (uc > p[i]) return false;
   }
@@ -87,7 +83,7 @@ bool sampler_ber_cosh(sampler_t* sampler, int32_t x) {
     bit = sampler_ber_exp(sampler, x);
     if (bit) return true;
 
-    bit = entropy_random_bit(sample->entropy);
+    bit = entropy_random_bit(sampler->entropy);
     if(!bit) {
       bit = sampler_ber_exp(sampler, x);
       if (!bit) return false;
@@ -110,13 +106,13 @@ bool sampler_pos_binary(sampler_t *sampler, uint32_t *x) {
   uint32_t u, i;
 
  restart:
-  if (entropy_random_bit(sample->entropy)) {
+  if (entropy_random_bit(sampler->entropy)) {
     *x = 0;
     return true;
   }
 
   for (i=1; i <= MAX_SAMPLE_COUNT; i++) {
-    u = entropy_random_bits(sample->entropy, 2*i - 1);
+    u = entropy_random_bits(sampler->entropy, 2*i - 1);
     if (u == 0) {
       *x = i; 
       return true;
@@ -143,12 +139,12 @@ uint32_t sampler_pos_binary2(sampler_t *sampler) {
   uint32_t u, i;
 
  restart:
-  if (entropy_random_bit(sample->entropy)) {
+  if (entropy_random_bit(sampler->entropy)) {
     return 0;
   }
 
   for (i=1; i <= MAX_SAMPLE_COUNT; i++) {
-    u = entropy_random_bits(sample->entropy, 2*i - 1);
+    u = entropy_random_bits(sampler->entropy, 2*i - 1);
     if (u == 0) {
       return i;
     }
@@ -181,13 +177,13 @@ bool sampler_gauss(sampler_t *sampler, int32_t *valp) {
     }
 
     do {
-      y = entropy_random_bits(sample->entropy, sampler->k_sigma_bits);     
+      y = entropy_random_bits(sampler->entropy, sampler->k_sigma_bits);     
     } while (y >= sampler->k_sigma);
 
     e = y * (y + 2 * sampler->k_sigma * x);
     
     if (sampler_ber_exp(sampler, e)) {
-      u = entropy_random_bit(sample->entropy);
+      u = entropy_random_bit(sampler->entropy);
       if (x | y | u) { 
 	break; 
       }
@@ -210,13 +206,13 @@ int32_t sampler_gauss2(sampler_t *sampler) {
     x = sampler_pos_binary2(sampler);
 
     do {
-      y = entropy_random_bits(sample->entropy, sampler->k_sigma_bits);     
+      y = entropy_random_bits(sampler->entropy, sampler->k_sigma_bits);     
     } while (y >= sampler->k_sigma);
 
     e = y * (y + 2 * sampler->k_sigma * x);
     
     if (sampler_ber_exp(sampler, e)) {
-      u = entropy_random_bit(sample->entropy);
+      u = entropy_random_bit(sampler->entropy);
       if (x | y | u) { 
 	break; 
       }

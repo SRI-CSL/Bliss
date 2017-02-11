@@ -24,17 +24,23 @@
 
 #include "bliss_b_params.h"
 
+static bliss_param_t params;
 
 
 int test_mul_from_KAT_values() {
-  const bliss_param_t *p;
-
+  bliss_param_t *p;
   int32_t *ua, *ub, *uc;
+
+  p = &params;
+  // we use bliss_params to pass parameters to some ntt functions
+  if (!bliss_params_init(p, BLISS_B_1)) {
+    fprintf(stderr, "bug: failed to initialized bliss_b_parms\n");
+    return 1;
+  }
+
 
   // Include KAT vectors
   #include "data_poly_blzzd.c"
-
-  p = &bliss_b_params[BLISS_B_1];
 
 
   ua = calloc(p->n, sizeof(int32_t));

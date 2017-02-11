@@ -14,12 +14,16 @@
 
 
 
-static inline int32_t bliss_b_private_key_init(bliss_private_key_t *private_key, bliss_kind_t kind){
+static int32_t bliss_b_private_key_init(bliss_private_key_t *private_key, bliss_kind_t kind){
   int32_t n;
   int32_t *f = NULL, *g = NULL, *a = NULL;
-  const bliss_param_t *p;
+  bliss_param_t *p;
 
-  p = &bliss_b_params[kind];
+  p = &private_key->p;
+  if (! bliss_params_init(p, kind)) {
+    // bad kind/not supported
+    return BLISS_B_BAD_ARGS;
+  }
 
   n = p->n;
 
@@ -41,7 +45,6 @@ static inline int32_t bliss_b_private_key_init(bliss_private_key_t *private_key,
     goto fail;
   }
 
-  private_key->p = *p;
   private_key->f = f;
   private_key->g = g;
   private_key->a = a;

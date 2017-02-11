@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <assert.h>
 
+#include "entropy.h"
 #include "sampler.h"
 #include "cpucycles.h"
 #include "tests.h"
@@ -21,6 +22,8 @@ static uint8_t seed[SHA3_512_DIGEST_LENGTH] = {
 };
 
 static sampler_t sampler;
+
+static entropy_t entropy;
 
 
 /*
@@ -65,7 +68,10 @@ static void test_pos_binary(sampler_t *sampler, uint32_t ntests) {
 
 int main(void){
   printf("\nTesting pos binary sampling\n");
-  if (! sampler_init(&sampler, 271, 22, 128, seed)) {
+
+  entropy_init(&entropy, seed);
+
+  if (! sampler_init(&sampler, 271, 22, 128, &entropy)) {
     fprintf(stderr, "error initializing sampler\n");
     return EXIT_FAILURE;
   }

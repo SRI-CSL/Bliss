@@ -11,9 +11,17 @@
 
 int main()
 {
+  bliss_param_t p;
   poly sk_a;
   unsigned char seed[BLISS_SEEDBYTES];
   int i;
+
+  // we use bliss_params to pass parameters to some ntt functions
+  if (!bliss_params_init(&p, BLISS_B_1)) {
+    fprintf(stderr, "bug: failed to initialized bliss_b_parms\n");
+    return 1;
+  }
+
 
   for(i=0; i<NTESTS; i++)
   {
@@ -50,17 +58,12 @@ int main()
   }
   print_results("poly_getnoise: ", t, NTESTS);
 
-
-  const bliss_param_t *p;
-
-  p = &bliss_b_params[BLISS_B_1];
-
   int32_t blzzd_a[512];
 
   for(i=0; i<NTESTS; i++)
   {
     t[i] = cpucycles();
-    ntt32_fft(blzzd_a, p->n, p->q, p->w);
+    ntt32_fft(blzzd_a, p.n, p.q, p.w);
   }
   print_results("ntt32_fft (512): ", t, NTESTS);
 
