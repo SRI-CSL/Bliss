@@ -3,11 +3,14 @@
 #include <stdio.h>
 #include <assert.h>
 
+#include "entropy.h"
 #include "sampler.h"
 #include "cpucycles.h"
 #include "tests.h"
 
 static sampler_t sampler;
+
+static entropy_t entropy;
 
 /*
  * Counters for histogram:
@@ -88,7 +91,10 @@ static void test_gaussian(sampler_t *sampler, uint32_t ntests) {
 
 int main(void){
   printf("\nTesting Gaussian sampling\n");
-  if (! sampler_init(&sampler, 271, 22, 128, seed)) {
+
+  entropy_init(&entropy, seed);
+
+  if (! sampler_init(&sampler, 271, 22, 128, &entropy)) {
     fprintf(stderr, "error initializing sampler\n");
     return EXIT_FAILURE;
   }

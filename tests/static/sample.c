@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include "entropy.h"
 #include "sampler.h"
 #include "cpucycles.h"
 #include "tests.h"
@@ -19,13 +20,16 @@ static uint8_t seed[SHA3_512_DIGEST_LENGTH] = {
 };
 
 
+static entropy_t entropy;
 static sampler_t sampler;
 
 int main(void){
   uint32_t i, uval;
   int32_t val;
+
+  entropy_init(&entropy, seed);
   
-  if (! sampler_init(&sampler, 271, 22, 128, seed)) {
+  if (! sampler_init(&sampler, 271, 22, 128, &entropy)) {
     fprintf(stderr, "error initializing sampler\n");
     return EXIT_FAILURE;
   }
