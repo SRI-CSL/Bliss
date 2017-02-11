@@ -246,7 +246,7 @@ const int r12289n512[512] = {
      5618,  7735,  4094,   540,  8452,  4939,  5118,  5826
 };
 
-const bliss_param_t bliss_b_params[] = {
+static const bliss_param_t bliss_b_params[] = {
 
   /* bliss-b 0 */
   { BLISS_B_0,          /* kind */
@@ -368,3 +368,13 @@ const bliss_param_t bliss_b_params[] = {
 
 
 };
+
+
+bool bliss_params_init(bliss_param_t *params, bliss_kind_t kind){
+  if((BLISS_B_0 <= kind) && (kind <= BLISS_B_4)  && (params != NULL)){
+	*param = bliss_b_params[kind];
+	return true;
+  } else {
+	return false;
+  }
+}

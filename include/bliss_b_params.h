@@ -33,12 +33,8 @@ typedef struct {
 
 
 
-/* The five varieties of bliss-b */
-extern const bliss_param_t bliss_b_params[]; 
 
-
-
-
+extern void bliss_params_init(bliss_param_t *params, bliss_kind_t kind);
 
 
 
