@@ -1,13 +1,17 @@
 #ifndef __SAMPLER_H
 #define __SAMPLER_H
 
+// Feb 10, 2017: changed data structure so that a sampler
+// has a pointer to an entropy object.
+
 #include <stdint.h>
 #include <stdbool.h>
 
 #include "entropy.h"
+#include "bliss_b_params.h"
 
 typedef struct sampler_s {
-  entropy_t entropy;
+  entropy_t *entropy;
   const uint8_t *c;      /* the table we will use (from tables.h) */
   uint32_t sigma;        /* the standard deviation of the distribution */
   uint32_t ell;          /* rows in the table     */
@@ -20,18 +24,16 @@ typedef struct sampler_s {
 
 /*
  * Initialize a sampler:
+ * - params = Bliss b parameters 
+ * - the entropy object to use.
  *
+ * The sampler uses the following fields of the params record:
  * - sigma: the standard deviation
  * - ell: the number of significant bits (i.e. the number of rows in the table.h)
  * - precision: the precision, (i.e. precision = 8 * the number of columns in the table.h)
- * - seed: array of SHA3_512_DIGEST_SIZE bytes (i.e., 64 bytes)
  *
- * Returns false if the combination sigma/ell/precision is not supported.
- * See table.h for the currently accepted values.
- *
- * Returns true otherwise.
  */
-extern bool sampler_init(sampler_t *sampler, uint32_t sigma, uint32_t ell, uint32_t precision, const uint8_t *seed);
+extern void sampler_init(sampler_t *sampler, const bliss_b_params_t *params, entropy_t *entropy);
 
 
 /* 

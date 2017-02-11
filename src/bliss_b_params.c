@@ -254,10 +254,10 @@ const bliss_param_t bliss_b_params[] = {
     256,                /* n */
     5,                  /* d */
     480,                /* mod_p */
-	15362,              /* 2 * field modulus  */
-	559167,             /* floor(2^32/q)      */
-	279583,             /* floor(2^32/q2)     */
-	3841,               /* 1/(q + 2) mod 2q   */
+    15362,              /* 2 * field modulus  */
+    559167,             /* floor(2^32/q)      */
+    279583,             /* floor(2^32/q2)     */
+    3841,               /* 1/(q + 2) mod 2q   */
     30,                 /* kappa */
     16,                 /* theta */
     542,                /* b_inf */
@@ -277,10 +277,10 @@ const bliss_param_t bliss_b_params[] = {
     512,                /* n */
     10,                 /* d */
     24,                 /* mod_p */
-	24578,              /* 2 * field modulus  */
-	349496,             /* floor(2^32/q)      */
-	174748,             /* floor(2^32/q2)     */
-	6145,               /* 1/(q + 2) mod 2q   */
+    24578,              /* 2 * field modulus  */
+    349496,             /* floor(2^32/q)      */
+    174748,             /* floor(2^32/q2)     */
+    6145,               /* 1/(q + 2) mod 2q   */
     23,                 /* kappa */
     32,                 /* theta */
     2100,               /* b_inf */
@@ -301,10 +301,10 @@ const bliss_param_t bliss_b_params[] = {
     512,                /* n */
     10,                 /* d */
     24,                 /* mod_p */
-	24578,              /* 2 * field modulus  */
-	349496,             /* floor(2^32/q)      */
-	174748,             /* floor(2^32/q2)     */
-	6145,               /* 1/(q + 2) mod 2q   */
+    24578,              /* 2 * field modulus  */
+    349496,             /* floor(2^32/q)      */
+    174748,             /* floor(2^32/q2)     */
+    6145,               /* 1/(q + 2) mod 2q   */
     23,                 /* kappa */
     32,                 /* theta */
     1563,               /* b_inf */
@@ -325,10 +325,10 @@ const bliss_param_t bliss_b_params[] = {
     512,                /* n */
     9,                  /* d */
     48,                 /* mod_p */
-	24578,              /* 2 * field modulus  */
-	349496,             /* floor(2^32/q)      */
-	174748,             /* floor(2^32/q2)     */
-	6145,               /* 1/(q + 2) mod 2q   */
+    24578,              /* 2 * field modulus  */
+    349496,             /* floor(2^32/q)      */
+    174748,             /* floor(2^32/q2)     */
+    6145,               /* 1/(q + 2) mod 2q   */
     30,                 /* kappa */
     48,                 /* theta */
     1760,               /* b_inf */
@@ -349,10 +349,10 @@ const bliss_param_t bliss_b_params[] = {
     512,                /* n */
     8,                  /* d */
     96,                 /* mod_p */
-	24578,              /* 2 * field modulus  */
-	349496,             /* floor(2^32/q)      */
-	174748,             /* floor(2^32/q2)     */
-	6145,               /* 1/(q + 2) mod 2q   */
+    24578,              /* 2 * field modulus  */
+    349496,             /* floor(2^32/q)      */
+    174748,             /* floor(2^32/q2)     */
+    6145,               /* 1/(q + 2) mod 2q   */
     39,                 /* kappa */
     48,                 /* theta */
     1613,               /* b_inf */
