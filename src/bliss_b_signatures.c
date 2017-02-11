@@ -205,7 +205,10 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
 
   /* 7: continue with sampler_gauss2 probability otherwise restart */
 
+  
   /* 8: z2 = (drop_bits(u) - drop_bits(u - z2)) mod p  */
+
+  /* 9: seem to also need to check norms akin to what happens in the entry to verify */
 
   /* return (z1, z2, c) */
 	 
