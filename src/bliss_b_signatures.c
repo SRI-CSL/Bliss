@@ -129,23 +129,26 @@ void generateC(int32_t *indices, size_t kappa, int32_t *n_vector, size_t n, uint
   }
 }
 
-/*
- * hard-coded seed for sampler: need to get this from somewhere
- */
+
 int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *private_key, const uint8_t *msg, size_t msg_sz, entropy_t *entropy){
   sampler_t sampler;
   bliss_b_error_t retval;
-  int32_t i, n, q;
+  int32_t i, n, q, kappa;
   const bliss_param_t *p;
-  int32_t *a, *z1 = NULL, *z2 = NULL;
+  int32_t *a, s1, s2, *z1 = NULL, *z2 = NULL, *v = NULL, *indices = NULL;
   uint8_t *hash = NULL;
   size_t hash_sz;
+  bool b;
 
   p = &private_key->p;
+
   a = private_key->a;
+  s1 = private_key->s1;
+  s2 = private_key->s2;
 
   n = p->n;
   q = p->q;
+  kappa = p->kappa;
 
   /* make working space */
   hash_sz =  SHA3_512_DIGEST_LENGTH + 2 * n;
@@ -169,21 +172,31 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
     goto fail;
   }
 
-  //iam: need to make a more educated guess as to what these parameters are.
+  v = calloc(n, sizeof(int32_t));
+  if(v ==  NULL){
+    retval = BLISS_B_NO_MEM;
+    goto fail;
+  }
+
+  indices = calloc(kappa, sizeof(int32_t));
+  if(indices ==  NULL){
+    retval = BLISS_B_NO_MEM;
+    goto fail;
+  }
+
   if (!sampler_init(&sampler, p->sigma, p->ell, p->precision, entropy)) {
     retval = BLISS_B_BAD_ARGS;
     goto fail;
   }
 
-  
-  /* 0: compute the hash of the msg */
 
+  /* 0: compute the hash of the msg */
 
   /* hash the message into the first SHA3_512_DIGEST_LENGTH bytes of the hash */
 
   sha3_512(hash, msg, msg_sz);
-  
-  /* 1 restart: choose y1, y2 */
+
+  /* 1 restart: choose z1, z2 */
 
  restart:
 
@@ -192,46 +205,75 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
 	z2[i] = sampler_gauss2(&sampler);
   }
 
-  
-  /* 2: compute u = \xi * a1 * y1 + y2 mod 2q */
 
-  /* 3: generateC of u and the hash of the msg */
+  /* 2: compute v = \xi * a1 * z1 + z2 mod 2q */
+
+
+
+  /* 3: generateC of v and the hash of the msg */
+
+  generateC(indices, kappa, v, n, hash, hash_sz);
 
   /* 4: (v1, v2) = greedySC(c) */
 
+  greedy_sc_blzzd(s1, s2, n,  indices, kappa, z1, z2);
+
   /* 5: choose a random bit b */
 
-  /* 6: (z1, z2) = (y1, y2) + (-1)^b * (v1, v2) */
+  b = entropy_random_bit(entropy);
+
+  /* 6: (z1, z2) = (z1, z2) + (-1)^b * (v1, v2) */
 
   /* 7: continue with sampler_gauss2 probability otherwise restart */
 
-  
   /* 8: z2 = (drop_bits(u) - drop_bits(u - z2)) mod p  */
 
   /* 9: seem to also need to check norms akin to what happens in the entry to verify */
 
   /* return (z1, z2, c) */
-	 
 
-  return BLISS_B_NO_ERROR;
+  signature->p = *p;
+  signature->z1 = z1;
+  signature->z2 = z2;
+  signature->c = indices;
+
+  /* need to free some stuff */
+
+  retval = BLISS_B_NO_ERROR;
+
+  goto cleanup;
 
  fail:
+
+  //zero these puppies out
+  zero_memory(z1, n);
+  free(z1);
+  z1 = NULL;
+
+  //zero these puppies out
+  zero_memory(z2, n);
+  free(z2);
+  z2 = NULL;
+
+  //zero these puppies out
+  zero_memory(indices, kappa);
+  free(indices);
+  indices = NULL;
+
+ cleanup:
 
   free(hash);
   hash = NULL;
 
   //zero these puppies out
-  free(z1);
-  z1 = NULL;
+  zero_memory(v, n);
+  free(v);
+  v = NULL;
 
-  //zero these puppies out
-  free(z2);
-  z2 = NULL;
 
   return retval;
-  
-}
 
+}
 
 
 
@@ -291,11 +333,13 @@ int32_t bliss_b_verify(bliss_signature_t *signature,  const bliss_public_key_t *
     goto fail;
   }
 
+  //iam: still not sure why tz2 and not just z2
   if(vector_max_norm(tz2, n) > b_inf){
     retval = BLISS_B_BAD_DATA;
     goto fail;
   }
 
+  //iam: still not sure why tz2 and not just z2
   if (vector_scalar_product(z1, z1, n) + vector_scalar_product(tz2, tz2, n)  > b_l2){
     retval = BLISS_B_BAD_DATA;
     goto fail;

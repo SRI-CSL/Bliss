@@ -45,8 +45,8 @@ static int32_t bliss_b_private_key_init(bliss_private_key_t *private_key, bliss_
     goto fail;
   }
 
-  private_key->f = f;
-  private_key->g = g;
+  private_key->s1 = f;
+  private_key->s2 = g;
   private_key->a = a;
 
   return BLISS_B_NO_ERROR;
@@ -98,15 +98,15 @@ int32_t bliss_b_private_key_gen(bliss_private_key_t *private_key, bliss_kind_t k
 
 
   /* randomize g */
-  uniform_poly(private_key->g, p->n, p->nz1, p->nz2, false, entropy);
+  uniform_poly(private_key->s2, p->n, p->nz1, p->nz2, false, entropy);
 
   /* g = 2g - 1 */
   for (i = 0; i < p->n; i++)
-    private_key->g[i] *= 2;
-  private_key->g[0]--;
+    private_key->s2[i] *= 2;
+  private_key->s2[0]--;
 
   for (i = 0; i < p->n; i++)
-    t[i] = private_key->g[i];
+    t[i] = private_key->s2[i];
 
   ntt32_xmu(t, p->n, p->q, t, p->w);
   ntt32_fft(t, p->n, p->q, p->w);
@@ -115,11 +115,11 @@ int32_t bliss_b_private_key_gen(bliss_private_key_t *private_key, bliss_kind_t k
   for (j = 0; j < 4; j++) {
 
     /* randomize f  */
-    uniform_poly(private_key->f, p->n, p->nz1, p->nz2, j != 0, entropy);
+    uniform_poly(private_key->s1, p->n, p->nz1, p->nz2, j != 0, entropy);
 
     /* a = g/f. Try again if f is not invertible. */
     for (i = 0; i < p->n; i++)
-      u[i] = private_key->f[i];
+      u[i] = private_key->s1[i];
     ntt32_xmu(u, p->n, p->q, u, p->w);
     ntt32_fft(u, p->n, p->q, p->w);
 
@@ -155,9 +155,9 @@ int32_t bliss_b_private_key_gen(bliss_private_key_t *private_key, bliss_kind_t k
      *      (This comes from the fact that you can compute mod 2q by coputing mod q, and then
      *      looking at the result mod 2)
      */
-    
-    /* TL: 
-    *       Now that I read that again, I don't know why it's done this way but I think it's actually 
+
+    /* TL:
+    *       Now that I read that again, I don't know why it's done this way but I think it's actually
     *       giving a BLISS-B key.
     *
     *       Indeed, a = (2g-1)/f and we compute NTT (-a), i.e. NTT((2*(-g)+1)/f)
@@ -202,13 +202,13 @@ void bliss_b_private_key_delete(bliss_private_key_t *private_key){
 
   p = &private_key->p;
 
-  zero_memory(private_key->f, p->n);
-  free(private_key->f);
-  private_key->f = NULL;
+  zero_memory(private_key->s1, p->n);
+  free(private_key->s1);
+  private_key->s1 = NULL;
 
-  zero_memory(private_key->g, p->n);
-  free(private_key->g);
-  private_key->g = NULL;
+  zero_memory(private_key->s2, p->n);
+  free(private_key->s2);
+  private_key->s2 = NULL;
 
   zero_memory(private_key->a, p->n);
   free(private_key->a);
