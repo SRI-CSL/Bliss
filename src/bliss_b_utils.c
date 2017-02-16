@@ -28,6 +28,8 @@ void zero_memory(void *ptr, size_t len){
 #endif
 
 
+
+
 /**
  * GreedySC strongswan version
  *
