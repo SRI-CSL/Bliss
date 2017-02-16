@@ -383,7 +383,7 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
 
 
 
-int32_t bliss_b_verify(bliss_signature_t *signature,  const bliss_public_key_t *public_key, const uint8_t *msg, size_t msg_sz){
+int32_t bliss_b_verify(const bliss_signature_t *signature,  const bliss_public_key_t *public_key, const uint8_t *msg, size_t msg_sz){
   bliss_b_error_t retval;
   int32_t i, n, q, d, mod_p, q2, q_inv, q2_inv, one_q2, kappa, b_inf, b_l2;
   const bliss_param_t *p;
