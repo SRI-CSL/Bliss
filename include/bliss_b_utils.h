@@ -41,7 +41,6 @@ extern void greedy_sc_blzzd(const int32_t *s1, const int32_t *s2, int32_t n,  co
  *
  * returns the componentwise max
  */
-
 extern int32_t vector_max_norm(const int32_t *v, int32_t n);
 
 /*
@@ -52,10 +51,12 @@ extern int32_t vector_max_norm(const int32_t *v, int32_t n);
  *
  * returns the scalar product.
  */
-
 extern int32_t vector_scalar_product(const int32_t *v1, const int32_t *v2, int32_t n);
 
-
+/*
+ * Square of the Euclidean norm of v1
+ */
+extern uint32_t vector_norm2(const int32_t *v1, uint32_t n);
 
 
 #endif

@@ -369,7 +369,7 @@ static const bliss_param_t bliss_b_params[] = {
     31,                 /* nz2 */
     69576,              /* pmax */
     271,                /* sigma */
-    1.61,               /* m */
+    1.61,               /* M */
     w12289n512,         /* w */
     r12289n512,         /* r */
     22,                 /* ell */

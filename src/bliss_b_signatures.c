@@ -11,21 +11,21 @@
 
 /* iam: comes from FFT.h of bliss-06-13-2013 */
 /* TL: should probably make it constant time */
-int32_t modQ(int32_t x, int32_t q, int32_t q_inv){
-	int64_t y = x;
-	if (y < 0){ y += q; }
-	y = y - q * ((q_inv * y) >> 32);
-	while (y >= q){
-	  y -= q;
-	}
-	x = y;
-	return x;
+static int32_t modQ(int32_t x, int32_t q, int32_t q_inv){
+  int64_t y = x;
+  if (y < 0){ y += q; }
+  y = y - q * ((q_inv * y) >> 32);
+  while (y >= q){
+    y -= q;
+  }
+  x = y;
+  return x;
 }
 
 
 
 /* iam: bliss-06-13-2013 */
-void drop_bits(int32_t *output, int32_t *input, int32_t n, int32_t d){
+static void mul2d(int32_t *output, const int32_t *input, int32_t n, int32_t d){
   int32_t i;
 
   assert(0 < d && d < 31);
@@ -46,7 +46,7 @@ void drop_bits(int32_t *output, int32_t *input, int32_t n, int32_t d){
  * different from the strongswan version.
  *
  */
-void drop_bit_shift(int32_t *output, int32_t *input, int32_t n, int32_t d) {
+static void drop_bits(int32_t *output, const int32_t *input, int32_t n, int32_t d) {
   int32_t i, delta, half_delta;
 
   assert(0 < d && d < 31);
@@ -94,13 +94,13 @@ void generateC(int32_t *indices, size_t kappa, int32_t *n_vector, size_t n, uint
       // Bliss_b 0: we need kappa indices of 8 bits
       i = 0;
       for (j=0; j<SHA3_512_DIGEST_LENGTH; j++) {
-				index = whash[j];  // index < 256
-				if(! array[index]) {
-					indices[i] = index;
-					array[index] ++;
-					i ++;
-					if (i >= kappa) return;
-				}
+	index = whash[j];  // index < 256
+	if(! array[index]) {
+	  indices[i] = index;
+	  array[index] ++;
+	  i ++;
+	  if (i >= kappa) return;
+	}
       }
 
     } else {
@@ -109,21 +109,21 @@ void generateC(int32_t *indices, size_t kappa, int32_t *n_vector, size_t n, uint
       i = 0;
       j = 0;
       while(j<SHA3_512_DIGEST_LENGTH) {
-				if ((j & 7) == 0) {
-					// start of a block of 8 bytes
-					extra_bits = whash[j];
-					j ++;
-				}
-				index = (whash[j] << 1) | (extra_bits & 1);
-				extra_bits >>= 1;
-				j ++;
+	if ((j & 7) == 0) {
+	  // start of a block of 8 bytes
+	  extra_bits = whash[j];
+	  j ++;
+	}
+	index = (whash[j] << 1) | (extra_bits & 1);
+	extra_bits >>= 1;
+	j ++;
 
-				if(! array[index]) {
-					indices[i] = index;
-					array[index] ++;
-					i ++;
-					if (i >= kappa) return;
-				}
+	if(! array[index]) {
+	  indices[i] = index;
+	  array[index] ++;
+	  i ++;
+	  if (i >= kappa) return;
+	}
       }
     }
   }
@@ -133,11 +133,19 @@ void generateC(int32_t *indices, size_t kappa, int32_t *n_vector, size_t n, uint
 int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *private_key, const uint8_t *msg, size_t msg_sz, entropy_t *entropy){
   sampler_t sampler;
   bliss_b_error_t retval;
-  int32_t i, n, q, kappa;
   const bliss_param_t *p;
-  int32_t *a, *s1, *s2, *z1 = NULL, *z2 = NULL, *y1 = NULL, *y2 = NULL, *v = NULL, *indices = NULL;
-	const int32_t *w, *r;
+  // parameters extracted from p: n = size, q = modulus
+  int32_t n, q, kappa;
+  // tables of constants for the NTT computations
+  const int32_t *w, *r;
+  // these are the private key (a is stored as NTT)
+  int32_t *a, *s1, *s2;
+  // the signature is stored in z1, z2, indices
+  int32_t *z1 = NULL, *z2 = NULL,  *indices = NULL;
+  // all these are auxiliary buffers, malloc'ed in this function
+  int32_t *y1 = NULL, *y2 = NULL, *v = NULL, *v1 = NULL, *v2 = NULL;
   uint8_t *hash = NULL;
+  uint32_t i, norm_v, prod_zv;
   size_t hash_sz;
   bool b;
 
@@ -152,8 +160,14 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
 
   kappa = p->kappa;
 
-	w = p->w;
+  w = p->w;
   r = p->r;
+
+  /* initialize our sampler */
+  if (!sampler_init(&sampler, p->sigma, p->ell, p->precision, entropy)) {
+    retval = BLISS_B_BAD_ARGS;
+    goto fail;
+  }
 
   /* make working space */
   hash_sz =  SHA3_512_DIGEST_LENGTH + 2 * n;
@@ -164,7 +178,6 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
     goto fail;
   }
 
-
   z1 = malloc(n * sizeof(int32_t));
   if(z1 ==  NULL){
     retval = BLISS_B_NO_MEM;
@@ -173,6 +186,18 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
 
   z2 = malloc(n * sizeof(int32_t));
   if(z2 ==  NULL){
+    retval = BLISS_B_NO_MEM;
+    goto fail;
+  }
+
+  v1 = malloc(n * sizeof(int32_t));
+  if(v1 ==  NULL){
+    retval = BLISS_B_NO_MEM;
+    goto fail;
+  }
+
+  v2 = malloc(n * sizeof(int32_t));
+  if(v2 ==  NULL){
     retval = BLISS_B_NO_MEM;
     goto fail;
   }
@@ -201,11 +226,6 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
     goto fail;
   }
 
-  if (!sampler_init(&sampler, p->sigma, p->ell, p->precision, entropy)) {
-    retval = BLISS_B_BAD_ARGS;
-    goto fail;
-  }
-
 
   /* 0: compute the hash of the msg */
 
@@ -218,32 +238,31 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
  restart:
 
   for(i = 0; i < n; i++){
-		y1[i] = sampler_gauss2(&sampler);
-		y2[i] = sampler_gauss2(&sampler);
+    y1[i] = sampler_gauss2(&sampler);
+    y2[i] = sampler_gauss2(&sampler);
   }
 
+  /* 2: compute v = ((\xi * (a * y1)) + y2) mod 2q */
 
-  /* 2: compute v = \xi * a * y1 + y2 mod 2q */
-
-  ntt32_xmu(v, n, q, y1, w);
+  ntt32_xmu(v, n, q, y1, w);  /* multiply by powers of psi */
   ntt32_fft(v, n, q, w);      /* v = ntt(y1) */
+  ntt32_xmu(v, n, q, v, a);   /* v = ntt(y1) * a (both in ntt form) */
+  ntt32_fft(v, n, q, w);      /* v = ntt(ntt(y1) * a) = inverse ntt(y1) * a modulo reordering */
+  ntt32_xmu(v, n, q, v, r);   /* multiply by powers of psi^-1  */
+  ntt32_flp(v, n, q);         /* reorder: v * a mod q */
 
-  ntt32_xmu(v, n, q, v, a);   /* v * a (both in ntt form) */
-  ntt32_fft(v, n, q, w);
+  for (i=0; i<n; i++) {
+    // this is v[i] = (2 * y1[i] * one_q2 + y2[i]) % q2
+    v[i] = modQ(2*y1[i]*p->one_q2+y2[i], p->q2, p->q2_inv);
+  }
 
-	ntt32_xmu(v, n, q, v, r);   /* v * a in reversed order */
-  ntt32_flp(v, n, q);         /* v * a mod q */
-
-		//v[i] = modQ(2*y1[i]*one_q2, q2, q2_inv);  //iam: could do this here; then the modQ later?
-
-	
   /* 3: generateC of v and the hash of the msg */
 
   generateC(indices, kappa, v, n, hash, hash_sz);
 
   /* 4: (v1, v2) = greedySC(c) */
 
-  greedy_sc_blzzd(s1, s2, n,  indices, kappa, z1, z2);
+  greedy_sc_blzzd(s1, s2, n,  indices, kappa, v1, v2);
 
   /* 5: choose a random bit b */
 
@@ -251,27 +270,52 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
 
   /* 6: (z1, z2) = (z1, z2) + (-1)^b * (v1, v2) */
 
-	if(b){
-		for(i = 0; i < n; i++){
-			z1[i] = y1[i] + z1[i];
-			z2[i] = y2[i] + z2[i];
-		}
-	} else {
-		for(i = 0; i < n; i++){
-			z1[i] = y1[i] - z1[i];
-			z2[i] = y2[i] - z2[i];
-		}
-	}
+  if(b){
+    for(i = 0; i < n; i++){
+      z1[i] = y1[i] + v1[i];
+      z2[i] = y2[i] + v2[i];
+    }
+  } else {
+    for(i = 0; i < n; i++){
+      z1[i] = y1[i] - v1[i];
+      z2[i] = y2[i] - v2[i];
+    }
+  }
 
+  /* 7: continue with probability 1/(M exp(-|v|^2/2sigma^2) * cosh(<z, v>/sigma^2)) otherwise restart */
+  // NOTE: we could do the ber_exp earlier since it does not depend on z
+  norm_v = vector_norm2(v1, n) + vector_norm2(v2, n);
+  if (! sampler_ber_exp(&sampler, norm_v)) {
+    goto restart;
+  }
+  prod_zv = vector_scalar_product(z1, v1, n) + vector_scalar_product(z1, v1, n);
+  if (! sampler_ber_cosh(&sampler, prod_zv)) {
+    goto restart;
+  }
 
-
-
-
-  /* 7: continue with sampler_gauss2 probability otherwise restart */
-
-  /* 8: z2 = (drop_bits(u) - drop_bits(u - z2)) mod p  */
-
+  /* 8: z2 = (drop_bits(v) - drop_bits(v - z2)) mod p  */
+  for (i=0; i<n; i++) {
+    y1[i] = v[i] - z2[i];
+  }
+  drop_bits(v, v, n, p->d);   // drop_bits(v)
+  drop_bits(y1, y1, n, p->d); // drop_bits(v - z2)
+  for (i=0; i<n; i++) {
+    z2[i] = modQ(v[i] - y1[i], q, p->q_inv);
+  }
+  
   /* 9: seem to also need to check norms akin to what happens in the entry to verify */
+  mul2d(y2, z2, n, p->d);
+  if (vector_max_norm(z1, n) > p->b_inf) {
+    goto restart;
+  }
+  if (vector_max_norm(y2, n) > p->b_inf) {
+    goto restart;
+  }
+  if (vector_norm2(z1,  n) + vector_norm2(y2, n)  > p->b_l2){
+    goto restart;
+  }
+
+
 
   /* return (z1, z2, c) */
 
@@ -323,9 +367,17 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
   free(y2);
   y2 = NULL;
 	
+  //zero these puppies out
+  zero_memory(v1, n);
+  free(v1);
+  v1 = NULL;
 	
-  return retval;
-	
+  //zero these puppies out
+  zero_memory(v2, n);
+  free(v2);
+  v2 = NULL;
+
+  return retval;	
 }
 
 
@@ -369,15 +421,15 @@ int32_t bliss_b_verify(bliss_signature_t *signature,  const bliss_public_key_t *
 
 
   /* do the dropped bit shift in tz2 (t for temp);
-		 iam asks later: why are we doing this again? */
+     iam asks later: why are we doing this again? */
   // TL: Probably because the infinity and L2 bounds given in BLISS are for "z1" and a "z2" of similar size. This comes from how we assessed security from the attacks.
 
   tz2 = calloc(n, sizeof(int32_t));
   if(tz2 ==  NULL){
-		return BLISS_B_NO_MEM;
+    return BLISS_B_NO_MEM;
   }
 
-  drop_bits(tz2, z2, n, d);
+  mul2d(tz2, z2, n, d);
 
   /* first check the norms */
 
@@ -393,7 +445,7 @@ int32_t bliss_b_verify(bliss_signature_t *signature,  const bliss_public_key_t *
   }
 
   //iam: still not sure why tz2 and not just z2
-  if (vector_scalar_product(z1, z1, n) + vector_scalar_product(tz2, tz2, n)  > b_l2){
+  if (vector_norm2(z1, n) + vector_norm2(tz2, n)  > b_l2){
     retval = BLISS_B_BAD_DATA;
     goto fail;
   }
@@ -437,7 +489,7 @@ int32_t bliss_b_verify(bliss_signature_t *signature,  const bliss_public_key_t *
   ntt32_xmu(v, n, q, v, a);   /* v * a (both in ntt form) */
   ntt32_fft(v, n, q, w);
 
-	ntt32_xmu(v, n, q, v, r);   /* v * a in reversed order */
+  ntt32_xmu(v, n, q, v, r);   /* v * a in reversed order */
   ntt32_flp(v, n, q);         /* v * a mod q */
 
   /* IAM2BD: v = a * z here? now? */
@@ -448,31 +500,29 @@ int32_t bliss_b_verify(bliss_signature_t *signature,  const bliss_public_key_t *
 
   /* (1/(q + 2)) * a * z1 */
   for (i = 0; i < n; i++){
-		assert(0 <= v[i] && v[i] < q);
-		v[i] = modQ(2*v[i]*one_q2, q2, q2_inv);  //iam: why is there a 2 here?
-		// TL: because in BLISS and BLISS-B the public key a_1 = is 2*a_q where a_q was "mod q"
-		// TL: q2 = 2*q right?
+    assert(0 <= v[i] && v[i] < q);
+    v[i] = modQ(2*v[i]*one_q2, q2, q2_inv);  //iam: why is there a 2 here?
+    // TL: because in BLISS and BLISS-B the public key a_1 = is 2*a_q where a_q was "mod q"
+    // TL: q2 = 2*q right?
   }
 
   /*  + (q/q+2) * c */
   for (i = 0; i < kappa; i++) {
-		v[c_indices[i]] = modQ(v[c_indices[i]] + (q * one_q2), q2, q2_inv);
+    v[c_indices[i]] = modQ(v[c_indices[i]] + (q * one_q2), q2, q2_inv);
   }
 
-  /* iam: huh? */
-  /* TL: so we are reconstructing the element to hash, but there is rounding, so we need to do it in the verification again */
-  drop_bit_shift(v, v, n, d);
+  drop_bits(v, v, n, d);
 
   /*  + z_2  mod p. iam: how many different mod algorithms do we need here? */
   /* TL: Should do this in constant time */
   for (i = 0; i < n; i++){
-		v[i] += z2[i];
-		if (v[i] < 0){
-			v[i] += mod_p;
-		}
-		if (v[i] >= mod_p){
-			v[i] -= mod_p;
-		}
+    v[i] += z2[i];
+    if (v[i] < 0){
+      v[i] += mod_p;
+    }
+    if (v[i] >= mod_p){
+      v[i] -= mod_p;
+    }
   }
 
   generateC(indices, kappa, v, n, hash, hash_sz);
