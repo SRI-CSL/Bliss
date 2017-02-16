@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdlib.h>
 
 
 /*
@@ -12,8 +13,6 @@
  *   - len, the number of bytes to be zeroed.
  */
 extern void zero_memory(void *ptr, size_t len);
-
-
 
 /**
  * GreedySC strongswan version

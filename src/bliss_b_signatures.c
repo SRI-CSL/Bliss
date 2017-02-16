@@ -333,49 +333,66 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
  fail:
 
   //zero these puppies out
-  zero_memory(z1, n);
-  free(z1);
-  z1 = NULL;
+  if(z1 != NULL){
+    zero_memory(z1, n);
+    free(z1);
+    z1 = NULL;
+  }
 
   //zero these puppies out
-  zero_memory(z2, n);
-  free(z2);
-  z2 = NULL;
+  if(z2 != NULL){
+    zero_memory(z2, n);
+    free(z2);
+    z2 = NULL;
+  }
 
   //zero these puppies out
-  zero_memory(indices, kappa);
-  free(indices);
-  indices = NULL;
+  if(indices != NULL){
+    zero_memory(indices, kappa);
+    free(indices);
+    indices = NULL;
+  }
 
  cleanup:
 
   free(hash);
   hash = NULL;
 
+  
   //zero these puppies out
-  zero_memory(v, n);
-  free(v);
-  v = NULL;
+  if(v != NULL){
+    zero_memory(v, n);
+    free(v);
+    v = NULL;
+  }
 	
   //zero these puppies out
-  zero_memory(y1, n);
-  free(y1);
-  y1 = NULL;
+  if(y1 != NULL){
+    zero_memory(y1, n);
+    free(y1);
+    y1 = NULL;
+  }
 	
   //zero these puppies out
-  zero_memory(y2, n);
-  free(y2);
-  y2 = NULL;
+  if(y2 != NULL){
+    zero_memory(y2, n);
+    free(y2);
+    y2 = NULL;
+  }
 	
   //zero these puppies out
-  zero_memory(v1, n);
-  free(v1);
-  v1 = NULL;
+  if(v1 != NULL){
+    zero_memory(v1, n);
+    free(v1);
+    v1 = NULL;
+  }
 	
   //zero these puppies out
-  zero_memory(v2, n);
-  free(v2);
-  v2 = NULL;
+  if(v2 != NULL){
+    zero_memory(v2, n);
+    free(v2);
+    v2 = NULL;
+  }
 
   return retval;	
 }
