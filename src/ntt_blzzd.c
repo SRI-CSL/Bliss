@@ -111,6 +111,7 @@ void ntt32_xmu(int32_t v[], uint32_t n, int32_t q, const int32_t t[], const int3
   for (i = 0; i < n; i++) {
     //    v[i] = ntt32_muln(t[i], u[i], q);
     v[i] = (t[i] * u[i]) % q;
+    if (v[i] < 0) v[i] += q;
   }
 }
 
@@ -123,6 +124,7 @@ void ntt32_cmu(int32_t v[], uint32_t n, int32_t q, const int32_t t[], int32_t c)
   for (i = 0; i < n; i++) {
     // x = ntt32_muln(t[i], c, q);
     v[i] = (t[i] * c) % q;
+    if (v[i] < 0) v[i] += q;
   }
 }
 

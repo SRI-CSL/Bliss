@@ -1,3 +1,5 @@
+#include <assert.h>
+
 #include "bliss_b_utils.h"
 
 /*

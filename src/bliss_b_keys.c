@@ -13,6 +13,36 @@
 #include "ntt_blzzd.h"
 
 
+// BD: for debugging
+static void check_key(bliss_private_key_t *key) {
+  const bliss_param_t *p;
+  int32_t aux[512];
+  uint32_t i, n;
+  int32_t q;
+
+  p = &key->p;
+  n = p->n;
+  q = p->q;
+
+  // compute product key->a * key->s1
+  ntt32_xmu(aux, n, q, key->s1, p->w);
+  ntt32_fft(aux, n, q, p->w);         // that's ntt(key->s1)
+  ntt32_xmu(aux, n, q, aux, key->a);  // ntt(key->s1 * key->a)
+  ntt32_fft(aux, n, q, p->w);
+  ntt32_xmu(aux, n, q, aux, p->r);
+  ntt32_flp(aux, n, q);               // aux = key->a * key->s1 mod q
+
+  for (i=0; i<n; i++) {
+    aux[i] = (2 * aux[i] + (q + 2) * key->s2[i]) % p->q2;
+  }
+
+  printf("key check:\n");
+  for (i=0; i<n; i++) {
+    printf(" %d", aux[i]);
+    if ((i & 15) == 15) printf("\n");
+  }
+  printf("\n\n");
+}
 
 static int32_t bliss_b_private_key_init(bliss_private_key_t *private_key, bliss_kind_t kind){
   int32_t n;
@@ -157,12 +187,12 @@ int32_t bliss_b_private_key_gen(bliss_private_key_t *private_key, bliss_kind_t k
      */
 
     /* TL:
-    *       Now that I read that again, I don't know why it's done this way but I think it's actually
-    *       giving a BLISS-B key.
-    *
-    *       Indeed, a = (2g-1)/f and we compute NTT (-a), i.e. NTT((2*(-g)+1)/f)
-    *       Now the distribution of g is centered, therefore it does not matter.
-    */
+     *       Now that I read that again, I don't know why it's done this way but I think it's actually
+     *       giving a BLISS-B key.
+     *
+     *       Indeed, a = (2g-1)/f and we compute NTT (-a), i.e. NTT((2*(-g)+1)/f)
+     *       Now the distribution of g is centered, therefore it does not matter.
+     */
 
     /*  normalize a */
     for (i = 0; i < p->n; i++) {
@@ -177,6 +207,11 @@ int32_t bliss_b_private_key_gen(bliss_private_key_t *private_key, bliss_kind_t k
 
     zero_memory(u, p->n * sizeof(int32_t));
     free(u);
+
+    // BD: for debugging
+    if (false) {
+      check_key(private_key);
+    }
 
     return BLISS_B_NO_ERROR;
   }

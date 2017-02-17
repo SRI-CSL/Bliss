@@ -10,6 +10,7 @@
 #include "shake128.h"
 
 
+
 /* iam: comes from FFT.h of bliss-06-13-2013 */
 /* TL: should probably make it constant time */
 static int32_t modQ(int32_t x, int32_t q, int32_t q_inv){
@@ -61,7 +62,7 @@ static void drop_bits(int32_t *output, const int32_t *input, int32_t n, int32_t 
 }
 
 
-void generateC(int32_t *indices, size_t kappa, int32_t *n_vector, size_t n, uint8_t *hash, size_t hash_sz){
+void generateC(int32_t *indices, size_t kappa, const int32_t *n_vector, size_t n, uint8_t *hash, size_t hash_sz){
   uint8_t whash[SHA3_512_DIGEST_LENGTH];
   uint8_t array[512]; // size we need is either 256 (for Bliss 0) or 512 for others
   int32_t i, j, index;
@@ -131,6 +132,119 @@ void generateC(int32_t *indices, size_t kappa, int32_t *n_vector, size_t n, uint
   }
 }
 
+/*
+ * BD: Consistency check for v, y1, y2
+ * - v is (2 * zeta * y1 * a1 + y2)
+ * - for any c, we can build 
+ *    z1 = y1 + c * s1
+ *    z2 = y2 + c * s2
+ * then we should have 
+ *  (2 * zeta * a * z1 + zeta * q * c + z2) == v mod 2q
+ */
+static void check_before_drop(const bliss_private_key_t *key, uint8_t *hash, uint32_t hash_sz,
+			      const int32_t *v, const int32_t *y1, const int32_t *y2) {
+  int32_t z1[512], z2[512], aux[512], c[40];
+  uint32_t q, kappa, n, i, idx;
+  const bliss_param_t *p;
+
+  p = &key->p;
+  n = p->n;
+  q = p->q;
+  kappa = p->kappa;
+
+  assert(n <= 512 && kappa <= 40);
+  generateC(c, kappa, v, n, hash, hash_sz);
+
+  // first check
+  for (i=0; i<n; i++) {
+    z1[i] = y1[i];
+    z2[i] = y2[i];
+  }
+  for (i=0; i<kappa; i++) {
+    idx = c[i];
+    assert(0 <= idx < n);
+    z1[idx] += key->s1[idx];
+    z2[idx] += key->s2[idx];
+  }
+
+  // compute z1 * a in aux
+  ntt32_xmu(aux, n, q, z1, p->w);
+  ntt32_fft(aux, n, q, p->w);
+  ntt32_xmu(aux, n, q, aux, key->a);
+  ntt32_fft(aux, n, q, p->w);
+  ntt32_xmu(aux, n, q, aux, p->r);
+  ntt32_flp(aux, n, q);
+
+  for (i=0; i<n; i++) {
+    aux[i] = 2 * aux[i] * p->one_q2 + z2[i];
+  }
+  for (i=0; i<kappa; i++) {
+    idx = c[i];
+    aux[idx] += p->one_q2 * q;
+  }
+  for (i=0; i<n; i++) {
+    aux[i] = aux[i] % p->q2;
+  }
+
+  printf("\n\nCONSISTENCY CHECK 1\n");
+  printf("v is:\n");
+  for (i=0; i<n; i++) {
+    printf(" %d", v[i]);
+    if ((i & 15) == 15) printf("\n");
+  }
+  printf("\n");
+  printf("aux is:\n");
+  for (i=0; i<n; i++) {
+    printf(" %d", v[i]);
+    if ((i & 15) == 15) printf("\n");
+  }
+  printf("\n\n\n");
+
+  // second check
+  for (i=0; i<n; i++) {
+    z1[i] = y1[i];
+    z2[i] = y2[i];
+  }
+  for (i=0; i<kappa; i++) {
+    idx = c[i];
+    assert(0 <= idx < n);
+    z1[idx] -= key->s1[idx];
+    z2[idx] -= key->s2[idx];
+  }
+
+  // compute z1 * a in aux
+  ntt32_xmu(aux, n, q, z1, p->w);
+  ntt32_fft(aux, n, q, p->w);
+  ntt32_xmu(aux, n, q, aux, key->a);
+  ntt32_fft(aux, n, q, p->w);
+  ntt32_xmu(aux, n, q, aux, p->r);
+  ntt32_flp(aux, n, q);
+
+  for (i=0; i<n; i++) {
+    aux[i] = 2 * aux[i] * p->one_q2 + z2[i];
+  }
+  for (i=0; i<kappa; i++) {
+    idx = c[i];
+    aux[idx] += p->one_q2 * q;
+  }
+  for (i=0; i<n; i++) {
+    aux[i] = aux[i] % p->q2;
+  }
+
+  printf("\nCONSISTENCY CHECK 2\n");
+  printf("v is:\n");
+  for (i=0; i<n; i++) {
+    printf(" %d", v[i]);
+    if ((i & 15) == 15) printf("\n");
+  }
+  printf("\n");
+  printf("aux is:\n");
+  for (i=0; i<n; i++) {
+    printf(" %d", v[i]);
+    if ((i & 15) == 15) printf("\n");
+  }
+  printf("\n\n\n");
+}
 
 int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *private_key, const uint8_t *msg, size_t msg_sz, entropy_t *entropy){
   sampler_t sampler;
@@ -241,13 +355,22 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
   /* hash the message into the first SHA3_512_DIGEST_LENGTH bytes of the hash */
 
   sha3_512(hash, msg, msg_sz);
-  // for debuggin
-  printf("sign hash\n");
-  for (i=0; i<SHA3_512_DIGEST_LENGTH; i++) {
-    printf(" %d", hash[i]);
-    if (i == 31) printf("\n");
+
+  // for debugging
+  if (false) {
+    printf("sign hash\n");
+    for (i=0; i<SHA3_512_DIGEST_LENGTH; i++) {
+      printf(" %d", hash[i]);
+      if (i == 31) printf("\n");
+    }
+    printf("\n");
+    printf("sign: public key\n");
+    for (i=0; i<n; i++) {
+      printf(" %d", a[i]);
+      if ((i & 15) == 15) printf("\n");
+    }
+    printf("\n");
   }
-  printf("\n");
 
   /* 1 restart: choose y1, y2 */
 
@@ -258,7 +381,7 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
     y2[i] = sampler_gauss2(&sampler);
   }
 
-  /* 2: compute v = ((xi * (a * y1)) + y2) mod 2q */
+  /* 2: compute v = ((2 * xi * a * y1) + y2) mod 2q */
 
   ntt32_xmu(v, n, q, y1, w);  /* multiply by powers of psi */
   ntt32_fft(v, n, q, w);      /* v = ntt(y1) */
@@ -269,9 +392,22 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
   // now v is (a * y1)
 
   for (i=0; i<n; i++) {
-    // this is v[i] = (2 * v[i] * one_q2 + y2[i]) % q2
-    v[i] = modQ(2*v[i]*p->one_q2+y2[i], p->q2, p->q2_inv);
+    // this is v[i] = (2 * v[i] * xi + y2[i]) % q2
+    v[i] = modQ(2 * v[i] * p->one_q2 + y2[i], p->q2, p->q2_inv);
   }
+
+  if (false) {
+    printf("sign: v before drop bits\n");
+    for (i=0; i<n; i++) {
+      printf(" %d", v[i]);
+      if ((i & 15) == 15) printf("\n");
+    }
+  }
+
+  if (false) {
+    check_before_drop(private_key, hash, hash_sz, v, y1, y2);
+  }
+
   /* 2b: drop bits mod_p */
   drop_bits(dv, v, n, p->d);
   for (i=0; i<n; i++) {
@@ -279,23 +415,27 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
   }
 
   /* 3: generateC of v and the hash of the msg */
-  printf("sign: input to generateC\n");
-  for (i=0; i<n; i++) {
-    printf(" %d", dv[i]);
-    if ((i & 31) == 31) printf("\n");
+  if (false) {
+    printf("sign: input to generateC\n");
+    for (i=0; i<n; i++) {
+      printf(" %d", dv[i]);
+      if ((i & 31) == 31) printf("\n");
+    }
   }
-  
+
   generateC(indices, kappa, dv, n, hash, hash_sz);
 
-  printf("sign: indices after generateC\n");
-  for (i=0; i<kappa; i++) {
-    printf(" %d", indices[i]);
+  if (true) {
+    printf("sign: indices after generateC\n");
+    for (i=0; i<kappa; i++) {
+      printf(" %d", indices[i]);
+    }
+    printf("\n\n");
   }
-  printf("\n\n");
 
   /* 4: (v1, v2) = greedySC(c) */
 
-  greedy_sc_blzzd(s1, s2, n,  indices, kappa, v1, v2);
+  greedy_sc_blzzd(s1, s2, n, indices, kappa, v1, v2);
 
   /* 5: choose a random bit b */
 
@@ -303,16 +443,31 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
 
   /* 6: (z1, z2) = (y1, y2) + (-1)^b * (v1, v2) */
 
-  if(b){
-    for(i = 0; i < n; i++){
+  if(b) {
+    for(i = 0; i < n; i++) {
       z1[i] = y1[i] + v1[i];
       z2[i] = y2[i] + v2[i];
     }
   } else {
-    for(i = 0; i < n; i++){
+    for(i = 0; i < n; i++) {
       z1[i] = y1[i] - v1[i];
       z2[i] = y2[i] - v2[i];
     }
+  }
+
+  if (false) {
+    printf("sign: z1\n");
+    for (i=0; i<n; i++) {
+      printf(" %d", z1[i]);
+      if ((i & 15) == 15) printf("\n");
+    }
+    printf("\n");
+    printf("sign: z2\n");
+    for (i=0; i<n; i++) {
+      printf(" %d", z2[i]);
+      if ((i & 15) == 15) printf("\n");
+    }
+    printf("\n\n");
   }
 
   /* 7: continue with probability 1/(M exp(-|v|^2/2sigma^2) * cosh(<z, v>/sigma^2)) otherwise restart */
@@ -330,7 +485,7 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
 
   /* 8: z2 = (drop_bits(v) - drop_bits(v - z2)) mod p  */
   for (i=0; i<n; i++) {
-    y1[i] = v[i] - z2[i];
+    y1[i] = (v[i] - z2[i]) % p->q2;
   }
   drop_bits(v, v, n, p->d);   // drop_bits(v)
   drop_bits(y1, y1, n, p->d); // drop_bits(v - z2)
@@ -450,6 +605,7 @@ int32_t bliss_b_verify(const bliss_signature_t *signature,  const bliss_public_k
   int32_t *a, *z1, *z2, *tz2, *v = NULL, *indices = NULL;
   const int32_t *w, *r;
   uint32_t *c_indices;
+  uint32_t idx;
 
   uint8_t *hash = NULL;
   size_t hash_sz;
@@ -471,8 +627,8 @@ int32_t bliss_b_verify(const bliss_signature_t *signature,  const bliss_public_k
   r = p->r;
 
   q2 = p->q2;
-  q_inv =  p->q_inv;
-  q2_inv =  p->q2_inv;
+  q_inv = p->q_inv;
+  q2_inv = p->q2_inv;
   one_q2 = p->one_q2;
 
   z1 = signature->z1;         /* length n */
@@ -510,7 +666,6 @@ int32_t bliss_b_verify(const bliss_signature_t *signature,  const bliss_public_k
     goto fail;
   }
 
-
   /* make working space */
 
   hash_sz =  SHA3_512_DIGEST_LENGTH + 2 * n;
@@ -537,29 +692,48 @@ int32_t bliss_b_verify(const bliss_signature_t *signature,  const bliss_public_k
 
   /* hash the message into the first SHA3_512_DIGEST_LENGTH bytes of the hash */
   sha3_512(hash, msg, msg_sz);
-  printf("verify hash\n");
-  for (i=0; i<SHA3_512_DIGEST_LENGTH; i++) {
-    printf(" %d", hash[i]);
-    if (i == 31) printf("\n");
+
+  if (false) {
+    printf("verify hash\n");
+    for (i=0; i<SHA3_512_DIGEST_LENGTH; i++) {
+      printf(" %d", hash[i]);
+      if (i == 31) printf("\n");
+    }
+    printf("\n");
+    printf("verify: c_indices\n");
+    for (i=0; i<kappa; i++) {
+      printf(" %d", c_indices[i]);
+    }
+    printf("\n");
+    printf("verify: z1\n");
+    for (i=0; i<n; i++) {
+      printf(" %d", z1[i]);
+      if ((i & 15) == 15) printf("\n");
+    }
+    printf("\n");
+    printf("verify: z2\n");
+    for (i=0; i<n; i++) {
+      printf(" %d", z2[i]);
+      if ((i & 15) == 15) printf("\n");
+    }
+    printf("\n\n");
+
+    printf("verify: public key\n");
+    for (i=0; i<n; i++) {
+      printf(" %d", a[i]);
+      if ((i & 15) == 15) printf("\n");
+    }
+    printf("\n");
   }
-  printf("\n");
-  printf("verify: c_indices\n");
-  for (i=0; i<kappa; i++) {
-    printf(" %d", c_indices[i]);
-  }
-  printf("\n");
 
   /* v = a * z1 */
-  for (i = 0; i < n; i++) {
-    v[i] = z1[i];
-  }
-
-  ntt32_xmu(v, n, q, v, w);
-  ntt32_fft(v, n, q, w);      /* v = ntt(v) */
-  ntt32_xmu(v, n, q, v, a);   /* v * a (both in ntt form) */
+  ntt32_xmu(v, n, q, z1, w);
+  ntt32_fft(v, n, q, w);      /* v = ntt(z1) */
+  ntt32_xmu(v, n, q, v, a);   /* v = ntt(v1) * ntt(a) (both in ntt form) */
   ntt32_fft(v, n, q, w);
   ntt32_xmu(v, n, q, v, r);   /* v * a in reversed order */
   ntt32_flp(v, n, q);         /* v * a mod q */
+  // now v is (a * z1)
 
   /* IAM2BD: v = a * z here? now? */
 
@@ -577,7 +751,16 @@ int32_t bliss_b_verify(const bliss_signature_t *signature,  const bliss_public_k
 
   /*  + (q/q+2) * c */
   for (i = 0; i < kappa; i++) {
-    v[c_indices[i]] = modQ(v[c_indices[i]] + (q * one_q2), q2, q2_inv);
+    idx = c_indices[i];
+    v[idx] = modQ(v[idx] + (q * one_q2), q2, q2_inv);
+  }
+  
+  if (false) {
+    printf("verify: v before drop bits\n");
+    for (i=0; i<n; i++) {
+      printf(" %d", v[i]);
+      if ((i & 15) == 15) printf("\n");
+    }
   }
 
   drop_bits(v, v, n, d);
@@ -594,20 +777,23 @@ int32_t bliss_b_verify(const bliss_signature_t *signature,  const bliss_public_k
     }
   }
 
-  printf("verify: input to generateC\n");
-  for (i=0; i<n; i++) {
-    printf(" %d", v[i]);
-    if ((i & 31) == 31) printf("\n");
+  if (false) {
+    printf("verify: input to generateC\n");
+    for (i=0; i<n; i++) {
+      printf(" %d", v[i]);
+      if ((i & 31) == 31) printf("\n");
+    }
+    printf("\n");
   }
-  printf("\n");
-  
   generateC(indices, kappa, v, n, hash, hash_sz);
-  printf("verify: indices after generateC\n");
-  for (i=0; i<kappa; i++) {
-    printf(" %d", indices[i]);
-  }
-  printf("\n");
 
+  if (true) {
+    printf("verify: indices after generateC\n");
+    for (i=0; i<kappa; i++) {
+      printf(" %d", indices[i]);
+    }
+    printf("\n");
+  }
 
   retval = BLISS_B_NO_ERROR;
 
