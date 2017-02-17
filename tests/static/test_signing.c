@@ -41,10 +41,13 @@ int main(int argc, char* argv[]){
   size_t msg_sz = strlen(text) + 1;
   
   entropy_init(&entropy, seed);
-  
+
+  //for (j = BLISS_B_0; j <= BLISS_B_4; j++){
+
+
   // fprintf(stderr, "Still need tables for BLISS_B_0 remember!\n");
 
-  retcode = bliss_b_private_key_gen(&private_key, BLISS_B_1, &entropy);
+  retcode = bliss_b_private_key_gen(&private_key, BLISS_B_0, &entropy);
   if (retcode != BLISS_B_NO_ERROR){
     fprintf(stderr, "bliss_b_private_key_gen failed: retcode = %d\n", retcode);
     goto exit;

@@ -425,7 +425,8 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
 
   generateC(indices, kappa, dv, n, hash, hash_sz);
 
-  if (true) {
+  //iam: too noisy when there are restarts (BLISS_B_0)
+  if (false) {
     printf("sign: indices after generateC\n");
     for (i=0; i<kappa; i++) {
       printf(" %d", indices[i]);
@@ -474,12 +475,12 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
   // NOTE: we could do the ber_exp earlier since it does not depend on z
   norm_v = vector_norm2(v1, n) + vector_norm2(v2, n);
   if (! sampler_ber_exp(&sampler, norm_v)) {
-    fprintf(stderr, "--> sampler_ber_exp false\n");
+    //fprintf(stderr, "--> sampler_ber_exp false\n"); 
     goto restart;
   }
   prod_zv = vector_scalar_product(z1, v1, n) + vector_scalar_product(z2, v2, n);
   if (! sampler_ber_cosh(&sampler, prod_zv)) {
-    fprintf(stderr, "--> sampler_ber_cosh false\n");
+    //fprintf(stderr, "--> sampler_ber_cosh false\n");
     goto restart;
   }
 
@@ -511,6 +512,14 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
   }
 
   /* return (z1, z2, c) */
+
+  if (true) {
+    printf("sign: indices after generateC\n");
+    for (i=0; i<kappa; i++) {
+      printf(" %d", indices[i]);
+    }
+    printf("\n\n");
+  }
 
   signature->p = *p;
   signature->z1 = z1;
