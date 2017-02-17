@@ -241,6 +241,7 @@ int32_t bliss_b_public_key_extract(bliss_public_key_t *public_key, const bliss_p
   }
 
   public_key->p = *p;
+  public_key->a = a;
 
   return BLISS_B_NO_ERROR;
 

@@ -42,7 +42,7 @@ int main(int argc, char* argv[]){
   
   entropy_init(&entropy, seed);
   
-  fprintf(stderr, "Still need tables for BLISS_B_0 remember!\n");
+  // fprintf(stderr, "Still need tables for BLISS_B_0 remember!\n");
 
   retcode = bliss_b_private_key_gen(&private_key, BLISS_B_1, &entropy);
   if (retcode != BLISS_B_NO_ERROR){

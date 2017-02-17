@@ -279,21 +279,21 @@ static const bliss_param_t bliss_b_params[] = {
     512,                /* n */
     10,                 /* d */
     24,                 /* mod_p */
-    24578,              /* 2 * field modulus  */
-    349496,             /* floor(2^32/q)      */
-    174748,             /* floor(2^32/q2)     */
-    6145,               /* 1/(q + 2) mod 2q   */
+    24578,              /* q2 = 2 * field modulus  */
+    349496,             /* q_inv = floor(2^32/q) */
+    174748,             /* q2_inv = floor(2^32/q2) */
+    6145,               /* one_q2 = 1/(q + 2) mod 2q */
     23,                 /* kappa */
     32,                 /* theta */
     2100,               /* b_inf */
-    12872 * 12872,      /* L2 norm */
-    154,                /* nz1 */
-    0,                  /* nz2 */
+    12872 * 12872,      /* b_l2 = square of L2 norm */
+    154,                /* nz1 = number of coeffs equal to +/-1 in the private key */
+    0,                  /* nz2 = number of coeffs equal to +/-2 */
     17825,              /* pmax */
     215,                /* sigma */
-    1.21,               /* m */
-    w12289n512,         /* w */
-    r12289n512,         /* r */
+    1.21,               /* m = repetition rate */
+    w12289n512,         /* w = powers of omega  (for NTT) */
+    r12289n512,         /* r = powers of omeag/n (for inverse NTT) */
     21,                 /* ell */
     128,                /* precision */
   },
