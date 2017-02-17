@@ -30,12 +30,14 @@ static bliss_public_key_t public_key;
 
 static bliss_signature_t signature;
 
-static int32_t COUNT = 2;
+static int32_t COUNT = 6;
 
 int main(int argc, char* argv[]){
   int32_t type;
   int32_t count;
-  
+
+  bool ok;
+
   int32_t retcode;
 
   char *text = "The lunatics have taken over the asylum";
@@ -49,6 +51,8 @@ int main(int argc, char* argv[]){
   for (type = BLISS_B_0; type <= BLISS_B_4; type++){
     
     for (count = 0; count < COUNT; count++){
+
+      ok = false;
 
       fprintf(stderr, "\n\nbliss_b test type = %d, count = %d\n", type, count);
  
@@ -75,7 +79,9 @@ int main(int argc, char* argv[]){
 	fprintf(stderr, "bliss_b_verify failed: type = %d, retcode = %d\n", type, retcode);
       goto exit;
       }
-      
+
+      ok = true;
+
     exit:
       
       bliss_b_private_key_delete(&private_key);
@@ -83,6 +89,8 @@ int main(int argc, char* argv[]){
       bliss_b_public_key_delete(&public_key);
       
       bliss_signature_delete(&signature);
+
+      fprintf(stderr, "bliss_b type = %d:  %s\n", type, ok ? "OK" : "FAILED");
 
     }
   }
