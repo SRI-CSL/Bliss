@@ -63,6 +63,8 @@ lib:
 
 UNIT_TESTS=./tests/static
 
+TOOLS = ./tools
+
 check: $(TARGET)
 	make -C ${UNIT_TESTS} check
 
@@ -71,6 +73,7 @@ clean:
 	rm -f *~ *.o
 	rm -rf obj lib
 	make -C ${UNIT_TESTS} clean
+	make -C ${TOOLS} clean
 	make -C ./tools clean
 
 
