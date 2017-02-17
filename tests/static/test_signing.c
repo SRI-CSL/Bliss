@@ -31,7 +31,8 @@ static bliss_public_key_t public_key;
 static bliss_signature_t signature;
 
 int main(int argc, char* argv[]){
-
+  int32_t type;
+  
   int32_t retcode;
 
   char *text = "The lunatics have taken over the asylum";
@@ -42,42 +43,41 @@ int main(int argc, char* argv[]){
   
   entropy_init(&entropy, seed);
 
-  //for (j = BLISS_B_0; j <= BLISS_B_4; j++){
+  for (type = BLISS_B_0; type <= BLISS_B_4; type++){
 
-
-  // fprintf(stderr, "Still need tables for BLISS_B_0 remember!\n");
-
-  retcode = bliss_b_private_key_gen(&private_key, BLISS_B_0, &entropy);
-  if (retcode != BLISS_B_NO_ERROR){
-    fprintf(stderr, "bliss_b_private_key_gen failed: retcode = %d\n", retcode);
-    goto exit;
-  }
+    retcode = bliss_b_private_key_gen(&private_key, type, &entropy);
+    if (retcode != BLISS_B_NO_ERROR){
+      fprintf(stderr, "bliss_b_private_key_gen failed: type = %d, retcode = %d\n", type, retcode);
+      goto exit;
+    }
    
-  retcode = bliss_b_public_key_extract(&public_key, &private_key);
-  if (retcode != BLISS_B_NO_ERROR){
-    fprintf(stderr, "bliss_b_public_key_extract failed: retcode = %d\n", retcode);
-    goto exit;
-  }
+    retcode = bliss_b_public_key_extract(&public_key, &private_key);
+    if (retcode != BLISS_B_NO_ERROR){
+      fprintf(stderr, "bliss_b_public_key_extract failed: type = %d, retcode = %d\n", type, retcode);
+      goto exit;
+    }
 
-  retcode = bliss_b_sign(&signature,  &private_key, msg, msg_sz, &entropy);  
-  if (retcode != BLISS_B_NO_ERROR){
-    fprintf(stderr, "bliss_b_sign failed: retcode = %d\n", retcode);
-    goto exit;
-  }
+    retcode = bliss_b_sign(&signature,  &private_key, msg, msg_sz, &entropy);  
+    if (retcode != BLISS_B_NO_ERROR){
+      fprintf(stderr, "bliss_b_sign failed: type = %d, retcode = %d\n", type, retcode);
+      goto exit;
+    }
   
-  retcode = bliss_b_verify(&signature,  &public_key, msg, msg_sz);
-  if (retcode != BLISS_B_NO_ERROR){
-    fprintf(stderr, "bliss_b_verify failed: retcode = %d\n", retcode);
-    goto exit;
-  }
+    retcode = bliss_b_verify(&signature,  &public_key, msg, msg_sz);
+    if (retcode != BLISS_B_NO_ERROR){
+      fprintf(stderr, "bliss_b_verify failed: type = %d, retcode = %d\n", type, retcode);
+      goto exit;
+    }
 
- exit:
+  exit:
   
-  bliss_b_private_key_delete(&private_key);
+    bliss_b_private_key_delete(&private_key);
+    
+    bliss_b_public_key_delete(&public_key);
 
-  bliss_b_public_key_delete(&public_key);
+    bliss_signature_delete(&signature);
 
-  bliss_signature_delete(&signature);
+  }
   
   return 0;
 }
