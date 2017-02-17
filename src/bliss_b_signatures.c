@@ -491,8 +491,12 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
   drop_bits(v, v, n, p->d);   // drop_bits(v)
   drop_bits(y1, y1, n, p->d); // drop_bits(v - z2)
   for (i=0; i<n; i++) {
-    //    z2[i] = modQ(v[i] - y1[i], p->, p->q_inv); !! Aargh that should be p
     z2[i] = (v[i] - y1[i]) % p->mod_p;
+    //iam: no reason for this assertion to be true
+    //assert(-p->mod_p/2 <= z2[i] && z2[i] <= p->mod_p/2);
+    if(z2[i] >  p->mod_p/2){ 
+      z2[i] -= p->mod_p;
+    }
     assert(-p->mod_p/2 <= z2[i] && z2[i] <= p->mod_p/2);
   }
   

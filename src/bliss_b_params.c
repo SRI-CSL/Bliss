@@ -316,7 +316,7 @@ static const bliss_param_t bliss_b_params[] = {
     154,                /* nz1 */
     0,                  /* nz2 */
     17825,              /* pmax */
-    107,                /* sigma */
+    250,                /* sigma  Tancrede's code has 107, but our comments indicate 250 */
     2.18,               /* m */
     w12289n512,         /* w */
     r12289n512,         /* r */

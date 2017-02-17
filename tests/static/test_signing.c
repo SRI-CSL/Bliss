@@ -50,7 +50,7 @@ int main(int argc, char* argv[]){
     
     for (count = 0; count < COUNT; count++){
 
-      fprintf(stderr, "bliss_b test type = %d, count = %d\n", type, count);
+      fprintf(stderr, "\n\nbliss_b test type = %d, count = %d\n", type, count);
  
       retcode = bliss_b_private_key_gen(&private_key, type, &entropy);
       if (retcode != BLISS_B_NO_ERROR){
