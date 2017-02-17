@@ -56,8 +56,8 @@ static void drop_bits(int32_t *output, const int32_t *input, int32_t n, int32_t 
   delta = 1<<d;
   half_delta = delta >> 1;
   for (i = 0; i < n; i++) {
-    output[i] = (2*input[i] + (1<<d))/(1<<(d + 1));
-    //    output[i] = (input[i] + half_delta) / delta;
+    //output[i] = (2*input[i] + (1<<d))/(1<<(d + 1));
+    output[i] = (input[i] + half_delta) / delta;
   }
 }
 
@@ -636,16 +636,10 @@ int32_t bliss_b_verify(const bliss_signature_t *signature,  const bliss_public_k
   c_indices = signature->c;   /* length kappa */
 
 
-  /* do the dropped bit shift in tz2 (t for temp);
-     iam asks later: why are we doing this again? */
-  // TL: Probably because the infinity and L2 bounds given in BLISS are for "z1" and a "z2" of similar size. This comes from how we assessed security from the attacks.
-
   tz2 = calloc(n, sizeof(int32_t));
   if(tz2 ==  NULL){
     return BLISS_B_NO_MEM;
   }
-
-  mul2d(tz2, z2, n, d);
 
   /* first check the norms */
 
@@ -654,13 +648,14 @@ int32_t bliss_b_verify(const bliss_signature_t *signature,  const bliss_public_k
     goto fail;
   }
 
-  //iam: still not sure why tz2 and not just z2
+  /* multiply z2 by 2^d */
+  mul2d(tz2, z2, n, d);
+
   if(vector_max_norm(tz2, n) > b_inf){
     retval = BLISS_B_BAD_DATA;
     goto fail;
   }
 
-  //iam: still not sure why tz2 and not just z2
   if (vector_norm2(z1, n) + vector_norm2(tz2, n)  > b_l2){
     retval = BLISS_B_BAD_DATA;
     goto fail;
@@ -733,20 +728,13 @@ int32_t bliss_b_verify(const bliss_signature_t *signature,  const bliss_public_k
   ntt32_fft(v, n, q, w);
   ntt32_xmu(v, n, q, v, r);   /* v * a in reversed order */
   ntt32_flp(v, n, q);         /* v * a mod q */
-  // now v is (a * z1)
-
-  /* IAM2BD: v = a * z here? now? */
-
-  /*  bliss-06-13-2013 computes  a/(q+2)*z_1+q/(q+2)*c+z_2 =  [(1/(q + 2)) * a * z1] + [(q/q+2) * c] + z_2  mod p */
-  /*  iam: there may be some factors missing here; but at least I have something to work with and discuss. */
+                              /*  now v is (a * z1)  */
 
 
   /* (1/(q + 2)) * a * z1 */
   for (i = 0; i < n; i++){
     assert(0 <= v[i] && v[i] < q);
-    v[i] = modQ(2*v[i]*one_q2, q2, q2_inv);  //iam: why is there a 2 here?
-    // TL: because in BLISS and BLISS-B the public key a_1 = is 2*a_q where a_q was "mod q"
-    // TL: q2 = 2*q right?
+    v[i] = modQ(2*v[i]*one_q2, q2, q2_inv);  
   }
 
   /*  + (q/q+2) * c */
@@ -765,8 +753,7 @@ int32_t bliss_b_verify(const bliss_signature_t *signature,  const bliss_public_k
 
   drop_bits(v, v, n, d);
 
-  /*  + z_2  mod p. iam: how many different mod algorithms do we need here? */
-  /* TL: Should do this in constant time */
+  /*  v += z_2  mod p. */
   for (i = 0; i < n; i++){
     v[i] += z2[i];
     if (v[i] < 0){
