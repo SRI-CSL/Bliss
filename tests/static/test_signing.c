@@ -47,33 +47,29 @@ int main(int argc, char* argv[]){
   retcode = bliss_b_private_key_gen(&private_key, BLISS_B_1, &entropy);
   if (retcode != BLISS_B_NO_ERROR){
     fprintf(stderr, "bliss_b_private_key_gen failed: retcode = %d\n", retcode);
-    return EXIT_FAILURE;
+    goto exit;
   }
    
   retcode = bliss_b_public_key_extract(&public_key, &private_key);
   if (retcode != BLISS_B_NO_ERROR){
     fprintf(stderr, "bliss_b_public_key_extract failed: retcode = %d\n", retcode);
-    return EXIT_FAILURE;
-  }
-
-  retcode = bliss_b_public_key_extract(&public_key, &private_key);
-  if (retcode != BLISS_B_NO_ERROR){
-    fprintf(stderr, "bliss_b_public_key_extract failed: retcode = %d\n", retcode);
-    return EXIT_FAILURE;
+    goto exit;
   }
 
   retcode = bliss_b_sign(&signature,  &private_key, msg, msg_sz, &entropy);  
   if (retcode != BLISS_B_NO_ERROR){
     fprintf(stderr, "bliss_b_sign failed: retcode = %d\n", retcode);
-    return EXIT_FAILURE;
+    goto exit;
   }
   
   retcode = bliss_b_verify(&signature,  &public_key, msg, msg_sz);
   if (retcode != BLISS_B_NO_ERROR){
     fprintf(stderr, "bliss_b_verify failed: retcode = %d\n", retcode);
-    return EXIT_FAILURE;
+    goto exit;
   }
 
+ exit:
+  
   bliss_b_private_key_delete(&private_key);
 
   bliss_b_public_key_delete(&public_key);
