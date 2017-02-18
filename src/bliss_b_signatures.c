@@ -146,6 +146,7 @@ static void check_before_drop(const bliss_private_key_t *key, uint8_t *hash, uin
   int32_t z1[512], z2[512], aux[512], c[40];
   uint32_t q, kappa, n, i, idx;
   const bliss_param_t *p;
+  bool ok;
 
   p = &key->p;
   n = p->n;
@@ -186,19 +187,31 @@ static void check_before_drop(const bliss_private_key_t *key, uint8_t *hash, uin
     aux[i] = aux[i] % p->q2;
   }
 
-  printf("\n\nCONSISTENCY CHECK 1\n");
-  printf("v is:\n");
-  for (i=0; i<n; i++) {
-    printf(" %d", v[i]);
-    if ((i & 15) == 15) printf("\n");
+  ok = true;
+  
+  for(i = 0; i < n; i++){
+    if(v[i] != aux[i]){
+      printf("i = %d v[i] = %d aux[i] = %d\n", i, v[i], aux[i]);
+      ok = false;
+      //break;
+    }
   }
-  printf("\n");
-  printf("aux is:\n");
-  for (i=0; i<n; i++) {
-    printf(" %d", v[i]);
-    if ((i & 15) == 15) printf("\n");
+ 
+  if (false && ! ok){
+    printf("\n\nCONSISTENCY CHECK 1\n");
+    printf("v is:\n");
+    for (i=0; i<n; i++) {
+      printf(" %d", v[i]);
+      if ((i & 15) == 15) printf("\n");
+    }
+    printf("\n");
+    printf("aux is:\n");
+    for (i=0; i<n; i++) {
+      printf(" %d", v[i]);
+      if ((i & 15) == 15) printf("\n");
+    }
+    printf("\n\n\n");
   }
-  printf("\n\n\n");
 
   // second check
   for (i=0; i<n; i++) {
@@ -231,19 +244,33 @@ static void check_before_drop(const bliss_private_key_t *key, uint8_t *hash, uin
     aux[i] = aux[i] % p->q2;
   }
 
-  printf("\nCONSISTENCY CHECK 2\n");
-  printf("v is:\n");
-  for (i=0; i<n; i++) {
-    printf(" %d", v[i]);
-    if ((i & 15) == 15) printf("\n");
+  ok = true;
+  
+  for(i = 0; i < n; i++){
+    if(v[i] != aux[i]){
+      ok = false;
+      printf("i = %d v[i] = %d aux[i] = %d\n", i, v[i], aux[i]);
+      //break;
+    }
   }
-  printf("\n");
-  printf("aux is:\n");
-  for (i=0; i<n; i++) {
-    printf(" %d", v[i]);
-    if ((i & 15) == 15) printf("\n");
+  
+  if(false &&  ! ok ){
+    printf("\nCONSISTENCY CHECK 2\n");
+    printf("v is:\n");
+    for (i=0; i<n; i++) {
+      printf(" %d", v[i]);
+      if ((i & 15) == 15) printf("\n");
+    }
+    printf("\n");
+    printf("aux is:\n");
+    for (i=0; i<n; i++) {
+      printf(" %d", v[i]);
+      if ((i & 15) == 15) printf("\n");
+    }
+    printf("\n\n\n");
   }
-  printf("\n\n\n");
+
+
 }
 
 int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *private_key, const uint8_t *msg, size_t msg_sz, entropy_t *entropy){
@@ -415,7 +442,7 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
   }
 
   /* 3: generateC of v and the hash of the msg */
-  if (false) {
+  if (true) {
     printf("sign: input to generateC\n");
     for (i=0; i<n; i++) {
       printf(" %d", dv[i]);
@@ -491,13 +518,13 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
   drop_bits(v, v, n, p->d);   // drop_bits(v)
   drop_bits(y1, y1, n, p->d); // drop_bits(v - z2)
   for (i=0; i<n; i++) {
-    z2[i] = (v[i] - y1[i]) % p->mod_p;
-    //iam: no reason for this assertion to be true
-    //assert(-p->mod_p/2 <= z2[i] && z2[i] <= p->mod_p/2);
-    if(z2[i] >  p->mod_p/2){ 
+    z2[i] = (v[i] - y1[i]); 
+    if(z2[i] <  -p->mod_p/2){ 
+      z2[i] += p->mod_p;
+    } else if (z2[i] >  p->mod_p/2){
       z2[i] -= p->mod_p;
     }
-    assert(-p->mod_p/2 <= z2[i] && z2[i] <= p->mod_p/2);
+    assert(-p->mod_p/2 <= z2[i] && z2[i] < p->mod_p/2);
   }
   
   /* 9: seem to also need to check norms akin to what happens in the entry to verify */
@@ -769,15 +796,20 @@ int32_t bliss_b_verify(const bliss_signature_t *signature,  const bliss_public_k
   /*  v += z_2  mod p. */
   for (i = 0; i < n; i++){
     v[i] += z2[i];
+
+    v[i] = v[i] % p->mod_p;
+
+    /*
     if (v[i] < 0){
       v[i] += mod_p;
     }
     if (v[i] >= mod_p){
       v[i] -= mod_p;
     }
+    */
   }
 
-  if (false) {
+  if (true) {
     printf("verify: input to generateC\n");
     for (i=0; i<n; i++) {
       printf(" %d", v[i]);

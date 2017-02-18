@@ -3,6 +3,8 @@
 
 // Number-Theoretic Transforms on a max 31-bit q value
 
+#include <assert.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include "ntt_blzzd.h"
 
@@ -59,9 +61,23 @@ static inline int32_t add_mod(int32_t x, int32_t y, int32_t q) {
   return x - q >= 0 ? x - q : x;
 }
 
+
+static bool check_arg(int32_t v[], uint32_t n, int32_t q){
+  uint32_t i;
+
+  for(i = 0; i < n; i++){
+    if(v[i] < 0){ return false; }
+    if(v[i] >= q){ return false; }
+  }
+
+  return true;
+}
+
 void ntt32_fft(int32_t v[], uint32_t n, int32_t q, const int32_t w[]) {
   uint32_t i, j, k, l;
   int32_t x, y;
+
+  assert(check_arg(v, n, q));
 
   // bit-inverse shuffle
   j = n >> 1;
@@ -106,13 +122,17 @@ void ntt32_fft(int32_t v[], uint32_t n, int32_t q, const int32_t w[]) {
 // BD: modified to use 32 bit arithmetic
 void ntt32_xmu(int32_t v[], uint32_t n, int32_t q, const int32_t t[], const int32_t u[]) {
   uint32_t i;
-  
+
+
   // multiply each element point-by-point
   for (i = 0; i < n; i++) {
     //    v[i] = ntt32_muln(t[i], u[i], q);
     v[i] = (t[i] * u[i]) % q;
     if (v[i] < 0) v[i] += q;
   }
+
+  assert(check_arg(v, n, q));
+
 }
 
 // Multiply with a scalar  v = t * c.
@@ -126,6 +146,9 @@ void ntt32_cmu(int32_t v[], uint32_t n, int32_t q, const int32_t t[], int32_t c)
     v[i] = (t[i] * c) % q;
     if (v[i] < 0) v[i] += q;
   }
+
+  assert(check_arg(v, n, q));
+
 }
 
 // Flip the order.
@@ -139,7 +162,13 @@ void ntt32_flp(int32_t v[], uint32_t n, int32_t q) {
     v[i] = v[j];
     v[j] = x;
   }
-  v[0] = q - v[0];
+
+  if(v[0] != 0){
+    v[0] = q - v[0];
+  }
+  
+  assert(check_arg(v, n, q));
+
 }
 
 
