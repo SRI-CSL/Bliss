@@ -317,6 +317,7 @@ static const bliss_param_t bliss_b_params[] = {
     0,                  /* nz2 */
     17825,              /* pmax */
     250,                /* sigma  Tancrede's code has 107, but our comments indicate 250, 250 makes more sense */
+  // TL: which comments? I think from [DDLL13] it should be 107 as this one is optimized for size
     2.18,               /* m */
     w12289n512,         /* w */
     r12289n512,         /* r */

@@ -448,6 +448,7 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
       printf(" %d", dv[i]);
       if ((i & 31) == 31) printf("\n");
     }
+    printf("\n");
   }
 
   generateC(indices, kappa, dv, n, hash, hash_sz);
@@ -798,6 +799,9 @@ int32_t bliss_b_verify(const bliss_signature_t *signature,  const bliss_public_k
     v[i] += z2[i];
 
     v[i] = v[i] % p->mod_p;
+
+    assert(v[i] >= 0); // should probably be the case?
+    // TL: Note, v[i] differs between signature and verification at some indices even if mod >= 0
 
     /*
     if (v[i] < 0){
