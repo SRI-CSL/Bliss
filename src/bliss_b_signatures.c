@@ -472,7 +472,7 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
     }
   }
 
-  if (true) {
+  if (false) {
     check_before_drop(private_key, hash, hash_sz, v, y1, y2);
   }
 
@@ -483,12 +483,13 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
   }
 
   /* 3: generateC of v and the hash of the msg */
-  if (true) {
+  if (false) {
     printf("sign: input to generateC\n");
     for (i=0; i<n; i++) {
       printf(" %d", dv[i]);
       if ((i & 31) == 31) printf("\n");
     }
+    printf("\n");
   }
 
   generateC(indices, kappa, dv, n, hash, hash_sz);
@@ -585,7 +586,7 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
 
   /* return (z1, z2, c) */
 
-  if (true) {
+  if (false) {
     printf("sign: indices after generateC\n");
     for (i=0; i<kappa; i++) {
       printf(" %d", indices[i]);
@@ -838,6 +839,10 @@ int32_t bliss_b_verify(const bliss_signature_t *signature,  const bliss_public_k
   for (i = 0; i < n; i++){
     v[i] += z2[i];
     v[i] = v[i] % p->mod_p;
+
+    //    assert(v[i] >= 0); // should probably be the case? BD: NO
+    // TL: Note, v[i] differs between signature and verification at some indices even if mod >= 0
+
     if (v[i] < 0){
       v[i] += mod_p;
     }
@@ -849,7 +854,7 @@ int32_t bliss_b_verify(const bliss_signature_t *signature,  const bliss_public_k
     */
   }
 
-  if (true) {
+  if (false) {
     printf("verify: input to generateC\n");
     for (i=0; i<n; i++) {
       printf(" %d", v[i]);
@@ -859,7 +864,7 @@ int32_t bliss_b_verify(const bliss_signature_t *signature,  const bliss_public_k
   }
   generateC(indices, kappa, v, n, hash, hash_sz);
 
-  if (true) {
+  if (false) {
     printf("verify: indices after generateC\n");
     for (i=0; i<kappa; i++) {
       printf(" %d", indices[i]);
