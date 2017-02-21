@@ -557,6 +557,9 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
 
   /* 7: continue with probability 1/(M exp(-|v|^2/2sigma^2) * cosh(<z, v>/sigma^2)) otherwise restart */
   // NOTE: we could do the ber_exp earlier since it does not depend on z
+
+  //iam: not seeing the use of M the repetition rate (p->m)
+  
   norm_v = vector_norm2(v1, n) + vector_norm2(v2, n);
   if (! sampler_ber_exp(&sampler, norm_v)) {
     fprintf(stdout, "--> sampler_ber_exp false\n"); 
