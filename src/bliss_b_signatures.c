@@ -133,6 +133,41 @@ void generateC(int32_t *indices, size_t kappa, const int32_t *n_vector, size_t n
 }
 
 /*
+ * Auxiliary function: add s * c to z
+ * - c = array of kappa indices
+ */
+static void addmul_c(int32_t *z, uint32_t n, const int32_t *s, const int32_t *c_indices, uint32_t kappa) {
+  uint32_t i, j, idx;
+
+  for (i=0; i<kappa; i++) {
+    idx = c_indices[i];
+    // add s * X^idx to z
+    for (j=0; j<idx; j++) {
+      z[j] -= s[n - idx + j];
+    }
+    for (j=idx; j<n; j++) {
+      z[j] += s[j - idx];
+    }
+  }
+}
+
+// subtract
+static void submul_c(int32_t *z, uint32_t n, const int32_t *s, const int32_t *c_indices, uint32_t kappa) {
+  uint32_t i, j, idx;
+
+  for (i=0; i<kappa; i++) {
+    idx = c_indices[i];
+    // subtract s * X^idx to z
+    for (j=0; j<idx; j++) {
+      z[j] += s[n - idx + j];
+    }
+    for (j=idx; j<n; j++) {
+      z[j] -= s[j - idx];
+    }
+  }
+}
+
+/*
  * BD: Consistency check for v, y1, y2
  * - v is (2 * zeta * y1 * a1 + y2)
  * - for any c, we can build 
@@ -144,7 +179,8 @@ void generateC(int32_t *indices, size_t kappa, const int32_t *n_vector, size_t n
 static void check_before_drop(const bliss_private_key_t *key, uint8_t *hash, uint32_t hash_sz,
 			      const int32_t *v, const int32_t *y1, const int32_t *y2) {
   int32_t z1[512], z2[512], aux[512], c[40];
-  uint32_t q, kappa, n, i, idx;
+  int32_t q;
+  uint32_t kappa, n, i, idx;
   const bliss_param_t *p;
   bool ok;
 
@@ -161,11 +197,12 @@ static void check_before_drop(const bliss_private_key_t *key, uint8_t *hash, uin
     z1[i] = y1[i];
     z2[i] = y2[i];
   }
-  for (i=0; i<kappa; i++) {
-    idx = c[i];
-    assert(0 <= idx < n);
-    z1[idx] += key->s1[idx];
-    z2[idx] += key->s2[idx];
+  addmul_c(z1, n, key->s1, c, kappa);
+  addmul_c(z2, n, key->s2, c, kappa);
+
+  // make sure there's no overflow in xmu
+  for (i=0; i<n; i++) {
+    z1[i] = z1[i] % q;
   }
 
   // compute z1 * a in aux
@@ -185,20 +222,22 @@ static void check_before_drop(const bliss_private_key_t *key, uint8_t *hash, uin
   }
   for (i=0; i<n; i++) {
     aux[i] = aux[i] % p->q2;
+    if (aux[i] < 0) aux[i] += p->q2;
   }
 
   ok = true;
   
-  for(i = 0; i < n; i++){
-    if(v[i] != aux[i]){
-      printf("i = %d v[i] = %d aux[i] = %d\n", i, v[i], aux[i]);
+  for (i = 0; i < n; i++) {
+    if (v[i] != aux[i]) {
       ok = false;
-      //break;
+      break;
     }
   }
  
-  if (false && ! ok){
-    printf("\n\nCONSISTENCY CHECK 1\n");
+  if (ok) {
+    printf("\nCONSISTENCY CHECK 1 PASSED\n");
+  } else {
+    printf("\nCONSISTENCY CHECK 1 FAILED\n");
     printf("v is:\n");
     for (i=0; i<n; i++) {
       printf(" %d", v[i]);
@@ -207,22 +246,24 @@ static void check_before_drop(const bliss_private_key_t *key, uint8_t *hash, uin
     printf("\n");
     printf("aux is:\n");
     for (i=0; i<n; i++) {
-      printf(" %d", v[i]);
+      printf(" %d", aux[i]);
       if ((i & 15) == 15) printf("\n");
     }
-    printf("\n\n\n");
+    printf("\n");
   }
 
-  // second check
+
+  // second check: subtract
   for (i=0; i<n; i++) {
     z1[i] = y1[i];
     z2[i] = y2[i];
   }
-  for (i=0; i<kappa; i++) {
-    idx = c[i];
-    assert(0 <= idx < n);
-    z1[idx] -= key->s1[idx];
-    z2[idx] -= key->s2[idx];
+  submul_c(z1, n, key->s1, c, kappa);
+  submul_c(z2, n, key->s2, c, kappa);
+
+  // make sure there's no overflow in xmu
+  for (i=0; i<n; i++) {
+    z1[i] = z1[i] % q;
   }
 
   // compute z1 * a in aux
@@ -242,20 +283,22 @@ static void check_before_drop(const bliss_private_key_t *key, uint8_t *hash, uin
   }
   for (i=0; i<n; i++) {
     aux[i] = aux[i] % p->q2;
+    if (aux[i] < 0) aux[i] += p->q2;
   }
 
   ok = true;
   
   for(i = 0; i < n; i++){
-    if(v[i] != aux[i]){
+    if (v[i] != aux[i]){
       ok = false;
-      printf("i = %d v[i] = %d aux[i] = %d\n", i, v[i], aux[i]);
-      //break;
+      break;
     }
   }
-  
-  if(false &&  ! ok ){
-    printf("\nCONSISTENCY CHECK 2\n");
+ 
+  if (ok) {
+    printf("\nCONSISTENCY CHECK 2 PASSED\n\n");
+  } else {
+    printf("\nCONSISTENCY CHECK 2 FAILED\n");
     printf("v is:\n");
     for (i=0; i<n; i++) {
       printf(" %d", v[i]);
@@ -264,12 +307,11 @@ static void check_before_drop(const bliss_private_key_t *key, uint8_t *hash, uin
     printf("\n");
     printf("aux is:\n");
     for (i=0; i<n; i++) {
-      printf(" %d", v[i]);
+      printf(" %d", aux[i]);
       if ((i & 15) == 15) printf("\n");
     }
-    printf("\n\n\n");
+    printf("\n\n");
   }
-
 
 }
 
@@ -409,7 +451,6 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
   }
 
   /* 2: compute v = ((2 * xi * a * y1) + y2) mod 2q */
-
   ntt32_xmu(v, n, q, y1, w);  /* multiply by powers of psi */
   ntt32_fft(v, n, q, w);      /* v = ntt(y1) */
   ntt32_xmu(v, n, q, v, a);   /* v = ntt(y1) * a (both in ntt form) */
@@ -431,7 +472,7 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
     }
   }
 
-  if (false) {
+  if (true) {
     check_before_drop(private_key, hash, hash_sz, v, y1, y2);
   }
 
@@ -502,26 +543,26 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
   // NOTE: we could do the ber_exp earlier since it does not depend on z
   norm_v = vector_norm2(v1, n) + vector_norm2(v2, n);
   if (! sampler_ber_exp(&sampler, norm_v)) {
-    fprintf(stderr, "--> sampler_ber_exp false\n"); 
+    fprintf(stdout, "--> sampler_ber_exp false\n"); 
     goto restart;
   }
   prod_zv = vector_scalar_product(z1, v1, n) + vector_scalar_product(z2, v2, n);
   if (! sampler_ber_cosh(&sampler, prod_zv)) {
-    fprintf(stderr, "--> sampler_ber_cosh false\n");
+    fprintf(stdout, "--> sampler_ber_cosh false\n");
     goto restart;
   }
 
   /* 8: z2 = (drop_bits(v) - drop_bits(v - z2)) mod p  */
   for (i=0; i<n; i++) {
-    y1[i] = (v[i] - z2[i]) % p->q2;
+    y1[i] = modQ(v[i] - z2[i], p->q2, p->q2_inv);
   }
   drop_bits(v, v, n, p->d);   // drop_bits(v)
   drop_bits(y1, y1, n, p->d); // drop_bits(v - z2)
   for (i=0; i<n; i++) {
-    z2[i] = (v[i] - y1[i]); 
-    if(z2[i] <  -p->mod_p/2){ 
+    z2[i] = v[i] - y1[i]; 
+    if (z2[i] <  -p->mod_p/2) { 
       z2[i] += p->mod_p;
-    } else if (z2[i] >  p->mod_p/2){
+    } else if (z2[i] >  p->mod_p/2) {
       z2[i] -= p->mod_p;
     }
     assert(-p->mod_p/2 <= z2[i] && z2[i] < p->mod_p/2);
@@ -530,15 +571,15 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
   /* 9: seem to also need to check norms akin to what happens in the entry to verify */
   mul2d(y2, z2, n, p->d);
   if (vector_max_norm(z1, n) > p->b_inf) {
-    fprintf(stderr, "--> norm z1 too high\n");
+    fprintf(stdout, "--> norm z1 too high\n");
     goto restart;
   }
   if (vector_max_norm(y2, n) > p->b_inf) {
-    fprintf(stderr, "--> norm y2 too high\n");
+    fprintf(stdout, "--> norm y2 too high\n");
     goto restart;
   }
   if (vector_norm2(z1,  n) + vector_norm2(y2, n) > p->b_l2){
-    fprintf(stderr, "--> euclidean norm too high\n");
+    fprintf(stdout, "--> euclidean norm too high\n");
     goto restart;
   }
 
@@ -696,7 +737,7 @@ int32_t bliss_b_verify(const bliss_signature_t *signature,  const bliss_public_k
     goto fail;
   }
 
-  if (vector_norm2(z1, n) + vector_norm2(tz2, n)  > b_l2){
+  if (vector_norm2(z1, n) + vector_norm2(tz2, n) > b_l2){
     retval = BLISS_B_BAD_DATA;
     goto fail;
   }
@@ -796,13 +837,12 @@ int32_t bliss_b_verify(const bliss_signature_t *signature,  const bliss_public_k
   /*  v += z_2  mod p. */
   for (i = 0; i < n; i++){
     v[i] += z2[i];
-
     v[i] = v[i] % p->mod_p;
-
-    /*
     if (v[i] < 0){
       v[i] += mod_p;
     }
+
+    /*
     if (v[i] >= mod_p){
       v[i] -= mod_p;
     }

@@ -32,13 +32,44 @@ static void check_key(bliss_private_key_t *key) {
   ntt32_xmu(aux, n, q, aux, p->r);
   ntt32_flp(aux, n, q);               // aux = key->a * key->s1 mod q
 
-  for (i=0; i<n; i++) {
-    aux[i] = (2 * aux[i] + (q + 2) * key->s2[i]) % p->q2;
-  }
-
-  printf("key check:\n");
+  printf("a * s1:\n");
   for (i=0; i<n; i++) {
     printf(" %d", aux[i]);
+    if ((i & 15) == 15) printf("\n");
+  }
+  printf("\n");
+
+  printf("s2:\n");
+  for (i=0; i<n; i++) {
+    printf(" %d", key->s2[i]);
+    if ((i & 15) == 15) printf("\n");
+  }
+  printf("\n");
+
+  printf("2 * (a * s1)[i] + (q + 2) * s2[i] mod q\n");
+  for (i=0; i<n; i++) {
+    printf(" %d", (2 * aux[i] + (q + 2) * key->s2[i]) % q);
+    if ((i & 15) == 15) printf("\n");
+  }
+  printf("\n");
+
+  printf("2 * (a * s1)[i] + (q + 2) * s2[i] mod 2\n");
+  for (i=0; i<n; i++) {
+    printf(" %d", (2 * aux[i] + (q + 2) * key->s2[i]) % 2);
+    if ((i & 15) == 15) printf("\n");
+  }
+  printf("\n");
+
+  printf("2 * (a * s1)[i] + (q + 2) * s2[i] mod 2q:\n");
+  for (i=0; i<n; i++) {
+    printf(" %d", (2 * aux[i] + (q + 2) * key->s2[i]) % p->q2);
+    if ((i & 15) == 15) printf("\n");
+  }
+  printf("\n");
+
+  printf("2 * zeta * (a * s1)[i] + s2[i] mod 2q:\n");
+  for (i=0; i<n; i++) {
+    printf(" %d", (2 * p->one_q2 * aux[i] + key->s2[i]) % p->q2);
     if ((i & 15) == 15) printf("\n");
   }
   printf("\n\n");
@@ -133,7 +164,7 @@ int32_t bliss_b_private_key_gen(bliss_private_key_t *private_key, bliss_kind_t k
   /* g = 2g - 1 */
   for (i = 0; i < p->n; i++)
     private_key->s2[i] *= 2;
-  private_key->s2[0]--;
+  private_key->s2[0] --;
 
   for (i = 0; i < p->n; i++)
     t[i] = private_key->s2[i];

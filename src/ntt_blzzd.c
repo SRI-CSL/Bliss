@@ -163,12 +163,11 @@ void ntt32_flp(int32_t v[], uint32_t n, int32_t q) {
     v[j] = x;
   }
 
-  if(v[0] != 0){
+  if (v[0] != 0) {
     v[0] = q - v[0];
   }
   
   assert(check_arg(v, n, q));
-
 }
 
 

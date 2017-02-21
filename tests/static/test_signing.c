@@ -51,7 +51,7 @@ int main(int argc, char* argv[]){
   size_t msg_sz = strlen(text) + 1;
   
   if(argc != 3){
-    fprintf(stderr, "Usage: %s <bliss b variant (0,1,2,3,4)> <iterations>\n", argv[0]);
+    fprintf(stdout, "Usage: %s <bliss b variant (0,1,2,3,4)> <iterations>\n", argv[0]);
     return 1;
   } else {
 
@@ -68,29 +68,29 @@ int main(int argc, char* argv[]){
       
       ok = false;
       
-      fprintf(stderr, "\n\nbliss_b test type = %d, count = %d\n", type, count);
+      fprintf(stdout, "\n\nbliss_b test type = %d, count = %d\n", type, count);
       
       retcode = bliss_b_private_key_gen(&private_key, type, &entropy);
       if (retcode != BLISS_B_NO_ERROR){
-	fprintf(stderr, "bliss_b_private_key_gen failed: type = %d, retcode = %d\n", type, retcode);
+	fprintf(stdout, "bliss_b_private_key_gen failed: type = %d, retcode = %d\n", type, retcode);
 	goto exit;
       }
     
       retcode = bliss_b_public_key_extract(&public_key, &private_key);
       if (retcode != BLISS_B_NO_ERROR){
-	fprintf(stderr, "bliss_b_public_key_extract failed: type = %d, retcode = %d\n", type, retcode);
+	fprintf(stdout, "bliss_b_public_key_extract failed: type = %d, retcode = %d\n", type, retcode);
 	goto exit;
       }
       
       retcode = bliss_b_sign(&signature,  &private_key, msg, msg_sz, &entropy);  
       if (retcode != BLISS_B_NO_ERROR){
-	fprintf(stderr, "bliss_b_sign failed: type = %d, retcode = %d\n", type, retcode);
+	fprintf(stdout, "bliss_b_sign failed: type = %d, retcode = %d\n", type, retcode);
 	goto exit;
       }
       
       retcode = bliss_b_verify(&signature,  &public_key, msg, msg_sz);
       if (retcode != BLISS_B_NO_ERROR){
-	fprintf(stderr, "bliss_b_verify failed: type = %d, retcode = %d\n", type, retcode);
+	fprintf(stdout, "bliss_b_verify failed: type = %d, retcode = %d\n", type, retcode);
 	goto exit;
       }
       
@@ -105,12 +105,12 @@ int main(int argc, char* argv[]){
       
       bliss_signature_delete(&signature);
       
-      fprintf(stderr, "bliss_b type = %d:  %s\n", type, ok ? "OK" : "FAILED");
+      fprintf(stdout, "bliss_b type = %d:  %s\n", type, ok ? "OK" : "FAILED");
       
     }
   }
 
-  fprintf(stderr, "bliss_b type = %d:  %d/%d successes\n", type, successes, COUNT);
+  fprintf(stdout, "bliss_b type = %d:  %d/%d successes\n", type, successes, COUNT);
 
   return 0;
 }
