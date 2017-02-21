@@ -258,7 +258,7 @@ static const bliss_param_t bliss_b_params[] = {
     559167,             /* floor(2^32/q)      */
     279583,             /* floor(2^32/q2)     */
     3841,               /* 1/(q + 2) mod 2q   */
-    30,                 /* kappa */
+    12,                 /* kappa */
     542,                /* b_inf */
     2428 * 2428,        /* L2 norm */
     140,                /* nz1 */
