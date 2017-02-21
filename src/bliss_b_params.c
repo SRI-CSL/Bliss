@@ -265,7 +265,7 @@ static const bliss_param_t bliss_b_params[] = {
     38,                 /* nz2 */
     100,                /* sigma */
     17840,              /* M */
-    2.44,               /* m  = repetition rate */    //alpha 0.748   M = 17840 (minus epsilon)
+    2.44,               /* m  = repetition rate alpha 0.748   M = 17840  */
     w7681n256,          /* w */
     r7681n256,          /* r */
     21,                 /* ell TODO: CHECK */
@@ -289,7 +289,7 @@ static const bliss_param_t bliss_b_params[] = {
     0,                  /* nz2 = number of coeffs equal to +/-2 */
     215,                /* sigma */
     17623,              /* M strongswan uses 17954; we compute (tools/repetition.c)  17623 */
-    1.21,               /* m = repetition rate */   // BLISS  strongswan .M = 46539, with alpha = 1.000. BLISS-B .M = 17954, with alpha = 1.610n  (we get 17623)
+    1.21,               /* m = repetition rate BLISS  strongswan .M = 46539, with alpha = 1.000. BLISS-B .M = 17954, with alpha = 1.610 (we get 17623) */
     w12289n512,         /* w = powers of omega  (for NTT) */
     r12289n512,         /* r = powers of omeag/n (for inverse NTT) */
     21,                 /* ell */
@@ -314,7 +314,7 @@ static const bliss_param_t bliss_b_params[] = {
     0,                  /* nz2 */
     107,                /* sigma */
     17845,               /* M */
-    2.18,               /* m  = repetition rate */         //alpha = 0.801
+    2.18,               /* m  = repetition rate  alpha = 0.801 */
     w12289n512,         /* w */
     r12289n512,         /* r */
     21,                 /* ell: TODO: just a guess? */
@@ -338,8 +338,8 @@ static const bliss_param_t bliss_b_params[] = {
     216,                /* nz1 */
     16,                 /* nz2 */
     250,                /* sigma */
-    42060,              /* M  strongswan: 42455  ours: 42060*/
-    1.40,               /* m  = repetition rate */             //strongswan BLISS .M = 128113,  with alpha = 0.700. BLISS_B .M = 42455, with alpha = 1.216 (we get 42059)
+    42060,              /* M  strongswan: 42455  ours: 42060 */
+    1.40,               /* m  = repetition rate strongswan BLISS .M = 128113,  with alpha = 0.700. BLISS_B .M = 42455, with alpha = 1.216 (we get 42059) */
     w12289n512,         /* w */
     r12289n512,         /* r */
     21,                 /* ell */
@@ -364,7 +364,7 @@ static const bliss_param_t bliss_b_params[] = {
     31,                 /* nz2 */
     271,                /* sigma */
     69951,               /* M strongswan 70034, ours 69951 */
-    1.61,               /* m  = repetition rate */           //strongswan .M = 244186,  with alpha = 0.550  BLISS-B .M = 70034,  with alpha = 1.027  (we get 69950)
+    1.61,               /* m  = repetition rate strongswan .M = 244186,  with alpha = 0.550  BLISS-B .M = 70034,  with alpha = 1.027  (we get 69950) */
     w12289n512,         /* w */
     r12289n512,         /* r */
     22,                 /* ell */
