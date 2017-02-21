@@ -259,12 +259,10 @@ static const bliss_param_t bliss_b_params[] = {
     279583,             /* floor(2^32/q2)     */
     3841,               /* 1/(q + 2) mod 2q   */
     30,                 /* kappa */
-    16,                 /* theta */
     542,                /* b_inf */
     2428 * 2428,        /* L2 norm */
     140,                /* nz1 */
     38,                 /* nz2 */
-    17928,              /* pmax */
     100,                /* sigma */
     2.44,               /* m */
     w7681n256,          /* w */
@@ -284,12 +282,10 @@ static const bliss_param_t bliss_b_params[] = {
     174748,             /* q2_inv = floor(2^32/q2) */
     6145,               /* one_q2 = 1/(q + 2) mod 2q */
     23,                 /* kappa */
-    32,                 /* theta */
     2100,               /* b_inf */
     12872 * 12872,      /* b_l2 = square of L2 norm */
     154,                /* nz1 = number of coeffs equal to +/-1 in the private key */
     0,                  /* nz2 = number of coeffs equal to +/-2 */
-    17825,              /* pmax */
     215,                /* sigma */
     1.21,               /* m = repetition rate */
     w12289n512,         /* w = powers of omega  (for NTT) */
@@ -310,14 +306,11 @@ static const bliss_param_t bliss_b_params[] = {
     174748,             /* floor(2^32/q2)     */
     6145,               /* 1/(q + 2) mod 2q   */
     23,                 /* kappa */
-    32,                 /* theta */
     1563,               /* b_inf */
     11073 * 11073,      /* L2 norm */
     154,                /* nz1 */
     0,                  /* nz2 */
-    17825,              /* pmax */
-    250,                /* sigma  Tancrede's code has 107, but our comments indicate 250, 250 makes more sense */
-  // TL: which comments? I think from [DDLL13] it should be 107 as this one is optimized for size
+    107,                /* sigma */
     2.18,               /* m */
     w12289n512,         /* w */
     r12289n512,         /* r */
@@ -337,12 +330,10 @@ static const bliss_param_t bliss_b_params[] = {
     174748,             /* floor(2^32/q2)     */
     6145,               /* 1/(q + 2) mod 2q   */
     30,                 /* kappa */
-    48,                 /* theta */
     1760,               /* b_inf */
     10206 * 10206,      /* L2 norm */
     216,                /* nz1 */
     16,                 /* nz2 */
-    42270,              /* pmax */
     250,                /* sigma */
     1.40,               /* m */
     w12289n512,         /* w */
@@ -363,12 +354,10 @@ static const bliss_param_t bliss_b_params[] = {
     174748,             /* floor(2^32/q2)     */
     6145,               /* 1/(q + 2) mod 2q   */
     39,                 /* kappa */
-    48,                 /* theta */
     1613,               /* b_inf */
     9901 * 9901,        /* L2 norm */
     231,                /* nz1 */
     31,                 /* nz2 */
-    69576,              /* pmax */
     271,                /* sigma */
     1.61,               /* M */
     w12289n512,         /* w */

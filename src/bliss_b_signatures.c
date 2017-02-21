@@ -151,7 +151,10 @@ static void addmul_c(int32_t *z, uint32_t n, const int32_t *s, const int32_t *c_
   }
 }
 
-// subtract
+/*
+ * Auxiliary function: subtract s * c from z
+ * - c = array of kappa indices
+ */
 static void submul_c(int32_t *z, uint32_t n, const int32_t *s, const int32_t *c_indices, uint32_t kappa) {
   uint32_t i, j, idx;
 
