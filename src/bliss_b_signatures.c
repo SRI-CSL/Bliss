@@ -170,6 +170,25 @@ static void submul_c(int32_t *z, uint32_t n, const int32_t *s, const int32_t *c_
   }
 }
 
+
+/*
+ * Isolate the use of NTT into a routine.
+ *
+ * Multiplies lhs by rhs and places the result in result.
+ *
+ *  -- lhs and rhs polynomials of degree n.
+ *
+ */
+void multiply(int32_t *result, const int32_t *lhs, const int32_t *rhs, uint32_t n, const bliss_param_t *p){
+  ntt32_xmu(result, n, p->q, lhs, p->w);         /* multiply by powers of psi                  */
+  ntt32_fft(result, n, p->q, p->w);              /* result = ntt(lhs)                          */
+  ntt32_xmu(result, n, p->q, result, rhs);       /* result = ntt(lhs) * rhs (both in ntt form) */
+  ntt32_fft(result, n, p->q, p->w);              /* result = ntt(ntt(lhs) * a) = inverse ntt(lhs) * a modulo reordering */
+  ntt32_xmu(result, n, p->q, result, p->r);      /* multiply by powers of psi^-1  */
+  ntt32_flp(result, n, p->q);                    /* reorder: result mod q */
+}
+
+
 /*
  * BD: Consistency check for v, y1, y2
  * - v is (2 * zeta * y1 * a1 + y2)
@@ -209,13 +228,16 @@ static void check_before_drop(const bliss_private_key_t *key, uint8_t *hash, uin
   }
 
   // compute z1 * a in aux
+  multiply(aux, z1, key->a, n, p);
+  /*
   ntt32_xmu(aux, n, q, z1, p->w);
   ntt32_fft(aux, n, q, p->w);
   ntt32_xmu(aux, n, q, aux, key->a);
   ntt32_fft(aux, n, q, p->w);
   ntt32_xmu(aux, n, q, aux, p->r);
   ntt32_flp(aux, n, q);
-
+  */
+  
   for (i=0; i<n; i++) {
     aux[i] = 2 * aux[i] * p->one_q2 + z2[i];
   }
@@ -324,8 +346,6 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
   const bliss_param_t *p;
   // parameters extracted from p: n = size, q = modulus
   int32_t n, q, kappa;
-  // tables of constants for the NTT computations
-  const int32_t *w, *r;
   // these are the private key (a is stored as NTT)
   int32_t *a, *s1, *s2;
   // the signature is stored in z1, z2, indices
@@ -348,9 +368,6 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
   q = p->q;
 
   kappa = p->kappa;
-
-  w = p->w;
-  r = p->r;
 
   /* initialize our sampler */
   if (!sampler_init(&sampler, p->sigma, p->ell, p->precision, entropy)) {
@@ -454,14 +471,9 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
   }
 
   /* 2: compute v = ((2 * xi * a * y1) + y2) mod 2q */
-  ntt32_xmu(v, n, q, y1, w);  /* multiply by powers of psi */
-  ntt32_fft(v, n, q, w);      /* v = ntt(y1) */
-  ntt32_xmu(v, n, q, v, a);   /* v = ntt(y1) * a (both in ntt form) */
-  ntt32_fft(v, n, q, w);      /* v = ntt(ntt(y1) * a) = inverse ntt(y1) * a modulo reordering */
-  ntt32_xmu(v, n, q, v, r);   /* multiply by powers of psi^-1  */
-  ntt32_flp(v, n, q);         /* reorder: v * a mod q */
-  // now v is (a * y1)
 
+  multiply(v, y1, a, n, p);
+  
   for (i=0; i<n; i++) {
     // this is v[i] = (2 * v[i] * xi + y2[i]) % q2
     v[i] = modQ(2 * v[i] * p->one_q2 + y2[i], p->q2, p->q2_inv);
@@ -688,7 +700,6 @@ int32_t bliss_b_verify(const bliss_signature_t *signature,  const bliss_public_k
   int32_t i, n, q, d, mod_p, q2, q_inv, q2_inv, one_q2, kappa, b_inf, b_l2;
   const bliss_param_t *p;
   int32_t *a, *z1, *z2, *tz2, *v = NULL, *indices = NULL;
-  const int32_t *w, *r;
   uint32_t *c_indices;
   uint32_t idx;
 
@@ -707,9 +718,6 @@ int32_t bliss_b_verify(const bliss_signature_t *signature,  const bliss_public_k
   kappa = p->kappa;
   b_inf = p->b_inf;
   b_l2 = p->b_l2;
-
-  w = p->w;
-  r = p->r;
 
   q2 = p->q2;
   q_inv = p->q_inv;
@@ -807,22 +815,16 @@ int32_t bliss_b_verify(const bliss_signature_t *signature,  const bliss_public_k
   }
 
   /* v = a * z1 */
-  ntt32_xmu(v, n, q, z1, w);
-  ntt32_fft(v, n, q, w);      /* v = ntt(z1) */
-  ntt32_xmu(v, n, q, v, a);   /* v = ntt(v1) * ntt(a) (both in ntt form) */
-  ntt32_fft(v, n, q, w);
-  ntt32_xmu(v, n, q, v, r);   /* v * a in reversed order */
-  ntt32_flp(v, n, q);         /* v * a mod q */
-                              /*  now v is (a * z1)  */
 
+  multiply(v, z1, a, n, p);
 
-  /* (1/(q + 2)) * a * z1 */
+  /* v = (1/(q + 2)) * a * z1 */
   for (i = 0; i < n; i++){
     assert(0 <= v[i] && v[i] < q);
     v[i] = modQ(2*v[i]*one_q2, q2, q2_inv);  
   }
 
-  /*  + (q/q+2) * c */
+  /* v += (q/q+2) * c */
   for (i = 0; i < kappa; i++) {
     idx = c_indices[i];
     v[idx] = modQ(v[idx] + (q * one_q2), q2, q2_inv);
