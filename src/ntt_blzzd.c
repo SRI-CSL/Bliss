@@ -62,6 +62,7 @@ static inline int32_t add_mod(int32_t x, int32_t y, int32_t q) {
 }
 
 
+#ifndef NDEBUG
 static bool check_arg(int32_t v[], uint32_t n, int32_t q){
   uint32_t i;
 
@@ -72,6 +73,7 @@ static bool check_arg(int32_t v[], uint32_t n, int32_t q){
 
   return true;
 }
+#endif
 
 void ntt32_fft(int32_t v[], uint32_t n, int32_t q, const int32_t w[]) {
   uint32_t i, j, k, l;

@@ -25,10 +25,10 @@ LDFLAGS =
 CPPFLAGS = -DLINUX
 endif
 
-# CPPFLAGS += -I./include  -I./arch/${ARCH} -DNDEBUG
-# CFLAGS += -std=c99 -fPIC -Wall -O3
-CPPFLAGS += -I./include  -I./arch/${ARCH}
-CFLAGS += -std=c99 -fPIC -Wall -g
+CPPFLAGS += -I./include  -I./arch/${ARCH} -DNDEBUG
+CFLAGS += -std=c99 -fPIC -Wall -O3
+# CPPFLAGS += -I./include  -I./arch/${ARCH}
+# CFLAGS += -std=c99 -fPIC -Wall -g
 
 SRC_GLOBS = $(addsuffix /*.c,src)
 SRC = $(sort $(wildcard $(SRC_GLOBS)))
