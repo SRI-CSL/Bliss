@@ -561,7 +561,13 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
   //iam: not seeing the use of M the repetition rate (p->m)
   
   norm_v = vector_norm2(v1, n) + vector_norm2(v2, n);
-  if (! sampler_ber_exp(&sampler, norm_v)) {
+
+  if(p->M <= norm_v){
+    fprintf(stdout, "M = %d norm = %d\n", (int)p->M, (int)norm_v);
+  }
+  assert(p->M > norm_v);
+  
+  if (! sampler_ber_exp(&sampler, p->M - norm_v)) {
     fprintf(stdout, "--> sampler_ber_exp false\n"); 
     goto restart;
   }

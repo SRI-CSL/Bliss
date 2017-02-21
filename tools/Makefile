@@ -1,6 +1,6 @@
 CC=clang
 
-all: tables roots blzzd_tables blzzd_roots bitrev_tables microsoft_tables \
+all: tables repetition roots blzzd_tables blzzd_roots bitrev_tables microsoft_tables \
 	shoup_table shoup_scaled_table rev_shoup_table rev_shoup_scaled_table \
 	psi_power_tables shoup_red_table shoup_red_scaled_table \
 	rev_shoup_red_table rev_shoup_red_scaled_table
@@ -8,6 +8,9 @@ all: tables roots blzzd_tables blzzd_roots bitrev_tables microsoft_tables \
 
 tables:  tables.c
 	$(CC) -Wall tables.c -lmpfr -lgmp -o tables
+
+repetition:  repetition.c
+	$(CC) -Wall repetition.c -lmpfr -lgmp -o repetition
 
 roots: roots.c 
 	$(CC) -Wall roots.c  -lgmp  -o roots

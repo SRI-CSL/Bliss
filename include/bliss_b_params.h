@@ -27,6 +27,8 @@ typedef struct {
   int32_t nz1;          /* nonzero +-1  */
   int32_t nz2;          /* nonzero +-2  */
   uint32_t sigma;       /* standard deviation  */
+
+  uint32_t M;           /*  M such that  exp( M / 2 * sigma^2) = m, the repetition rate */
   double m;             /* repetition rate  */
 
   /*
