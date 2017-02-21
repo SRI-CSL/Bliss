@@ -27,15 +27,15 @@ endif
 
 # CPPFLAGS += -I./include  -I./arch/${ARCH} -DNDEBUG
 # CFLAGS += -std=c99 -fPIC -Wall -O3
-CPPFLAGS += -I./include  -I./arch/${ARCH}
+CPPFLAGS += -I./old_include  -I./arch/${ARCH}
 CFLAGS += -std=c99 -fPIC -Wall -g
 
-SRC_GLOBS = $(addsuffix /*.c,src)
+SRC_GLOBS = $(addsuffix /*.c,old_src)
 SRC = $(sort $(wildcard $(SRC_GLOBS)))
 
-OBJ = $(patsubst src/%.c, obj/%.o, $(SRC))
+OBJ = $(patsubst old_src/%.c, old_obj/%.o, $(SRC))
 
-TARGET = lib/${LIBRARY}
+TARGET = old_lib/${LIBRARY}
 
 
 .PHONY: clean
@@ -44,20 +44,20 @@ all: ${TARGET}
 	@echo Done.	
 
 
-$(TARGET): $(OBJ) | lib
+$(TARGET): $(OBJ) | old_lib
 	$(CC) $(LIBFLAGS) $(OBJ) $(LDFLAGS) -o $@  
 
-obj:
-	mkdir -p obj
+old_obj:
+	mkdir -p old_obj
 
-obj/%.o: src/%.c | obj
+old_obj/%.o: old_src/%.c | old_obj
 	${CC} $(CPPFLAGS) ${CFLAGS} $< -c -o $@
 
-lib:
-	mkdir -p lib
+old_lib:
+	mkdir -p old_lib
 
 
-UNIT_TESTS=./tests/static
+UNIT_TESTS=./old_tests/static
 
 TOOLS = ./tools
 
@@ -67,9 +67,8 @@ check: $(TARGET)
 
 clean:
 	rm -f *~ *.o
-	rm -rf obj lib
+	rm -rf old_obj old_lib
 	make -C ${UNIT_TESTS} clean
 	make -C ${TOOLS} clean
-	make -C ./tools clean
 
 

@@ -55,7 +55,7 @@ psi_power_tables: psi_power_tables.c
 	$(CC) -Wall psi_power_tables.c -o psi_power_tables
 
 clean:
-	rm -f tables roots blzzd_tables blzzd_roots bitrev_tables \
+	rm -f tables  repetition roots blzzd_tables blzzd_roots bitrev_tables \
 	  microsoft_tables shoup_table shoup_scaled_table \
 	  rev_shoup_table rev_shoup_scaled_table psi_power_tables \
 	  shoup_red_table shoup_red_scaled_table \

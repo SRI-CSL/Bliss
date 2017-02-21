@@ -18,15 +18,17 @@ CPPFLAGS = -DLINUX
 endif
 
 
-CPPFLAGS +=  -I../../include/ -I../../arch/${ARCH} 
+CPPFLAGS +=  -I../../old_include/ -I../../arch/${ARCH} 
 # CFLAGS += -std=gnu99 -Wall -O3
 CFLAGS += -std=gnu99 -Wall -g
 
-OBJDIR=../../obj
+OBJDIR=../../old_obj
 OBJ_GLOBS = $(addsuffix /*.o,${OBJDIR})
 OBJS = $(sort $(wildcard ${OBJ_GLOBS}))
 
-TESTS = test_signings 
+TESTS = test_signing test_signings speed sample test_keys test_bernoulli test_pos_binary test_pos_binary2 \
+        test_gaussian test_gaussian2  test_poly test_ntt test_blzzd test_blzzd1024 \
+	test_blzzd1024var test_microsoft1024 speed_poly speed_blzzd1024 speed_microsoft1024
 
 TEST_SRCS = $(addsuffix .c, ${TESTS})
 
