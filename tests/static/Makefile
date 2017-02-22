@@ -38,7 +38,7 @@ all: ${TEST_SRCS}
 
 
 check: all
-	for count in 0 1 2 3 4 ;  do ./test_signing $$count 100 ; done
+	./test_signings
 
 
 clean:
