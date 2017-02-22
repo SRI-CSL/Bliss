@@ -562,7 +562,9 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
   
   norm_v = vector_norm2(v1, n) + vector_norm2(v2, n);
 
-  if(p->M <= norm_v){
+  // TODO: are we sure the assertion always holds?
+  // What should we do if we get norm_v > M ?
+  if(p->M <= norm_v) {
     fprintf(stdout, "M = %d norm = %d\n", (int)p->M, (int)norm_v);
   }
   assert(p->M > norm_v);
