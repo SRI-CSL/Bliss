@@ -65,31 +65,16 @@ extern bool sampler_ber_cosh(sampler_t *sampler, int32_t x);
 /*
  * Sample a non-negative integer according to the probability density 
  * p(x) = 2^(-x^2)
- * - return true if this succeeds, false otherwise
- * - the sampled integer is returned in *x
+ * - returns the sampled integer.
  */
-extern bool sampler_pos_binary(sampler_t *sampler, uint32_t *x);
-
-/*
- * Variant implementation: return the sampled integer.
- * Doesn't fail.
- */
-extern uint32_t sampler_pos_binary2(sampler_t *sample);
+extern uint32_t sampler_pos_binary(sampler_t *sample);
 
 /* 
  * Sampling the Gaussian distribution exp(-x^2/(2*sigma*sigma))
- *
- * returns true is the sampling was successful, false if something went wrong
- *
- * If successful, the generated value is returned in *valp.
- */
-extern bool sampler_gauss(sampler_t *sampler, int32_t *valp);
-
-/*
- * Variant implementation: returns the sampled value.
+ * Returns the sampled value.
  * Does not fail.
  */
-extern int32_t sampler_gauss2(sampler_t *sampler);
+extern int32_t sampler_gauss(sampler_t *sampler);
 
 
 #endif

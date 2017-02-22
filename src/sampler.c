@@ -92,7 +92,7 @@ bool sampler_ber_cosh(sampler_t* sampler, int32_t x) {
 }
 
 
-/* 
+/*
  * Sample a non-negative integer according to the binary discrete
  * Guassian distribution.
  *
@@ -100,42 +100,10 @@ bool sampler_ber_cosh(sampler_t* sampler, int32_t x) {
  *
  * Modified to look more like Algorithm 10 in DDLL
  */
+
 #define MAX_SAMPLE_COUNT 16
 
-bool sampler_pos_binary(sampler_t *sampler, uint32_t *x) {
-  uint32_t u, i;
-
- restart:
-  if (entropy_random_bit(sampler->entropy)) {
-    *x = 0;
-    return true;
-  }
-
-  for (i=1; i <= MAX_SAMPLE_COUNT; i++) {
-    u = entropy_random_bits(sampler->entropy, 2*i - 1);
-    if (u == 0) {
-      *x = i; 
-      return true;
-    }
-    //    if (u >> 1 != 0) { 
-    if (u != 1) {
-      goto restart;
-    }
-  }
-
-  // BD: why don't we just return *x=0 or *x=17 here and call it a success?
-  // This is so unlikely to happen that it shouldn't make a difference and that
-  // would simplify the API.
-
-  // failed after 16 iterations
-  return false;
-}
-
-
-/*
- * Variant: doesn't fail
- */
-uint32_t sampler_pos_binary2(sampler_t *sampler) {
+uint32_t sampler_pos_binary(sampler_t *sampler) {
   uint32_t u, i;
 
  restart:
@@ -160,50 +128,18 @@ uint32_t sampler_pos_binary2(sampler_t *sampler) {
 /* 
  * Sampling the Gaussian distribution exp(-x^2/(2*sigma*sigma))
  *
- * returns true is the sampling was successful, false if something went wrong
+ * returns the sampled value.
  *
- * If successful, the generated value is stored in *valp.
  *
  * Source: strongswan/src/libstrongswan/plugins/bliss/bliss_sampler.c
  *
  * Combination of Algorithms 11 and 12 from DDLL.
  */
-bool sampler_gauss(sampler_t *sampler, int32_t *valp) {
+int32_t sampler_gauss(sampler_t *sampler) {
   uint32_t u, e, x, y, val_pos;
 
   while (true) {
-    if (! sampler_pos_binary(sampler, &x)) { 
-      return false;
-    }
-
-    do {
-      y = entropy_random_bits(sampler->entropy, sampler->k_sigma_bits);     
-    } while (y >= sampler->k_sigma);
-
-    e = y * (y + 2 * sampler->k_sigma * x);
-    
-    if (sampler_ber_exp(sampler, e)) {
-      u = entropy_random_bit(sampler->entropy);
-      if (x | y | u) { 
-	break; 
-      }
-    }
-  }
-
-  val_pos = sampler->k_sigma * x + y;
-  *valp = u ? val_pos : - val_pos;
-
-  return true;
-}
-
-/*
- * Variant implementation: return the sampled value and doesn't fail.
- */
-int32_t sampler_gauss2(sampler_t *sampler) {
-  uint32_t u, e, x, y, val_pos;
-
-  while (true) {
-    x = sampler_pos_binary2(sampler);
+    x = sampler_pos_binary(sampler);
 
     do {
       y = entropy_random_bits(sampler->entropy, sampler->k_sigma_bits);     

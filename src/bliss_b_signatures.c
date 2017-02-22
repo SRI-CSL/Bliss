@@ -468,8 +468,8 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
  restart:
 
   for(i = 0; i < n; i++){
-    y1[i] = sampler_gauss2(&sampler);
-    y2[i] = sampler_gauss2(&sampler);
+    y1[i] = sampler_gauss(&sampler);
+    y2[i] = sampler_gauss(&sampler);
   }
 
   /* 2: compute v = ((2 * xi * a * y1) + y2) mod 2q */
