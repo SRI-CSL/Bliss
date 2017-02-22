@@ -1,0 +1,33 @@
+Q1: We should come to some rational explanation of why most of
+    the bliss_b_params are int32_t rather than uint32_t, or change them
+    to uint32_t.
+
+Q2: See query about M in bliss_b_signatures.c
+
+
+
+0.  The public key polynomial 'a' should not be stored in NTT form
+    since that forces a dependency on a particular choice of NTT.
+
+
+1. The sampler should be less entwined with the bliss b internals.
+
+
+2. The NTT implementation should be isolated from the bliss b
+   implementation by a minimal API, and then we can test various
+   versions via this API and dynamic libraries.
+
+   Something like: (?)
+   
+typedef void* ntt_state_t;
+
+bool init_ntt_state(ntt_state_t* state, int32_t q, int32_t n);
+
+void delete_ntt_state(ntt_state_t* state);
+
+void multiply(int32_t *result, const int32_t *lhs, const int32_t *rhs, uint32_t n, const ntt_state_t* state);
+
+
+3. Debugging code shuld be removed and the code should get a
+   spring clean.
+

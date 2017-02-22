@@ -5,10 +5,13 @@
 #include "bliss_b_params.h"
 #include "entropy.h"
 
-/* bliss-b private key */
-//the only reason we do not declare s1,s2, and a to be [512] arrays
-//is that down the track we may need to beef n up to say 1024 and beyond.
-//so this way we stay less committed to a fixed n.
+/*
+ *  bliss-b private key
+ *
+ * The only reason we do not declare s1,s2, and a to be [512] arrays
+ * is that down the track we may need to beef n up to say 1024 and beyond.
+ * so this way we are flexible, and stay less committed to a fixed n.
+ */
 typedef struct {
   bliss_param_t p;                   /* parameter set           */
   int32_t *s1;                       /* sparse polynomial s1    */
@@ -19,7 +22,7 @@ typedef struct {
 /* bliss-b public key  */
 typedef struct {
   bliss_param_t p;                  /* parameter set          */
-  int32_t *a;                       /* NTT of s1/s2             */
+  int32_t *a;                       /* NTT of s1/s2           */
 } bliss_public_key_t;
 
 
