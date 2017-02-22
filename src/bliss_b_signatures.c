@@ -604,7 +604,7 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
     goto restart;
   }
   if (vector_max_norm(y2, n) > p->b_inf) {
-    if(VERBOSE_RESTARTS){ printf(stdout, "--> norm y2 too high\n"); }
+    if(VERBOSE_RESTARTS){ fprintf(stdout, "--> norm y2 too high\n"); }
     goto restart;
   }
   if (vector_norm2(z1,  n) + vector_norm2(y2, n) > p->b_l2){
