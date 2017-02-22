@@ -38,7 +38,7 @@ OBJ = $(patsubst src/%.c, obj/%.o, $(SRC))
 TARGET = lib/${LIBRARY}
 
 
-all: ${TARGET}
+all: ${TARGET} tests
 	@echo Done.	
 
 
@@ -59,8 +59,11 @@ UNIT_TESTS=./tests/static
 
 TOOLS = ./tools
 
-check: $(TARGET)
+check: $(TARGET) tests
 	make -C ${UNIT_TESTS} check
+
+tests: $(TARGET)
+	make -C ${UNIT_TESTS}
 
 tools: $(TARGET)
 	make -C ${TOOLS} 
@@ -74,5 +77,5 @@ clean:
 	make -C ./tools clean
 
 
-.PHONY: clean tools
+.PHONY: clean tools tests
 

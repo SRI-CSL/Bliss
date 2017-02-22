@@ -522,7 +522,7 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
 
   /* 4: (v1, v2) = greedySC(c) */
 
-  greedy_sc_blzzd(s1, s2, n, indices, kappa, v1, v2);
+  greedy_sc(s1, s2, n, indices, kappa, v1, v2);
 
   /* 5: choose a random bit b */
 

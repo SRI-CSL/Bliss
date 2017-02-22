@@ -15,15 +15,6 @@
  */
 extern void zero_memory(void *ptr, size_t len);
 
-/**
- * GreedySC strongswan version
- *
- * should be static once we choose one and use it.
- *
- * BD: meh.
- */
-extern void greedy_sc_strongswan(const int32_t *s1, const int32_t *s2, int32_t n, const uint32_t *c_indices, int32_t kappa, int32_t *v1, int32_t *v2);
-
 /*
  * GreedySC blzzd version
  *
@@ -31,7 +22,7 @@ extern void greedy_sc_strongswan(const int32_t *s1, const int32_t *s2, int32_t n
  *
  * BD: yay!
  */
-extern void greedy_sc_blzzd(const int32_t *s1, const int32_t *s2, int32_t n,  const int32_t *c_indices, int32_t kappa, int32_t *v1, int32_t *v2);
+extern void greedy_sc(const int32_t *s1, const int32_t *s2, int32_t n,  const int32_t *c_indices, int32_t kappa, int32_t *v1, int32_t *v2);
 
 
 /*

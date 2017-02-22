@@ -14,22 +14,28 @@
 
 static uint64_t load64(const unsigned char *x)
 {
-  unsigned long long r = 0, i;
-  // iam: unroll these
-  for (i = 0; i < 8; ++i) {
-    r |= (unsigned long long)x[i] << 8 * i;
-  }
+  uint64_t r = 0;
+  r |= (uint64_t)x[0] << 0;
+  r |= (uint64_t)x[1] << 8;
+  r |= (uint64_t)x[2] << 16;
+  r |= (uint64_t)x[3] << 24;
+  r |= (uint64_t)x[4] << 32;
+  r |= (uint64_t)x[5] << 40;
+  r |= (uint64_t)x[6] << 48;
+  r |= (uint64_t)x[7] << 56;
   return r;
 }
 
 static void store64(uint8_t *x, uint64_t u)
 {
-  unsigned int i;
-  // iam: unroll these
-  for(i=0; i<8; ++i) {
-    x[i] = u;
-    u >>= 8;
-  }
+  x[0] = u; u >>= 8;
+  x[1] = u; u >>= 8;
+  x[2] = u; u >>= 8;
+  x[3] = u; u >>= 8;
+  x[4] = u; u >>= 8;
+  x[5] = u; u >>= 8;
+  x[6] = u; u >>= 8;
+  x[7] = u; u >>= 8;
 }
 
 static const uint64_t KeccakF_RoundConstants[NROUNDS] = 

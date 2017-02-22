@@ -36,63 +36,13 @@ void zero_memory(void *ptr, size_t len){
 
 
 
-/**
- * GreedySC strongswan version
- *
- * should be static once we choose one and use it.
- *
- * BD: meh.
- */
-void greedy_sc_strongswan(const int32_t *s1, const int32_t *s2, int32_t n, const uint32_t *c_indices, int32_t kappa, int32_t *v1, int32_t *v2)
-{
-  int32_t index, i, k, sign;
-
-  for (i = 0; i < n; i++)
-    {
-      v1[i] = 0;
-      v2[i] = 0;
-    }
-  for (k = 0; k < kappa; k++) {
-    index = c_indices[k];
-    sign = 0;
-    /* \xi_i = sign(<v, si>) */
-    for (i = 0; i < index; i++) {
-      sign -= (v1[i] * s1[i - index + n] + v2[i] * s2[i - index + n]);
-    }
-    for (i = index; i < n; i++)	{
-      sign += (v1[i] * s1[i - index] + v2[i] * s2[i - index]);
-    }
-    /* v = v - \xi_i . si */
-    for (i = 0; i < index; i++) {
-      if (sign > 0) {
-	v1[i] += s1[i - index + n];
-	v2[i] += s2[i - index + n];
-      } else {
-	v1[i] -= s1[i - index + n];
-	v2[i] -= s2[i - index + n];
-      }
-    }
-    for (i = index; i < n; i++)	{
-      if (sign > 0) {
-	v1[i] -= s1[i - index];
-	v2[i] -= s2[i - index];
-      } else {
-	v1[i] += s1[i - index];
-	v2[i] += s2[i - index];
-      }
-    }
-  }
-}
-
-
 /*
  * GreedySC blzzd version
  *
  * should be static once we choose one and use it.
  *
- * BD: yay!
  */
-void greedy_sc_blzzd(const int32_t *s1, const int32_t *s2, int32_t n,  const int32_t *c_indices, int32_t kappa, int32_t *v1, int32_t *v2)
+void greedy_sc(const int32_t *s1, const int32_t *s2, int32_t n,  const int32_t *c_indices, int32_t kappa, int32_t *v1, int32_t *v2)
 {
   int32_t index, i, k, sign;
 
