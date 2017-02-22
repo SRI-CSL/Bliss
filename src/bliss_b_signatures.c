@@ -29,8 +29,8 @@ static int32_t modQ(int32_t x, int32_t q, int32_t q_inv){
 
 
 /* iam: bliss-06-13-2013 */
-static void mul2d(int32_t *output, const int32_t *input, int32_t n, int32_t d){
-  int32_t i;
+static void mul2d(int32_t *output, const int32_t *input, uint32_t n, uint32_t d){
+  uint32_t i;
 
   assert(0 < d && d < 31);
 
@@ -50,8 +50,9 @@ static void mul2d(int32_t *output, const int32_t *input, int32_t n, int32_t d){
  * different from the strongswan version.
  *
  */
-static void drop_bits(int32_t *output, const int32_t *input, int32_t n, int32_t d) {
-  int32_t i, delta, half_delta;
+static void drop_bits(int32_t *output, const int32_t *input, uint32_t n, uint32_t d) {
+  uint32_t i;
+  int32_t  delta, half_delta;
 
   assert(0 < d && d < 31);
 
@@ -64,12 +65,12 @@ static void drop_bits(int32_t *output, const int32_t *input, int32_t n, int32_t 
 }
 
 
-void generateC(int32_t *indices, size_t kappa, const int32_t *n_vector, size_t n, uint8_t *hash, size_t hash_sz){
+void generateC(uint32_t *indices, uint32_t kappa, const int32_t *n_vector, uint32_t n, uint8_t *hash, uint32_t hash_sz){
   uint8_t whash[SHA3_512_DIGEST_LENGTH];
   uint8_t array[512]; // size we need is either 256 (for Bliss 0) or 512 for others
-  int32_t i, j, index;
+  uint32_t i, j, index;
   uint32_t x, tries;
-  uint8_t extra_bits;
+  uint32_t extra_bits;
 
   assert(n <= 512 && hash_sz == SHA3_512_DIGEST_LENGTH + 2 * n);
 
@@ -119,7 +120,7 @@ void generateC(int32_t *indices, size_t kappa, const int32_t *n_vector, size_t n
 	  extra_bits = whash[j];
 	  j ++;
 	}
-	index = (whash[j] << 1) | (extra_bits & 1);
+	index = ((uint32_t)whash[j] << 1) | (extra_bits & 1);
 	extra_bits >>= 1;
 	j ++;
 
@@ -138,7 +139,7 @@ void generateC(int32_t *indices, size_t kappa, const int32_t *n_vector, size_t n
  * Auxiliary function: add s * c to z
  * - c = array of kappa indices
  */
-static void addmul_c(int32_t *z, uint32_t n, const int32_t *s, const int32_t *c_indices, uint32_t kappa) {
+static void addmul_c(int32_t *z, uint32_t n, const int32_t *s, const uint32_t *c_indices, uint32_t kappa) {
   uint32_t i, j, idx;
 
   for (i=0; i<kappa; i++) {
@@ -157,7 +158,7 @@ static void addmul_c(int32_t *z, uint32_t n, const int32_t *s, const int32_t *c_
  * Auxiliary function: subtract s * c from z
  * - c = array of kappa indices
  */
-static void submul_c(int32_t *z, uint32_t n, const int32_t *s, const int32_t *c_indices, uint32_t kappa) {
+static void submul_c(int32_t *z, uint32_t n, const int32_t *s, const uint32_t *c_indices, uint32_t kappa) {
   uint32_t i, j, idx;
 
   for (i=0; i<kappa; i++) {
@@ -202,7 +203,8 @@ void multiply(int32_t *result, const int32_t *lhs, const int32_t *rhs, uint32_t 
  */
 static void check_before_drop(const bliss_private_key_t *key, uint8_t *hash, uint32_t hash_sz,
 			      const int32_t *v, const int32_t *y1, const int32_t *y2) {
-  int32_t z1[512], z2[512], aux[512], c[40];
+  int32_t z1[512], z2[512], aux[512];
+  uint32_t c[40];
   int32_t q;
   uint32_t kappa, n, i, idx;
   const bliss_param_t *p;
@@ -347,17 +349,18 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
   bliss_b_error_t retval;
   const bliss_param_t *p;
   // parameters extracted from p: n = size, q = modulus
-  int32_t n, q, kappa;
+  uint32_t n, kappa;
+  int32_t q;
   // these are the private key (a is stored as NTT)
   int32_t *a, *s1, *s2;
   // the signature is stored in z1, z2, indices
-  int32_t *z1 = NULL, *z2 = NULL,  *indices = NULL;
+  int32_t *z1 = NULL, *z2 = NULL;
+  uint32_t *indices = NULL;
   // all these are auxiliary buffers, malloc'ed in this function
   int32_t *y1 = NULL, *y2 = NULL, *v = NULL, *dv = NULL, *v1 = NULL, *v2 = NULL;
   uint8_t *hash = NULL;
-  uint32_t i, norm_v;
+  uint32_t i, norm_v, hash_sz;
   int32_t prod_zv;
-  size_t hash_sz;
   bool b;
 
   p = &private_key->p;
@@ -562,7 +565,7 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
 
   //iam: not seeing the use of M the repetition rate (p->m)
   
-  norm_v = vector_norm2(v1, n) + vector_norm2(v2, n);
+  norm_v = (uint32_t)(vector_norm2(v1, n) + vector_norm2(v2, n));
 
   // TODO: are we sure the assertion always holds?
   // What should we do if we get norm_v > M ?
@@ -694,12 +697,13 @@ int32_t bliss_b_verify(const bliss_signature_t *signature,  const bliss_public_k
   bliss_b_error_t retval;
   const bliss_param_t *p;
   // parameters extracted from p: n = size, q = modulus
-  int32_t n, q, kappa;
+  uint32_t n, kappa;
+  int32_t  q;
 
   uint32_t i;
   
-  int32_t *a, *z1, *z2, *tz2, *v = NULL, *indices = NULL;
-  uint32_t *c_indices;
+  int32_t *a, *z1, *z2, *tz2, *v = NULL;
+  uint32_t *c_indices, *indices = NULL;
   uint32_t idx;
 
   uint8_t *hash = NULL;

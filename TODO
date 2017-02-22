@@ -2,8 +2,11 @@ Q1: We should come to some rational explanation of why most of
     the bliss_b_params are int32_t rather than uint32_t, or change them
     to uint32_t.
 
-Q2: See query about M in bliss_b_signatures.c
+    NOTA BENE: if you multiply a int by a uint the int is first converted to
+    	       a uint. So if the int is negative you will get the wrong answer.	
 
+
+Q2: See query about M in bliss_b_signatures.c
 
 
 0.  The public key polynomial 'a' should not be stored in NTT form

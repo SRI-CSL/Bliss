@@ -22,24 +22,22 @@ static bool check_arg(int32_t v[], uint32_t n, int32_t q){
 #endif
 
 
-// Compute x^e (mod n).
-int32_t ntt32_pwr(int32_t x, int32_t e, int32_t n) {
+// Compute x^n (mod q).
+int32_t ntt32_pwr(int32_t x, int32_t n, int32_t q) {
   int32_t y;
 
   y = 1;
-  if (e & 1)
+  if (n & 1)
     y = x;
 
-  e >>= 1;
+  n >>= 1;
 
-  while (e > 0) {
-    x = (x * x) % n;
-    if (e & 1)
-      y = (x * y) %n;
-    e >>= 1;
+  while (n > 0) {
+    x = (x * x) % q;
+    if (n & 1)
+      y = (x * y) % q;
+    n >>= 1;
   }
-
-  assert(check_arg(&y, 1, n));
 
   return y;
 }

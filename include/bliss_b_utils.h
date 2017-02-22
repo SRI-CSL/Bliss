@@ -13,16 +13,22 @@
  *   - ptr, pointer to bytes to be zeroed.
  *   - len, the number of bytes to be zeroed.
  */
-extern void zero_memory(void *ptr, size_t len);
+extern void zero_memory(void *ptr, size_t len);  //call this zero_int_array
 
 /*
- * GreedySC blzzd version
+ * GreedySC (derived from blzzd version)
  *
  * should be static once we choose one and use it.
  *
+ * Input:  s1, s2, are the polynomial components of the secret key.
+ *         c_indices correspond to the sparse polynomial
+ *
+ * Output: v1 and v2 are output polynomials of size n.
+ *
+ *
  * BD: yay!
  */
-extern void greedy_sc(const int32_t *s1, const int32_t *s2, int32_t n,  const int32_t *c_indices, int32_t kappa, int32_t *v1, int32_t *v2);
+extern void greedy_sc(const int32_t *s1, const int32_t *s2, uint32_t n,  const uint32_t *c_indices, uint32_t kappa, int32_t *v1, int32_t *v2);
 
 
 /*
@@ -32,7 +38,7 @@ extern void greedy_sc(const int32_t *s1, const int32_t *s2, int32_t n,  const in
  *
  * returns the componentwise max
  */
-extern int32_t vector_max_norm(const int32_t *v, int32_t n);
+extern int32_t vector_max_norm(const int32_t *v, uint32_t n);
 
 /*
  * Computes the scalar product of two vectors of a given length.
@@ -42,12 +48,12 @@ extern int32_t vector_max_norm(const int32_t *v, int32_t n);
  *
  * returns the scalar product.
  */
-extern int32_t vector_scalar_product(const int32_t *v1, const int32_t *v2, int32_t n);
+extern int32_t vector_scalar_product(const int32_t *v1, const int32_t *v2, uint32_t n);
 
 /*
  * Square of the Euclidean norm of v1
  */
-extern uint32_t vector_norm2(const int32_t *v1, uint32_t n);
+extern int32_t vector_norm2(const int32_t *v1, uint32_t n);
 
 
 #endif

@@ -23,9 +23,9 @@
    - entropy: an initialized source of randomness
 
 */
-void uniform_poly(int32_t v[], int n, int nz1, int nz2, bool zero, entropy_t *entropy)
+void uniform_poly(int32_t v[], uint32_t n, uint32_t nz1, uint32_t nz2, bool zero, entropy_t *entropy)
 {
-  int i, j;
+  uint32_t i, j;
   uint64_t x;
 
   if (zero) {
@@ -35,11 +35,7 @@ void uniform_poly(int32_t v[], int n, int nz1, int nz2, bool zero, entropy_t *en
 
   i = 0;
   while (i < nz1) {
-    x = entropy_random_uint64(entropy);  //iam: do we really need 64 bits of randomness? seems like overkill.
-    // TL: clearly overkill here :) Several options:
-    // - it does not matter so much (key generation is usually not the thing we really want to speed up)
-    // - draw 16 bits of randomness (16>log(n)+1) and do the same
-    // - for one "x" of 64-bit, do the loop 4 times before drawing randomness again
+    x = entropy_random_uint64(entropy);  
     j = (x >> 1) % n; // nb: uniform because n is a power of 2
     if (v[j] != 0)
       continue;
@@ -124,7 +120,7 @@ static void check_key(bliss_private_key_t *key) {
 }
 
 static int32_t bliss_b_private_key_init(bliss_private_key_t *private_key, bliss_kind_t kind){
-  int32_t n;
+  uint32_t n;
   int32_t *f = NULL, *g = NULL, *a = NULL;
   bliss_param_t *p;
 
@@ -331,7 +327,7 @@ void bliss_b_private_key_delete(bliss_private_key_t *private_key){
 
 
 int32_t bliss_b_public_key_extract(bliss_public_key_t *public_key, const bliss_private_key_t *private_key){
-  int32_t n, i;
+  uint32_t n, i;
   int32_t *a, *b;
   const bliss_param_t *p;
 

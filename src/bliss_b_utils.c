@@ -37,14 +37,15 @@ void zero_memory(void *ptr, size_t len){
 
 
 /*
- * GreedySC blzzd version
+ * GreedySC version (based on blzzd)
  *
  * should be static once we choose one and use it.
  *
  */
-void greedy_sc(const int32_t *s1, const int32_t *s2, int32_t n,  const int32_t *c_indices, int32_t kappa, int32_t *v1, int32_t *v2)
+void greedy_sc(const int32_t *s1, const int32_t *s2, uint32_t n,  const uint32_t *c_indices, uint32_t kappa, int32_t *v1, int32_t *v2)
 {
-  int32_t index, i, k, sign;
+  uint32_t index, i, k;
+  int32_t sign;
 
   for (i = 0; i < n; i++) {
     v1[i] = 0;
@@ -86,9 +87,10 @@ void greedy_sc(const int32_t *s1, const int32_t *s2, int32_t n,  const int32_t *
 }
 
 
-int32_t vector_max_norm(const int32_t *v, int32_t n)
+int32_t vector_max_norm(const int32_t *v, uint32_t n)
 {
-  int32_t i, max;
+  uint32_t i;
+  int32_t max;
 
   max = 0;
   for (i = 0; i < n; i++) {
@@ -102,7 +104,7 @@ int32_t vector_max_norm(const int32_t *v, int32_t n)
 }
 
 
-int32_t vector_scalar_product(const int32_t *v1, const int32_t *t2, int32_t n)
+int32_t vector_scalar_product(const int32_t *v1, const int32_t *t2, uint32_t n)
 {
   uint32_t i;
   int32_t sum;
@@ -117,9 +119,10 @@ int32_t vector_scalar_product(const int32_t *v1, const int32_t *t2, int32_t n)
 /*
  * Square of the Euclidean norm of v
  */
-uint32_t vector_norm2(const int32_t *v1, uint32_t n)
+int32_t vector_norm2(const int32_t *v1, uint32_t n)
 {
-  uint32_t i, sum;
+  uint32_t i;
+  int32_t sum;
 
   sum = 0;
   for (i = 0; i < n; i++) {

@@ -79,13 +79,15 @@ bool sampler_ber_cosh(sampler_t* sampler, int32_t x) {
   x = x < 0 ? -x : x;
   x <<= 1;
 
+  //note x is positive
+  
   while (true) {
-    bit = sampler_ber_exp(sampler, x);
+    bit = sampler_ber_exp(sampler, (uint32_t)x);
     if (bit) return true;
 
     bit = entropy_random_bit(sampler->entropy);
     if(!bit) {
-      bit = sampler_ber_exp(sampler, x);
+      bit = sampler_ber_exp(sampler, (uint32_t)x);
       if (!bit) return false;
     }
   }
@@ -136,7 +138,8 @@ uint32_t sampler_pos_binary(sampler_t *sampler) {
  * Combination of Algorithms 11 and 12 from DDLL.
  */
 int32_t sampler_gauss(sampler_t *sampler) {
-  uint32_t u, e, x, y, val_pos;
+  uint32_t u, e, x, y;
+  int32_t val_pos;
 
   while (true) {
     x = sampler_pos_binary(sampler);
@@ -155,6 +158,6 @@ int32_t sampler_gauss(sampler_t *sampler) {
     }
   }
 
-  val_pos = sampler->k_sigma * x + y;
+  val_pos = (int32_t)(sampler->k_sigma * x + y);
   return u ? val_pos : - val_pos;
 }
