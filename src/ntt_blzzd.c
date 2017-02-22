@@ -8,16 +8,19 @@
 #include <stdlib.h>
 #include "ntt_blzzd.h"
 
-// Basic arithmetic primitives
-// Written as separate functions -- so that they can be instrumented easily.
+#ifndef NDEBUG
+static bool check_arg(int32_t v[], uint32_t n, int32_t q){
+  uint32_t i;
 
-static int32_t ntt32_muln(int32_t x, int32_t y, int32_t n) {
-  return (((int64_t) x) * ((int64_t) y)) % ((int64_t) n);
-}
+  for(i = 0; i < n; i++){
+    if(v[i] < 0){ return false; }
+    if(v[i] >= q){ return false; }
+  }
 
-static int32_t ntt32_sqrn(int32_t x, int32_t n) {
-  return (((int64_t) x) * ((int64_t) x)) % ((int64_t) n);
+  return true;
 }
+#endif
+
 
 // Compute x^e (mod n).
 int32_t ntt32_pwr(int32_t x, int32_t e, int32_t n) {
@@ -30,11 +33,13 @@ int32_t ntt32_pwr(int32_t x, int32_t e, int32_t n) {
   e >>= 1;
 
   while (e > 0) {
-    x = ntt32_sqrn(x, n);
+    x = (x * x) % n;
     if (e & 1)
-      y = ntt32_muln(x, y, n);
+      y = (x * y) %n;
     e >>= 1;
   }
+
+  assert(check_arg(&y, 1, n));
 
   return y;
 }
@@ -57,19 +62,6 @@ static inline int32_t add_mod(int32_t x, int32_t y, int32_t q) {
   return x - q >= 0 ? x - q : x;
 }
 
-
-#ifndef NDEBUG
-static bool check_arg(int32_t v[], uint32_t n, int32_t q){
-  uint32_t i;
-
-  for(i = 0; i < n; i++){
-    if(v[i] < 0){ return false; }
-    if(v[i] >= q){ return false; }
-  }
-
-  return true;
-}
-#endif
 
 void ntt32_fft(int32_t v[], uint32_t n, int32_t q, const int32_t w[]) {
   uint32_t i, j, k, l;
@@ -105,7 +97,6 @@ void ntt32_fft(int32_t v[], uint32_t n, int32_t q, const int32_t w[]) {
     for (j = 1; j < i; j++) {
       y = w[j * l];
       for (k = j; k < n; k += i + i) {
-        //	x = ntt32_muln(v[k + i], y, q);
         x = (v[k + i] * y) % q;
         v[k + i] = sub_mod(v[k], x, q);
         v[k] = add_mod(v[k], x, q);
@@ -124,7 +115,6 @@ void ntt32_xmu(int32_t v[], uint32_t n, int32_t q, const int32_t t[], const int3
 
   // multiply each element point-by-point
   for (i = 0; i < n; i++) {
-    //    v[i] = ntt32_muln(t[i], u[i], q);
     v[i] = (t[i] * u[i]) % q;
     if (v[i] < 0) v[i] += q;
   }
@@ -137,10 +127,8 @@ void ntt32_xmu(int32_t v[], uint32_t n, int32_t q, const int32_t t[], const int3
 // BD: modified to use 32bit arithmetic
 void ntt32_cmu(int32_t v[], uint32_t n, int32_t q, const int32_t t[], int32_t c) {
   uint32_t i;
-  //  int32_t x;
 
   for (i = 0; i < n; i++) {
-    // x = ntt32_muln(t[i], c, q);
     v[i] = (t[i] * c) % q;
     if (v[i] < 0) v[i] += q;
   }
