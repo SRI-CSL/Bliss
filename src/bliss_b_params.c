@@ -268,7 +268,7 @@ static const bliss_param_t bliss_b_params[] = {
     2.44,               /* m  = repetition rate alpha 0.748   M = 17840  */
     w7681n256,          /* w */
     r7681n256,          /* r */
-    21,                 /* ell TODO: CHECK */
+    19,                 /* ell (computed by tools/ell) */
     128,                /* precision */
   },
 
@@ -313,11 +313,11 @@ static const bliss_param_t bliss_b_params[] = {
     154,                /* nz1 */
     0,                  /* nz2 */
     107,                /* sigma */
-    17845,               /* M */
+    17845,              /* M */
     2.18,               /* m  = repetition rate  alpha = 0.801 */
     w12289n512,         /* w */
     r12289n512,         /* r */
-    21,                 /* ell: TODO: just a guess? */
+    19,                 /* ell: computed by tools/ell.c */
     128,                /* precision */
   },
 
