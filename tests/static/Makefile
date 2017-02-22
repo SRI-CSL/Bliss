@@ -26,7 +26,7 @@ OBJDIR=../../obj
 OBJ_GLOBS = $(addsuffix /*.o,${OBJDIR})
 OBJS = $(sort $(wildcard ${OBJ_GLOBS}))
 
-TESTS = test_signings 
+TESTS = test_signing test_signings 
 
 TEST_SRCS = $(addsuffix .c, ${TESTS})
 
@@ -38,7 +38,7 @@ all: ${TEST_SRCS}
 
 
 check: all
-	for test in ${TESTS} ; do ./$$test; done
+	for count in 0 1 2 3 4 ;  do ./test_signing $$count 100 ; done
 
 
 clean:
