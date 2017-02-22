@@ -10,7 +10,9 @@ typedef enum { BLISS_B_0, BLISS_B_1, BLISS_B_2, BLISS_B_3, BLISS_B_4 } bliss_kin
 
 
 /* Rule of Thumb: if it used as a bound  for a for loop, then it should be uint rather than int.
- *
+ * But we keep the modulii related parameters as signed since they are used as * and % operands
+ * with signed values, and so we do not want their unsignedness to corrupt the signed values.
+ * 
  */
 
 typedef struct {
