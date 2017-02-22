@@ -10,6 +10,8 @@
 #include "shake128.h"
 
 
+#define VERBOSE_RESTARTS  false
+
 
 /* iam: comes from FFT.h of bliss-06-13-2013 */
 /* TL: should probably make it constant time */
@@ -570,12 +572,12 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
   assert(p->M > norm_v);
   
   if (! sampler_ber_exp(&sampler, p->M - norm_v)) {
-    fprintf(stdout, "--> sampler_ber_exp false\n"); 
+    if(VERBOSE_RESTARTS){ fprintf(stdout, "--> sampler_ber_exp false\n");  }
     goto restart;
   }
   prod_zv = vector_scalar_product(z1, v1, n) + vector_scalar_product(z2, v2, n);
   if (! sampler_ber_cosh(&sampler, prod_zv)) {
-    fprintf(stdout, "--> sampler_ber_cosh false\n");
+    if(VERBOSE_RESTARTS){ fprintf(stdout, "--> sampler_ber_cosh false\n"); }
     goto restart;
   }
 
@@ -598,15 +600,15 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
   /* 9: seem to also need to check norms akin to what happens in the entry to verify */
   mul2d(y2, z2, n, p->d);
   if (vector_max_norm(z1, n) > p->b_inf) {
-    fprintf(stdout, "--> norm z1 too high\n");
+    if(VERBOSE_RESTARTS){ fprintf(stdout, "--> norm z1 too high\n"); }
     goto restart;
   }
   if (vector_max_norm(y2, n) > p->b_inf) {
-    fprintf(stdout, "--> norm y2 too high\n");
+    if(VERBOSE_RESTARTS){ printf(stdout, "--> norm y2 too high\n"); }
     goto restart;
   }
   if (vector_norm2(z1,  n) + vector_norm2(y2, n) > p->b_l2){
-    fprintf(stdout, "--> euclidean norm too high\n");
+    if(VERBOSE_RESTARTS){ fprintf(stdout, "--> euclidean norm too high\n"); }
     goto restart;
   }
 
@@ -634,25 +636,19 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
  fail:
 
   //zero these puppies out
-  if(z1 != NULL){
-    zero_memory(z1, n);
-    free(z1);
-    z1 = NULL;
-  }
+  zero_memory(z1, n * sizeof(int32_t));
+  free(z1);
+  z1 = NULL;
 
   //zero these puppies out
-  if(z2 != NULL){
-    zero_memory(z2, n);
-    free(z2);
-    z2 = NULL;
-  }
+  zero_memory(z2, n * sizeof(int32_t));
+  free(z2);
+  z2 = NULL;
 
   //zero these puppies out
-  if(indices != NULL){
-    zero_memory(indices, kappa);
-    free(indices);
-    indices = NULL;
-  }
+  zero_memory(indices, kappa * sizeof(int32_t));
+  free(indices);
+  indices = NULL;
 
  cleanup:
 
@@ -660,45 +656,33 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
   hash = NULL;
 
   //zero these puppies out
-  if(v != NULL){
-    zero_memory(v, n);
-    free(v);
-    v = NULL;
-  }
+  zero_memory(v, n * sizeof(int32_t));
+  free(v);
+  v = NULL;
 	
-  if(dv != NULL){
-    zero_memory(dv, n);
-    free(dv);
-    dv = NULL;
-  }
+  zero_memory(dv, n * sizeof(int32_t));
+  free(dv);
+  dv = NULL;
 	
   //zero these puppies out
-  if(y1 != NULL){
-    zero_memory(y1, n);
-    free(y1);
-    y1 = NULL;
-  }
+  zero_memory(y1, n * sizeof(int32_t));
+  free(y1);
+  y1 = NULL;
 	
   //zero these puppies out
-  if(y2 != NULL){
-    zero_memory(y2, n);
-    free(y2);
-    y2 = NULL;
-  }
+  zero_memory(y2, n * sizeof(int32_t));
+  free(y2);
+  y2 = NULL;
 	
   //zero these puppies out
-  if(v1 != NULL){
-    zero_memory(v1, n);
-    free(v1);
-    v1 = NULL;
-  }
+  zero_memory(v1, n * sizeof(int32_t));
+  free(v1);
+  v1 = NULL;
 	
   //zero these puppies out
-  if(v2 != NULL){
-    zero_memory(v2, n);
-    free(v2);
-    v2 = NULL;
-  }
+  zero_memory(v2, n * sizeof(int32_t));
+  free(v2);
+  v2 = NULL;
 
   return retval;	
 }
@@ -708,8 +692,12 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
 
 int32_t bliss_b_verify(const bliss_signature_t *signature,  const bliss_public_key_t *public_key, const uint8_t *msg, size_t msg_sz){
   bliss_b_error_t retval;
-  int32_t i, n, q, d, mod_p, q2, q_inv, q2_inv, one_q2, kappa, b_inf, b_l2;
   const bliss_param_t *p;
+  // parameters extracted from p: n = size, q = modulus
+  int32_t n, q, kappa;
+
+  uint32_t i;
+  
   int32_t *a, *z1, *z2, *tz2, *v = NULL, *indices = NULL;
   uint32_t *c_indices;
   uint32_t idx;
@@ -720,20 +708,10 @@ int32_t bliss_b_verify(const bliss_signature_t *signature,  const bliss_public_k
   p = &public_key->p;
   a = public_key->a;
 
-
   n = p->n;
   q = p->q;
-  d = p->d;
-  mod_p = p->mod_p;
 
   kappa = p->kappa;
-  b_inf = p->b_inf;
-  b_l2 = p->b_l2;
-
-  q2 = p->q2;
-  q_inv = p->q_inv;
-  q2_inv = p->q2_inv;
-  one_q2 = p->one_q2;
 
   z1 = signature->z1;         /* length n */
   z2 = signature->z2;         /* length n */
@@ -747,20 +725,20 @@ int32_t bliss_b_verify(const bliss_signature_t *signature,  const bliss_public_k
 
   /* first check the norms */
 
-  if (vector_max_norm(z1, n) > b_inf){
+  if (vector_max_norm(z1, n) > p->b_inf){
     retval = BLISS_B_BAD_DATA;
     goto fail;
   }
 
   /* multiply z2 by 2^d */
-  mul2d(tz2, z2, n, d);
+  mul2d(tz2, z2, n, p->d);
 
-  if(vector_max_norm(tz2, n) > b_inf){
+  if(vector_max_norm(tz2, n) > p->b_inf){
     retval = BLISS_B_BAD_DATA;
     goto fail;
   }
 
-  if (vector_norm2(z1, n) + vector_norm2(tz2, n) > b_l2){
+  if (vector_norm2(z1, n) + vector_norm2(tz2, n) > p->b_l2){
     retval = BLISS_B_BAD_DATA;
     goto fail;
   }
@@ -832,13 +810,13 @@ int32_t bliss_b_verify(const bliss_signature_t *signature,  const bliss_public_k
   /* v = (1/(q + 2)) * a * z1 */
   for (i = 0; i < n; i++){
     assert(0 <= v[i] && v[i] < q);
-    v[i] = modQ(2*v[i]*one_q2, q2, q2_inv);  
+    v[i] = modQ(2*v[i]*p->one_q2, p->q2, p->q2_inv);  
   }
 
   /* v += (q/q+2) * c */
   for (i = 0; i < kappa; i++) {
     idx = c_indices[i];
-    v[idx] = modQ(v[idx] + (q * one_q2), q2, q2_inv);
+    v[idx] = modQ(v[idx] + (q * p->one_q2), p->q2, p->q2_inv);
   }
   
   if (false) {
@@ -849,25 +827,17 @@ int32_t bliss_b_verify(const bliss_signature_t *signature,  const bliss_public_k
     }
   }
 
-  drop_bits(v, v, n, d);
+  drop_bits(v, v, n, p->d);
 
   /*  v += z_2  mod p. */
   for (i = 0; i < n; i++){
     v[i] += z2[i];
     v[i] = v[i] % p->mod_p;
 
-    //    assert(v[i] >= 0); // should probably be the case? BD: NO
-    // TL: Note, v[i] differs between signature and verification at some indices even if mod >= 0
-
     if (v[i] < 0){
-      v[i] += mod_p;
+      v[i] += p->mod_p;
     }
 
-    /*
-    if (v[i] >= mod_p){
-      v[i] -= mod_p;
-    }
-    */
   }
 
   if (false) {

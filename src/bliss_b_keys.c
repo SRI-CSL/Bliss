@@ -249,10 +249,10 @@ int32_t bliss_b_private_key_gen(bliss_private_key_t *private_key, bliss_kind_t k
 
  fail:
 
-  if (t) zero_memory(t, p->n * sizeof(int32_t));
+  zero_memory(t, p->n * sizeof(int32_t));
   free(t);
   t = NULL;
-  if (u) zero_memory(u, p->n * sizeof(int32_t));
+  zero_memory(u, p->n * sizeof(int32_t));
   free(u);
   u = NULL;
 
@@ -268,15 +268,15 @@ void bliss_b_private_key_delete(bliss_private_key_t *private_key){
 
   p = &private_key->p;
 
-  zero_memory(private_key->s1, p->n);
+  zero_memory(private_key->s1, p->n * sizeof(int32_t));
   free(private_key->s1);
   private_key->s1 = NULL;
 
-  zero_memory(private_key->s2, p->n);
+  zero_memory(private_key->s2, p->n * sizeof(int32_t));
   free(private_key->s2);
   private_key->s2 = NULL;
 
-  zero_memory(private_key->a, p->n);
+  zero_memory(private_key->a, p->n * sizeof(int32_t));
   free(private_key->a);
   private_key->a = NULL;
 }

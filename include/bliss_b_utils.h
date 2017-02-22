@@ -8,7 +8,8 @@
 
 /*
  *  Zeros len bytes of ptr, designed in such a way as to NOT be
- *  optimized out by compilers.
+ *  optimized out by compilers. If the ptr is NULL, the operation
+ *  is a noop.
  *   - ptr, pointer to bytes to be zeroed.
  *   - len, the number of bytes to be zeroed.
  */

@@ -30,14 +30,14 @@ static bliss_public_key_t public_key;
 
 static bliss_signature_t signature;
 
-static int32_t COUNT = 6;
+static uint32_t COUNT = 1000;
+
 
 int main(int argc, char* argv[]){
   int32_t type;
   int32_t count;
-
   bool ok;
-
+  uint32_t results[BLISS_B_4 + 1];
   int32_t retcode;
 
   char *text = "The lunatics have taken over the asylum";
@@ -49,12 +49,14 @@ int main(int argc, char* argv[]){
   entropy_init(&entropy, seed);
 
   for (type = BLISS_B_0; type <= BLISS_B_4; type++){
-    
+
+    results[type] = 0;
+
     for (count = 0; count < COUNT; count++){
 
       ok = false;
 
-      fprintf(stderr, "\n\nbliss_b test type = %d, count = %d\n", type, count);
+      //fprintf(stderr, "\n\nbliss_b test type = %d, count = %d\n", type, count);
  
       retcode = bliss_b_private_key_gen(&private_key, type, &entropy);
       if (retcode != BLISS_B_NO_ERROR){
@@ -90,9 +92,20 @@ int main(int argc, char* argv[]){
       
       bliss_signature_delete(&signature);
 
-      fprintf(stderr, "bliss_b type = %d:  %s\n", type, ok ? "OK" : "FAILED");
+      //fprintf(stderr, "bliss_b type = %d:  %s\n", type, ok ? "OK" : "FAILED");
 
+      if(ok) results[type]++;
+
+      if(count % 100 == 0){
+	fprintf(stdout, ".");
+	fflush(stdout);
+      }
+      
     }
+  }
+  fprintf(stdout, "\n");
+  for (type = BLISS_B_0; type <= BLISS_B_4; type++){
+    fprintf(stdout, "bliss_b type = %d:  %d/%d successes\n", type, results[type], COUNT);
   }
   
   return 0;
