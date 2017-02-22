@@ -38,8 +38,6 @@ OBJ = $(patsubst src/%.c, obj/%.o, $(SRC))
 TARGET = lib/${LIBRARY}
 
 
-.PHONY: clean
-
 all: ${TARGET}
 	@echo Done.	
 
@@ -64,6 +62,9 @@ TOOLS = ./tools
 check: $(TARGET)
 	make -C ${UNIT_TESTS} check
 
+tools: $(TARGET)
+	make -C ${TOOLS} 
+
 
 clean:
 	rm -f *~ *.o
@@ -72,4 +73,6 @@ clean:
 	make -C ${TOOLS} clean
 	make -C ./tools clean
 
+
+.PHONY: clean tools
 

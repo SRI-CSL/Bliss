@@ -21,14 +21,8 @@ int main(int argc, char* argv[]){
 
     mpfr_t lnrr, s;
 
-    /* want: 
-       k_sigma = ceiling[ sqrt(2*ln 2) * sigma ]
-       f = k_sigma^2 / ln 2 
-       c[i] = exp(-2^i/f), i = 0 ... ell
-    */
-
     mpfr_init2(lnrr, precision);    /* ln(rr)   */
-    mpfr_init2(s, precision);      /* sigma   */
+    mpfr_init2(s, precision);       /* sigma   */
 
     mpfr_set_d(lnrr, rr, GMP_RNDN);
     mpfr_log(lnrr, lnrr, GMP_RNDN);     /* lnrr = ln(rr) */
