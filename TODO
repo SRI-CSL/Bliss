@@ -5,8 +5,9 @@ Q1: We should come to some rational explanation of why most of
     NOTA BENE: if you multiply a int by a uint the int is first converted to
     	       a uint. So if the int is negative you will get the wrong answer.	
 
+ Solved I think.
 
-Q2: See query about M in bliss_b_signatures.c
+Q2: For Tacrede: See query about M in bliss_b_signatures.c
 
 
 0.  The public key polynomial 'a' should not be stored in NTT form
@@ -14,6 +15,7 @@ Q2: See query about M in bliss_b_signatures.c
 
 
 1. The sampler should be less entwined with the bliss b internals.
+Note sure how entwined it is. Looks pretty independent.
 
 
 2. The NTT implementation should be isolated from the bliss b
@@ -30,6 +32,7 @@ void delete_ntt_state(ntt_state_t* state);
 
 void multiply(int32_t *result, const int32_t *lhs, const int32_t *rhs, uint32_t n, const ntt_state_t* state);
 
+Talk more with BD about this once he has finished his talk.
 
 3. Debugging code should be removed and the code should get a
    spring clean.
