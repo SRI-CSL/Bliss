@@ -55,7 +55,7 @@ bool sampler_ber_exp(sampler_t* sampler, uint32_t x) {
   bool bit;
 
   ri = sampler->ell - 1;
-  mask = 1 << ri;
+  mask = 1u << ri;
   row = sampler->c + (ri * sampler->columns);
   while (mask > 0) {
     if (x & mask) {
@@ -148,7 +148,7 @@ int32_t sampler_gauss(sampler_t *sampler) {
       y = entropy_random_bits(sampler->entropy, sampler->k_sigma_bits);     
     } while (y >= sampler->k_sigma);
 
-    e = y * (y + 2 * sampler->k_sigma * x);
+    e = y * (y + 2u * sampler->k_sigma * x);
     
     if (sampler_ber_exp(sampler, e)) {
       u = entropy_random_bit(sampler->entropy);

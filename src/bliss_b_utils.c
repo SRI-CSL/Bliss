@@ -11,9 +11,9 @@
 
 #include <windows.h>
 
-void zero_memory(void *ptr, size_t len){
+void zero_int_array(int32_t *ptr, size_t len){
   if( ! ptr  ){
-    SecureZeroMemory(pnt, len);
+    SecureZeroMemory((void *)pnt, len * sizeof(int32_t));
   }
 }
 
@@ -25,9 +25,9 @@ typedef void *(*memset_t)(void *, int, size_t);
 
 static volatile memset_t memset_func = memset;
 
-void zero_memory(void *ptr, size_t len){
+void zero_int_array(int32_t *ptr, size_t len){
   if( ! ptr ){
-    memset_func(ptr, 0, len);
+    memset_func((void *)ptr, 0, len * sizeof(int32_t));
   }
 }
 

@@ -31,6 +31,6 @@ void delete_ntt_state(ntt_state_t* state);
 void multiply(int32_t *result, const int32_t *lhs, const int32_t *rhs, uint32_t n, const ntt_state_t* state);
 
 
-3. Debugging code shuld be removed and the code should get a
+3. Debugging code should be removed and the code should get a
    spring clean.
 

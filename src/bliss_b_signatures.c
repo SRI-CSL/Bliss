@@ -59,13 +59,12 @@ static void drop_bits(int32_t *output, const int32_t *input, uint32_t n, uint32_
   delta = 1<<d;
   half_delta = delta >> 1;
   for (i = 0; i < n; i++) {
-    //output[i] = (2*input[i] + (1<<d))/(1<<(d + 1));
     output[i] = (input[i] + half_delta) / delta;
   }
 }
 
 
-void generateC(uint32_t *indices, uint32_t kappa, const int32_t *n_vector, uint32_t n, uint8_t *hash, uint32_t hash_sz){
+static void generateC(uint32_t *indices, uint32_t kappa, const int32_t *n_vector, uint32_t n, uint8_t *hash, uint32_t hash_sz){
   uint8_t whash[SHA3_512_DIGEST_LENGTH];
   uint8_t array[512]; // size we need is either 256 (for Bliss 0) or 512 for others
   uint32_t i, j, index;
@@ -74,7 +73,6 @@ void generateC(uint32_t *indices, uint32_t kappa, const int32_t *n_vector, uint3
 
   assert(n <= 512 && hash_sz == SHA3_512_DIGEST_LENGTH + 2 * n);
 
-  //iam: note that the vector could be int16_t * if we really wanted
   /*
    * append the n_vector to the hash array
    */
@@ -87,20 +85,22 @@ void generateC(uint32_t *indices, uint32_t kappa, const int32_t *n_vector, uint3
     j += 2;
   }
 
-  // We bail out after 256 iterations in case something goes wrong.
+  /* We bail out after 256 iterations in case something goes wrong. */
   for (tries = 0; tries < 256; tries ++) {
-    // BD: just to be safe, we shouldn't overwrite the last element of hash
-    // (so that n_vector[n-1] is taken into account).
+    /*
+     * BD: just to be safe, we shouldn't overwrite the last element of hash
+     * (so that n_vector[n-1] is taken into account).
+     */
     hash[hash_sz - 1] ++;
     sha3_512(whash, hash, hash_sz);
 
     memset(array, 0, n);
 
     if (n == 256) {
-      // Bliss_b 0: we need kappa indices of 8 bits
+      /* Bliss_b 0: we need kappa indices of 8 bits */
       i = 0;
       for (j=0; j<SHA3_512_DIGEST_LENGTH; j++) {
-	index = whash[j];  // index < 256
+	index = whash[j];  
 	if(! array[index]) {
 	  indices[i] = index;
 	  array[index] = 1;
@@ -111,12 +111,12 @@ void generateC(uint32_t *indices, uint32_t kappa, const int32_t *n_vector, uint3
 
     } else {
       assert(n == 512 && (SHA3_512_DIGEST_LENGTH & 7) == 0);
-      // we need kappa indices of 9 bits
+      /* We need kappa indices of 9 bits */
       i = 0;
       j = 0;
       while(j<SHA3_512_DIGEST_LENGTH) {
 	if ((j & 7) == 0) {
-	  // start of a block of 8 bytes
+	  /* start of a block of 8 bytes */
 	  extra_bits = whash[j];
 	  j ++;
 	}
@@ -182,7 +182,7 @@ static void submul_c(int32_t *z, uint32_t n, const int32_t *s, const uint32_t *c
  *  -- lhs and rhs polynomials of degree n.
  *
  */
-void multiply(int32_t *result, const int32_t *lhs, const int32_t *rhs, uint32_t n, const bliss_param_t *p){
+static inline void multiply(int32_t *result, const int32_t *lhs, const int32_t *rhs, uint32_t n, const bliss_param_t *p){
   ntt32_xmu(result, n, p->q, lhs, p->w);         /* multiply by powers of psi                  */
   ntt32_fft(result, n, p->q, p->w);              /* result = ntt(lhs)                          */
   ntt32_xmu(result, n, p->q, result, rhs);       /* result = ntt(lhs) * rhs (both in ntt form) */
@@ -190,7 +190,6 @@ void multiply(int32_t *result, const int32_t *lhs, const int32_t *rhs, uint32_t 
   ntt32_xmu(result, n, p->q, result, p->r);      /* multiply by powers of psi^-1  */
   ntt32_flp(result, n, p->q);                    /* reorder: result mod q */
 }
-
 
 /*
  * BD: Consistency check for v, y1, y2
@@ -233,14 +232,6 @@ static void check_before_drop(const bliss_private_key_t *key, uint8_t *hash, uin
 
   // compute z1 * a in aux
   multiply(aux, z1, key->a, n, p);
-  /*
-  ntt32_xmu(aux, n, q, z1, p->w);
-  ntt32_fft(aux, n, q, p->w);
-  ntt32_xmu(aux, n, q, aux, key->a);
-  ntt32_fft(aux, n, q, p->w);
-  ntt32_xmu(aux, n, q, aux, p->r);
-  ntt32_flp(aux, n, q);
-  */
   
   for (i=0; i<n; i++) {
     aux[i] = 2 * aux[i] * p->one_q2 + z2[i];
@@ -350,7 +341,6 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
   const bliss_param_t *p;
   // parameters extracted from p: n = size, q = modulus
   uint32_t n, kappa;
-  int32_t q;
   // these are the private key (a is stored as NTT)
   int32_t *a, *s1, *s2;
   // the signature is stored in z1, z2, indices
@@ -370,7 +360,6 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
   s2 = private_key->s2;
 
   n = p->n;
-  q = p->q;
 
   kappa = p->kappa;
 
@@ -638,54 +627,22 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
 
  fail:
 
-  //zero these puppies out
-  zero_memory(z1, n * sizeof(int32_t));
-  free(z1);
-  z1 = NULL;
-
-  //zero these puppies out
-  zero_memory(z2, n * sizeof(int32_t));
-  free(z2);
-  z2 = NULL;
-
-  //zero these puppies out
-  zero_memory(indices, kappa * sizeof(int32_t));
-  free(indices);
-  indices = NULL;
+  secure_free(&z1, n);
+  secure_free(&z2, n);
+  secure_free((int32_t **)&indices, kappa);
 
  cleanup:
 
   free(hash);
   hash = NULL;
 
-  //zero these puppies out
-  zero_memory(v, n * sizeof(int32_t));
-  free(v);
-  v = NULL;
-	
-  zero_memory(dv, n * sizeof(int32_t));
-  free(dv);
-  dv = NULL;
-	
-  //zero these puppies out
-  zero_memory(y1, n * sizeof(int32_t));
-  free(y1);
-  y1 = NULL;
-	
-  //zero these puppies out
-  zero_memory(y2, n * sizeof(int32_t));
-  free(y2);
-  y2 = NULL;
-	
-  //zero these puppies out
-  zero_memory(v1, n * sizeof(int32_t));
-  free(v1);
-  v1 = NULL;
-	
-  //zero these puppies out
-  zero_memory(v2, n * sizeof(int32_t));
-  free(v2);
-  v2 = NULL;
+  secure_free(&v, n);
+  secure_free(&dv, n);
+  secure_free(&y1, n);
+  secure_free(&y2, n);
+  secure_free(&v1, n);
+  secure_free(&v2, n);
+
 
   return retval;	
 }

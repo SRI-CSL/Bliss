@@ -7,13 +7,20 @@
 
 
 /*
- *  Zeros len bytes of ptr, designed in such a way as to NOT be
+ *  Zeros len bytes of a int32_t array ptr, designed in such a way as to NOT be
  *  optimized out by compilers. If the ptr is NULL, the operation
  *  is a noop.
- *   - ptr, pointer to bytes to be zeroed.
- *   - len, the number of bytes to be zeroed.
+ *   - ptr, pointer to int32_t to be zeroed.
+ *   - len, the number of int32_t to be zeroed.
  */
-extern void zero_memory(void *ptr, size_t len);  //call this zero_int_array
+extern void zero_int_array(int32_t *ptr, size_t len); 
+
+static inline void secure_free(int32_t **ptr_p, size_t len){
+  zero_int_array(*ptr_p, len);
+  free(*ptr_p);
+  *ptr_p = NULL;
+}
+
 
 /*
  * GreedySC (derived from blzzd version)
