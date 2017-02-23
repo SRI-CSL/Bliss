@@ -563,6 +563,42 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
   }
   assert(p->M > norm_v);
   
+  // Good that you pointed me to that, there is an error in the current code,
+  // and a small mistake in the BLISS-B paper also.
+  // 
+  // 
+  // Let's go:
+  // 
+  // It should always hold that p->M >= norm_v in order to ensure that
+  // 1/(M*exp(-||v||^2/(2*sigma^2))) <= 1
+  // 
+  // BLISS-B states that ||v||^2 < P_max, where P_max is given on p.7
+  // 
+  // *** Therefore you see here that you need p->M = P_max. ***
+  // 
+  // 
+  // Let's take BLISS-B1
+  // P_max = 17825
+  // Which makes exp(-17825/(2*215^2)) = 0.6800330729375813
+  // and a repetition rate m that needs to verify m >= 1.21264863594269231
+  // which yields alpha = sqrt(1/(2*log(m))) = 1.610362655
+  // 
+  // The values M and alpha from BLISS-B are actually not parameters, 
+  // they are approximate values to understand what is going on.
+  // 
+  // If you had taken alpha=1.610, we would have 
+  // exp(1/(2*1.61*1.61)) = 1.2127539833
+  // and if we compute p->M as you did, it now yields
+  // p->M = ((2*sigma^2)/(2*alpha^2)) = (sigma/alpha)^2 = 17833.031 (we need to take the ceil)
+  // (this is where BLISS-B error in the paper is:
+  // alpha = sigma / sqrt(P_max)) and not alpha = sigma/P_max)
+  // 
+  // 
+  // 
+  // Anyway, the *real* value one should be taking for p->M is P_max
+  // computed as in BLISS-B p.7
+  // 
+  
   if (! sampler_ber_exp(&sampler, p->M - norm_v)) {
     if(VERBOSE_RESTARTS){ fprintf(stdout, "--> sampler_ber_exp false\n");  }
     goto restart;
