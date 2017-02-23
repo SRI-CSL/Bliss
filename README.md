@@ -7,3 +7,7 @@ BLISS: Bimodal Lattice Signature Schemes
 ========================================
 
 See [here](http://bliss.di.ens.fr/).
+
+[BLISS](papers/DDLL13.pdf)
+[BLISS-b](papers/bliss-b.pdf)
+
