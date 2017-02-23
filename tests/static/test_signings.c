@@ -37,8 +37,10 @@ int main(int argc, char* argv[]){
   int32_t type;
   int32_t count;
   bool ok;
+  uint32_t failures = 0;
   uint32_t results[BLISS_B_4 + 1];
   int32_t retcode;
+  
 
   char *text = "The lunatics have taken over the asylum";
 
@@ -94,7 +96,7 @@ int main(int argc, char* argv[]){
 
       //fprintf(stderr, "bliss_b type = %d:  %s\n", type, ok ? "OK" : "FAILED");
 
-      if(ok) results[type]++;
+      if(ok){ results[type]++; } else { failures++; }
 
       if(count % 100 == 0){
 	fprintf(stdout, ".");
@@ -108,5 +110,5 @@ int main(int argc, char* argv[]){
     fprintf(stdout, "bliss_b type = %d:  %d/%d successes\n", type, results[type], COUNT);
   }
   
-  return 0;
+  return failures > 0 ? 1 : 0;
 }
