@@ -9,7 +9,8 @@
 typedef enum { BLISS_B_0, BLISS_B_1, BLISS_B_2, BLISS_B_3, BLISS_B_4 } bliss_kind_t;
 
 
-/* Rule of Thumb: if it used as a bound  for a for loop, then it should be uint rather than int.
+/*
+ * Rule of Thumb: if it used as a bound for a for loop, then it should be uint rather than int.
  * But we keep the modulii related parameters as signed since they are used as * and % operands
  * with signed values, and so we do not want their unsignedness to corrupt the signed values.
  * 
@@ -32,14 +33,14 @@ typedef struct {
   uint32_t b_l2;         /* L2 norm  */
 
   
-  uint32_t nz1;          /* nonzero +-1  */
-  uint32_t nz2;          /* nonzero +-2  */
+  uint32_t nz1;          /* nonzero +-1  aka delta_1 in L Ducas' Bliss-B paper */
+  uint32_t nz2;          /* nonzero +-2  aka delta_2 in L Ducas' Bliss-B paper */
   
-  uint32_t sigma;       /* standard deviation  */
+  uint32_t sigma;        /* standard deviation  */
 
-  uint32_t M;           /*  M such that  exp( M / 2 * sigma^2) = m, the repetition rate */
+  uint32_t M;            /*  M such that  exp( M / 2 * sigma^2) = m, the repetition rate. We use P_{max} given on page 7 of L Ducas' Bliss-B  paper */
 
-  double m;             /* repetition rate  */
+  double m;              /* repetition rate  */
 
   /*
    * Tables for the NTT transform
