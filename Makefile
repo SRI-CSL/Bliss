@@ -7,7 +7,7 @@ ARCH ?= $(shell uname -m)
 
 
 ifneq ($(ARCH), x86_64)
-  error  "Got me just one ARCH today."
+  $(error  "Unsupported architecture: $(ARCH).")
 endif
 
 
