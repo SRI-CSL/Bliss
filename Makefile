@@ -1,12 +1,19 @@
 SHELL=/bin/sh
 
-CC=clang
+#
+# clang seems to be better than gcc for this code?
+#
+CC ?= clang
 OS=$(shell uname)
 
+#
+# We can do performance measurement only on x86_64 and x86
+#
 ARCH ?= $(shell uname -m)
+supported_arch=x86_64 i686
+test_arch=$(filter $(supported_arch), $(ARCH))
 
-
-ifneq ($(ARCH), x86_64)
+ifeq (,$(test_arch))
   $(error  "Unsupported architecture: $(ARCH).")
 endif
 
