@@ -30,9 +30,6 @@ static bliss_public_key_t public_key;
 
 static bliss_signature_t signature;
 
-static uint32_t COUNT = 1000;
-
-
 int main(int argc, char* argv[]){
   int32_t type;
   int32_t count;
@@ -54,10 +51,11 @@ int main(int argc, char* argv[]){
 
     results[type] = 0;
 
-    for (count = 0; count < COUNT; count++){
+    for (count = 0; count < NTESTS; count++){
 
       ok = false;
-
+      t[count] = cpucycles();
+      
       //fprintf(stderr, "\n\nbliss_b test type = %d, count = %d\n", type, count);
  
       retcode = bliss_b_private_key_gen(&private_key, type, &entropy);
@@ -104,11 +102,11 @@ int main(int argc, char* argv[]){
       }
       
     }
+
+    fprintf(stdout, "\n");
+    fprintf(stdout, "bliss_b type = %d:  %d/%d successes\n", type, results[type], NTESTS);
+    print_results("\t", t, NTESTS);
+    
   }
-  fprintf(stdout, "\n");
-  for (type = BLISS_B_0; type <= BLISS_B_4; type++){
-    fprintf(stdout, "bliss_b type = %d:  %d/%d successes\n", type, results[type], COUNT);
-  }
-  
   return failures > 0 ? 1 : 0;
 }
