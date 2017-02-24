@@ -37,3 +37,5 @@ Talk more with BD about this once he has finished his talk.
 3. Debugging code should be removed and the code should get a
    spring clean.
 
+
+4. Implement a constant-time modQ operation. Use it systematically.

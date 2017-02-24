@@ -34,8 +34,8 @@ typedef struct {
   uint32_t b_l2;         /* L2 norm  */
 
   
-  uint32_t nz1;          /* nonzero +-1  aka delta_1 in L Ducas' Bliss-B paper */
-  uint32_t nz2;          /* nonzero +-2  aka delta_2 in L Ducas' Bliss-B paper */
+  uint32_t nz1;          /* nonzero +-1  aka delta_1*n in L Ducas' Bliss-B paper */
+  uint32_t nz2;          /* nonzero +-2  aka delta_2*n  in L Ducas' Bliss-B paper */
   
   uint32_t sigma;        /* standard deviation  */
 
