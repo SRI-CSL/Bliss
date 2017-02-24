@@ -79,8 +79,6 @@ bool sampler_ber_cosh(sampler_t* sampler, int32_t x) {
   x = x < 0 ? -x : x;
   x <<= 1;
 
-  //note x is positive
-  
   while (true) {
     bit = sampler_ber_exp(sampler, (uint32_t)x);
     if (bit) return true;
@@ -118,7 +116,6 @@ uint32_t sampler_pos_binary(sampler_t *sampler) {
     if (u == 0) {
       return i;
     }
-    //    if (u >> 1 != 0) { 
     if (u != 1) {
       goto restart;
     }

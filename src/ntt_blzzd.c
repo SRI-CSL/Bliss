@@ -122,7 +122,7 @@ void ntt32_xmu(int32_t v[], uint32_t n, int32_t q, const int32_t t[], const int3
 }
 
 // Multiply with a scalar  v = t * c.
-// BD: modified to use 32bit arithmetic
+// BD: modified to use 32 bit arithmetic
 void ntt32_cmu(int32_t v[], uint32_t n, int32_t q, const int32_t t[], int32_t c) {
   uint32_t i;
 
