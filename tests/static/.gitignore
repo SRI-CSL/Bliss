@@ -3,4 +3,5 @@
 *.dSYM
 test_signing
 test_signings
+mod
 

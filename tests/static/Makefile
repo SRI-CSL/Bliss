@@ -33,7 +33,7 @@ OBJDIR=../../obj
 OBJ_GLOBS = $(addsuffix /*.o,${OBJDIR})
 OBJS = $(sort $(wildcard ${OBJ_GLOBS}))
 
-TESTS = test_signing test_signings 
+TESTS = test_signing test_signings mod
 
 TEST_SRCS = $(addsuffix .c, ${TESTS})
 

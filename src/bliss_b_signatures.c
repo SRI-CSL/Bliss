@@ -14,7 +14,7 @@
 
 
 /* iam: comes from FFT.h of bliss-06-13-2013 */
-/* TL: should probably make it constant time */
+/* TL: should probably make it constant time
 static int32_t modQ(int32_t x, int32_t q, int32_t q_inv){
   int64_t y = x;
   if (y < 0){ y += q; }
@@ -26,6 +26,7 @@ static int32_t modQ(int32_t x, int32_t q, int32_t q_inv){
   return x;
 }
 
+ */
 
 
 /* iam: bliss-06-13-2013 */
@@ -191,149 +192,6 @@ static inline void multiply(int32_t *result, const int32_t *lhs, const int32_t *
   ntt32_flp(result, n, p->q);                    /* reorder: result mod q */
 }
 
-/*
- * BD: Consistency check for v, y1, y2
- * - v is (2 * zeta * y1 * a1 + y2)
- * - for any c, we can build 
- *    z1 = y1 + c * s1
- *    z2 = y2 + c * s2
- * then we should have 
- *  (2 * zeta * a * z1 + zeta * q * c + z2) == v mod 2q
- */
-static void check_before_drop(const bliss_private_key_t *key, uint8_t *hash, uint32_t hash_sz,
-			      const int32_t *v, const int32_t *y1, const int32_t *y2) {
-  int32_t z1[512], z2[512], aux[512];
-  uint32_t c[40];
-  int32_t q;
-  uint32_t kappa, n, i, idx;
-  const bliss_param_t *p;
-  bool ok;
-
-  p = &key->p;
-  n = p->n;
-  q = p->q;
-  kappa = p->kappa;
-
-  assert(n <= 512 && kappa <= 40);
-  generateC(c, kappa, v, n, hash, hash_sz);
-
-  // first check
-  for (i=0; i<n; i++) {
-    z1[i] = y1[i];
-    z2[i] = y2[i];
-  }
-  addmul_c(z1, n, key->s1, c, kappa);
-  addmul_c(z2, n, key->s2, c, kappa);
-
-  // make sure there's no overflow in xmu
-  for (i=0; i<n; i++) {
-    z1[i] = z1[i] % q;
-  }
-
-  // compute z1 * a in aux
-  multiply(aux, z1, key->a, n, p);
-  
-  for (i=0; i<n; i++) {
-    aux[i] = 2 * aux[i] * p->one_q2 + z2[i];
-  }
-  for (i=0; i<kappa; i++) {
-    idx = c[i];
-    aux[idx] += p->one_q2 * q;
-  }
-  for (i=0; i<n; i++) {
-    aux[i] = aux[i] % p->q2;
-    if (aux[i] < 0) aux[i] += p->q2;
-  }
-
-  ok = true;
-  
-  for (i = 0; i < n; i++) {
-    if (v[i] != aux[i]) {
-      ok = false;
-      break;
-    }
-  }
- 
-  if (ok) {
-    printf("\nCONSISTENCY CHECK 1 PASSED\n");
-  } else {
-    printf("\nCONSISTENCY CHECK 1 FAILED\n");
-    printf("v is:\n");
-    for (i=0; i<n; i++) {
-      printf(" %d", v[i]);
-      if ((i & 15) == 15) printf("\n");
-    }
-    printf("\n");
-    printf("aux is:\n");
-    for (i=0; i<n; i++) {
-      printf(" %d", aux[i]);
-      if ((i & 15) == 15) printf("\n");
-    }
-    printf("\n");
-  }
-
-
-  // second check: subtract
-  for (i=0; i<n; i++) {
-    z1[i] = y1[i];
-    z2[i] = y2[i];
-  }
-  submul_c(z1, n, key->s1, c, kappa);
-  submul_c(z2, n, key->s2, c, kappa);
-
-  // make sure there's no overflow in xmu
-  for (i=0; i<n; i++) {
-    z1[i] = z1[i] % q;
-  }
-
-  // compute z1 * a in aux
-  ntt32_xmu(aux, n, q, z1, p->w);
-  ntt32_fft(aux, n, q, p->w);
-  ntt32_xmu(aux, n, q, aux, key->a);
-  ntt32_fft(aux, n, q, p->w);
-  ntt32_xmu(aux, n, q, aux, p->r);
-  ntt32_flp(aux, n, q);
-
-  for (i=0; i<n; i++) {
-    aux[i] = 2 * aux[i] * p->one_q2 + z2[i];
-  }
-  for (i=0; i<kappa; i++) {
-    idx = c[i];
-    aux[idx] += p->one_q2 * q;
-  }
-  for (i=0; i<n; i++) {
-    aux[i] = aux[i] % p->q2;
-    if (aux[i] < 0) aux[i] += p->q2;
-  }
-
-  ok = true;
-  
-  for(i = 0; i < n; i++){
-    if (v[i] != aux[i]){
-      ok = false;
-      break;
-    }
-  }
- 
-  if (ok) {
-    printf("\nCONSISTENCY CHECK 2 PASSED\n\n");
-  } else {
-    printf("\nCONSISTENCY CHECK 2 FAILED\n");
-    printf("v is:\n");
-    for (i=0; i<n; i++) {
-      printf(" %d", v[i]);
-      if ((i & 15) == 15) printf("\n");
-    }
-    printf("\n");
-    printf("aux is:\n");
-    for (i=0; i<n; i++) {
-      printf(" %d", aux[i]);
-      if ((i & 15) == 15) printf("\n");
-    }
-    printf("\n\n");
-  }
-
-}
 
 int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *private_key, const uint8_t *msg, size_t msg_sz, entropy_t *entropy){
   sampler_t sampler;
@@ -470,7 +328,8 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
   
   for (i=0; i<n; i++) {
     // this is v[i] = (2 * v[i] * xi + y2[i]) % q2
-    v[i] = modQ(2 * v[i] * p->one_q2 + y2[i], p->q2, p->q2_inv);
+    //v[i] = modQ(2 * v[i] * p->one_q2 + y2[i], p->q2, p->q2_inv);
+    v[i] = smodq(2 * v[i] * p->one_q2 + y2[i], p->q2);
   }
 
   if (false) {
@@ -488,7 +347,8 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
   /* 2b: drop bits mod_p */
   drop_bits(dv, v, n, p->d);
   for (i=0; i<n; i++) {
-    dv[i] = dv[i] % p->mod_p;
+    //dv[i] = dv[i] % p->mod_p;
+    dv[i] = smodq(dv[i], p->mod_p);
   }
 
   /* 3: generateC of v and the hash of the msg */
@@ -576,7 +436,8 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
 
   /* 8: z2 = (drop_bits(v) - drop_bits(v - z2)) mod p  */
   for (i=0; i<n; i++) {
-    y1[i] = modQ(v[i] - z2[i], p->q2, p->q2_inv);
+    //y1[i] = modQ(v[i] - z2[i], p->q2, p->q2_inv);
+    y1[i] = smodq(v[i] - z2[i], p->q2);
   }
   drop_bits(v, v, n, p->d);   // drop_bits(v)
   drop_bits(y1, y1, n, p->d); // drop_bits(v - z2)
@@ -772,13 +633,15 @@ int32_t bliss_b_verify(const bliss_signature_t *signature,  const bliss_public_k
   /* v = (1/(q + 2)) * a * z1 */
   for (i = 0; i < n; i++){
     assert(0 <= v[i] && v[i] < q);
-    v[i] = modQ(2*v[i]*p->one_q2, p->q2, p->q2_inv);  
+    //v[i] = modQ(2*v[i]*p->one_q2, p->q2, p->q2_inv);
+    v[i] = smodq(2*v[i]*p->one_q2, p->q2);  
   }
 
   /* v += (q/q+2) * c */
   for (i = 0; i < kappa; i++) {
     idx = c_indices[i];
-    v[idx] = modQ(v[idx] + (q * p->one_q2), p->q2, p->q2_inv);
+    //v[idx] = modQ(v[idx] + (q * p->one_q2), p->q2, p->q2_inv);
+    v[idx] = smodq(v[idx] + (q * p->one_q2), p->q2);
   }
   
   if (false) {
@@ -794,8 +657,8 @@ int32_t bliss_b_verify(const bliss_signature_t *signature,  const bliss_public_k
   /*  v += z_2  mod p. */
   for (i = 0; i < n; i++){
     v[i] += z2[i];
-    v[i] = v[i] % p->mod_p;
-
+    //v[i] = v[i] % p->mod_p;
+    v[i] = smodq(v[i], p->mod_p);
     if (v[i] < 0){
       v[i] += p->mod_p;
     }
