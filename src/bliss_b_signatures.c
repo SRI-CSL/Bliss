@@ -8,25 +8,10 @@
 #include "ntt_blzzd.h"
 #include "sampler.h"
 #include "shake128.h"
+#include "modulii.h"
 
 
 #define VERBOSE_RESTARTS  false
-
-
-/* iam: comes from FFT.h of bliss-06-13-2013 */
-/* TL: should probably make it constant time
-static int32_t modQ(int32_t x, int32_t q, int32_t q_inv){
-  int64_t y = x;
-  if (y < 0){ y += q; }
-  y = y - q * ((q_inv * y) >> 32);
-  while (y >= q){
-    y -= q;
-  }
-  x = y;
-  return x;
-}
-
- */
 
 
 /* iam: bliss-06-13-2013 */

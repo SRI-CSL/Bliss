@@ -19,20 +19,18 @@
    - n: the length of the polynomial
    - nz1: the number of coefficients that are +-1
    - nz2: the number of coefficients that are +-2
-   - zero: whether v should be zeroed out first, if false, v is assumed to be zeroed out.
    - entropy: an initialized source of randomness
 
 */
-void uniform_poly(int32_t v[], uint32_t n, uint32_t nz1, uint32_t nz2, bool zero, entropy_t *entropy)
+void uniform_poly(int32_t v[], uint32_t n, uint32_t nz1, uint32_t nz2, entropy_t *entropy)
 {
   uint32_t i, j;
   uint64_t x;
 
-  if (zero) {
-    for (i = 0; i < n; i++)
-      v[i] = 0;
+  for (i = 0; i < n; i++){
+    v[i] = 0;
   }
-
+  
   i = 0;
   while (i < nz1) {
     x = entropy_random_uint64(entropy);  
@@ -45,8 +43,7 @@ void uniform_poly(int32_t v[], uint32_t n, uint32_t nz1, uint32_t nz2, bool zero
 
   i = 0;
   while (i < nz2) {
-    x = entropy_random_uint64(entropy); //iam: do we really need 64 bits of randomness? seems like overkill.
-    // TL: idem
+    x = entropy_random_uint64(entropy);
     j = (x >> 1) % n; // nb: uniform because n is a power of 2
     if (v[j] != 0)
       continue;
@@ -200,10 +197,8 @@ int32_t bliss_b_private_key_gen(bliss_private_key_t *private_key, bliss_kind_t k
     goto fail;
   }
 
-
-
   /* randomize g */
-  uniform_poly(private_key->s2, p->n, p->nz1, p->nz2, false, entropy);
+  uniform_poly(private_key->s2, p->n, p->nz1, p->nz2, entropy);
 
   /* g = 2g - 1 */
   for (i = 0; i < p->n; i++)
@@ -220,7 +215,7 @@ int32_t bliss_b_private_key_gen(bliss_private_key_t *private_key, bliss_kind_t k
   for (j = 0; j < 4; j++) {
 
     /* randomize f  */
-    uniform_poly(private_key->s1, p->n, p->nz1, p->nz2, j != 0, entropy);
+    uniform_poly(private_key->s1, p->n, p->nz1, p->nz2, entropy);
 
     /* a = g/f. Try again if f is not invertible. */
     for (i = 0; i < p->n; i++)
