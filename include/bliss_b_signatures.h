@@ -7,7 +7,7 @@
 
 
 typedef struct {
-  bliss_param_t p;                   /* parameter set                             */
+  bliss_kind_t kind;                 /* the kind of bliss       */
   int32_t *z1;                       /* bliss signature polynomial                */
   int32_t *z2;                       /* bliss signature polynomial                */
   uint32_t *c;                       /* indices of sparse vector of size kappa    */

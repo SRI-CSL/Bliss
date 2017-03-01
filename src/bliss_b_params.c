@@ -1,3 +1,6 @@
+#include <assert.h>
+#include <string.h>
+
 #include "bliss_b_params.h"
 
 
@@ -385,6 +388,10 @@ static const bliss_param_t bliss_b_params[] = {
 
 
 bool bliss_params_init(bliss_param_t *params, bliss_kind_t kind){
+  assert(params != NULL);
+
+  memset(params, 0, sizeof(bliss_param_t));
+  
   if (BLISS_B_0 <= kind && kind <= BLISS_B_4  && params != NULL) {
     *params = bliss_b_params[kind];
     return true;
