@@ -666,9 +666,6 @@ int32_t bliss_b_verify(const bliss_signature_t *signature,  const bliss_public_k
     return BLISS_B_BAD_ARGS;
   }
 
-
-
-	 
   a = public_key->a;
 
   n = p.n;
@@ -827,7 +824,6 @@ int32_t bliss_b_verify(const bliss_signature_t *signature,  const bliss_public_k
 
   for (i = 0; i < kappa; i++){
     if (indices[i] != c_indices[i]){
-      fprintf(stderr, "indices[%d] = %d c_indices[%d] = %d\n", i, indices[i], i, c_indices[i]);
       retval = BLISS_B_VERIFY_FAIL;
       break;
     }
@@ -851,10 +847,6 @@ int32_t bliss_b_verify(const bliss_signature_t *signature,  const bliss_public_k
   return retval;
 
 }
-
-
-
-
 
 void bliss_signature_delete(bliss_signature_t *signature){
   assert(signature != NULL);

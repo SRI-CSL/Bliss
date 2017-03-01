@@ -13,7 +13,6 @@
  * so this way we are flexible, and stay less committed to a fixed n.
  */
 typedef struct {
-  //bliss_param_t p;                 /* parameter set           */
   bliss_kind_t kind;                 /* the kind of bliss       */
   int32_t *s1;                       /* sparse polynomial s1    */
   int32_t *s2;                       /* sparse polynomial s2    */
@@ -22,7 +21,6 @@ typedef struct {
 
 /* bliss-b public key  */
 typedef struct {
-  //  bliss_param_t p;              /* parameter set          */
   bliss_kind_t kind;                /* the kind of bliss       */
   int32_t *a;                       /* NTT of s1/s2           */
 } bliss_public_key_t;

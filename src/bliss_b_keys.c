@@ -121,8 +121,6 @@ static int32_t bliss_b_private_key_init(bliss_private_key_t *private_key, bliss_
   int32_t *f = NULL, *g = NULL, *a = NULL;
   bliss_param_t p;
 
-  //p = &private_key->p;
-  
   if (! bliss_params_init(&p, kind)) {
     // bad kind/not supported
     return BLISS_B_BAD_ARGS;
@@ -148,6 +146,7 @@ static int32_t bliss_b_private_key_init(bliss_private_key_t *private_key, bliss_
     goto fail;
   }
 
+  private_key->kind = kind;
   private_key->s1 = f;
   private_key->s2 = g;
   private_key->a = a;
@@ -176,8 +175,6 @@ int32_t bliss_b_private_key_gen(bliss_private_key_t *private_key, bliss_kind_t k
 
   bliss_param_t p;
 
-  //p = &private_key->p;
-  
   if (! bliss_params_init(&p, kind)) {
     // bad kind/not supported
     return BLISS_B_BAD_ARGS;
@@ -190,9 +187,6 @@ int32_t bliss_b_private_key_gen(bliss_private_key_t *private_key, bliss_kind_t k
   if (retcode !=  BLISS_B_NO_ERROR) {
     return retcode;
   }
-
-  //p = &private_key->p;
-
 
   t = calloc(p.n, sizeof(int32_t));
   if (t == NULL) {
