@@ -168,7 +168,7 @@ static void submul_c(int32_t *z, uint32_t n, const int32_t *s, const uint32_t *c
  *  -- lhs and rhs polynomials of degree n.
  *
  */
-static inline void multiply(int32_t *result, const int32_t *lhs, const int32_t *rhs, uint32_t n, const bliss_param_t *p){
+static inline void multiply(int32_t *result, const int32_t *lhs, const int32_t *rhs, uint32_t n, bliss_param_t *p){
   ntt32_xmu(result, n, p->q, lhs, p->w);         /* multiply by powers of psi                  */
   ntt32_fft(result, n, p->q, p->w);              /* result = ntt(lhs)                          */
   ntt32_xmu(result, n, p->q, result, rhs);       /* result = ntt(lhs) * rhs (both in ntt form) */
@@ -188,15 +188,13 @@ static inline void multiply(int32_t *result, const int32_t *lhs, const int32_t *
  *  (2 * zeta * a * z1 + zeta * q * c + z2) == v mod 2q
  */
 static void check_before_drop(const bliss_private_key_t *key, uint8_t *hash, uint32_t hash_sz,
-			      const int32_t *v, const int32_t *y1, const int32_t *y2) {
+			      const int32_t *v, const int32_t *y1, const int32_t *y2, bliss_param_t *p) {
   int32_t z1[512], z2[512], aux[512];
   uint32_t c[40];
   int32_t q;
   uint32_t kappa, n, i, idx;
-  const bliss_param_t *p;
   bool ok;
 
-  p = &key->p;
   n = p->n;
   q = p->q;
   kappa = p->kappa;
@@ -325,7 +323,7 @@ static void check_before_drop(const bliss_private_key_t *key, uint8_t *hash, uin
 int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *private_key, const uint8_t *msg, size_t msg_sz, entropy_t *entropy){
   sampler_t sampler;
   bliss_b_error_t retval;
-  const bliss_param_t *p;
+  bliss_param_t p;
   // parameters extracted from p: n = size, q = modulus
   uint32_t n, kappa;
   // these are the private key (a is stored as NTT)
@@ -340,18 +338,22 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
   int32_t prod_zv;
   bool b;
 
-  p = &private_key->p;
+  
+  if (! bliss_params_init(&p, private_key->kind)) {
+    // bad kind/not supported
+    return BLISS_B_BAD_ARGS;
+  }
 
   a = private_key->a;
   s1 = private_key->s1;
   s2 = private_key->s2;
 
-  n = p->n;
+  n = p.n;
 
-  kappa = p->kappa;
+  kappa = p.kappa;
 
   /* initialize our sampler */
-  if (!sampler_init(&sampler, p->sigma, p->ell, p->precision, entropy)) {
+  if (!sampler_init(&sampler, p.sigma, p.ell, p.precision, entropy)) {
     retval = BLISS_B_BAD_ARGS;
     goto fail;
   }
@@ -453,12 +455,12 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
 
   /* 2: compute v = ((2 * xi * a * y1) + y2) mod 2q */
 
-  multiply(v, y1, a, n, p);
+  multiply(v, y1, a, n, &p);
   
   for (i=0; i<n; i++) {
     // this is v[i] = (2 * v[i] * xi + y2[i]) % q2
-    //v[i] = modQ(2 * v[i] * p->one_q2 + y2[i], p->q2, p->q2_inv);
-    v[i] = smodq(2 * v[i] * p->one_q2 + y2[i], p->q2);
+    //v[i] = modQ(2 * v[i] * p.one_q2 + y2[i], p.q2, p.q2_inv);
+    v[i] = smodq(2 * v[i] * p.one_q2 + y2[i], p.q2);
   }
 
   if (false) {
@@ -470,14 +472,14 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
   }
 
   if (false) {
-    check_before_drop(private_key, hash, hash_sz, v, y1, y2);
+    check_before_drop(private_key, hash, hash_sz, v, y1, y2, &p);
   }
 
   /* 2b: drop bits mod_p */
-  drop_bits(dv, v, n, p->d);
+  drop_bits(dv, v, n, p.d);
   for (i=0; i<n; i++) {
-    //dv[i] = dv[i] % p->mod_p;
-    dv[i] = smodq(dv[i], p->mod_p);
+    //dv[i] = dv[i] % p.mod_p;
+    dv[i] = smodq(dv[i], p.mod_p);
   }
 
   /* 3: generateC of v and the hash of the msg */
@@ -541,19 +543,19 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
   /* 7: continue with probability 1/(M exp(-|v|^2/2sigma^2) * cosh(<z, v>/sigma^2)) otherwise restart */
   // NOTE: we could do the ber_exp earlier since it does not depend on z
 
-  //iam: not seeing the use of M the repetition rate (p->m)
+  //iam: not seeing the use of M the repetition rate (p.m)
   
   norm_v = (uint32_t)(vector_norm2(v1, n) + vector_norm2(v2, n));
 
   // TODO: are we sure the assertion always holds?
   // What should we do if we get norm_v > M ?
-  if(p->M <= norm_v) {
-    fprintf(stdout, "M = %d norm = %d\n", (int)p->M, (int)norm_v);
+  if(p.M <= norm_v) {
+    fprintf(stdout, "M = %d norm = %d\n", (int)p.M, (int)norm_v);
   }
-  assert(p->M > norm_v);
+  assert(p.M > norm_v);
   
   
-  if (! sampler_ber_exp(&sampler, p->M - norm_v)) {
+  if (! sampler_ber_exp(&sampler, p.M - norm_v)) {
     if(VERBOSE_RESTARTS){ fprintf(stdout, "--> sampler_ber_exp false\n");  }
     goto restart;
   }
@@ -565,32 +567,32 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
 
   /* 8: z2 = (drop_bits(v) - drop_bits(v - z2)) mod p  */
   for (i=0; i<n; i++) {
-    //y1[i] = modQ(v[i] - z2[i], p->q2, p->q2_inv);
-    y1[i] = smodq(v[i] - z2[i], p->q2);
+    //y1[i] = modQ(v[i] - z2[i], p.q2, p.q2_inv);
+    y1[i] = smodq(v[i] - z2[i], p.q2);
   }
-  drop_bits(v, v, n, p->d);   // drop_bits(v)
-  drop_bits(y1, y1, n, p->d); // drop_bits(v - z2)
+  drop_bits(v, v, n, p.d);   // drop_bits(v)
+  drop_bits(y1, y1, n, p.d); // drop_bits(v - z2)
   for (i=0; i<n; i++) {
     z2[i] = v[i] - y1[i]; 
-    if (z2[i] <  -p->mod_p/2) { 
-      z2[i] += p->mod_p;
-    } else if (z2[i] >  p->mod_p/2) {
-      z2[i] -= p->mod_p;
+    if (z2[i] <  -p.mod_p/2) { 
+      z2[i] += p.mod_p;
+    } else if (z2[i] >  p.mod_p/2) {
+      z2[i] -= p.mod_p;
     }
-    assert(-p->mod_p/2 <= z2[i] && z2[i] < p->mod_p/2);
+    assert(-p.mod_p/2 <= z2[i] && z2[i] < p.mod_p/2);
   }
   
   /* 9: seem to also need to check norms akin to what happens in the entry to verify */
-  mul2d(y2, z2, n, p->d);
-  if (vector_max_norm(z1, n) > p->b_inf) {
+  mul2d(y2, z2, n, p.d);
+  if (vector_max_norm(z1, n) > p.b_inf) {
     if(VERBOSE_RESTARTS){ fprintf(stdout, "--> norm z1 too high\n"); }
     goto restart;
   }
-  if (vector_max_norm(y2, n) > p->b_inf) {
+  if (vector_max_norm(y2, n) > p.b_inf) {
     if(VERBOSE_RESTARTS){ fprintf(stdout, "--> norm y2 too high\n"); }
     goto restart;
   }
-  if (vector_norm2(z1,  n) + vector_norm2(y2, n) > p->b_l2){
+  if (vector_norm2(z1,  n) + vector_norm2(y2, n) > p.b_l2){
     if(VERBOSE_RESTARTS){ fprintf(stdout, "--> euclidean norm too high\n"); }
     goto restart;
   }
@@ -605,7 +607,7 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
     printf("\n\n");
   }
 
-  signature->p = *p;
+  signature->kind = p.kind;
   signature->z1 = z1;
   signature->z2 = z2;
   signature->c = (uint32_t *)indices;  //icky cast
@@ -643,7 +645,7 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
 
 int32_t bliss_b_verify(const bliss_signature_t *signature,  const bliss_public_key_t *public_key, const uint8_t *msg, size_t msg_sz){
   bliss_b_error_t retval;
-  const bliss_param_t *p;
+  bliss_param_t p;
   // parameters extracted from p: n = size, q = modulus
   uint32_t n, kappa;
   int32_t  q;
@@ -657,13 +659,22 @@ int32_t bliss_b_verify(const bliss_signature_t *signature,  const bliss_public_k
   uint8_t *hash = NULL;
   size_t hash_sz;
 
-  p = &public_key->p;
+  assert(public_key->kind == signature->kind);
+  
+  if (! bliss_params_init(&p, public_key->kind)) {
+    // bad kind/not supported
+    return BLISS_B_BAD_ARGS;
+  }
+
+
+
+	 
   a = public_key->a;
 
-  n = p->n;
-  q = p->q;
+  n = p.n;
+  q = p.q;
 
-  kappa = p->kappa;
+  kappa = p.kappa;
 
   z1 = signature->z1;         /* length n */
   z2 = signature->z2;         /* length n */
@@ -677,20 +688,20 @@ int32_t bliss_b_verify(const bliss_signature_t *signature,  const bliss_public_k
 
   /* first check the norms */
 
-  if (vector_max_norm(z1, n) > p->b_inf){
+  if (vector_max_norm(z1, n) > p.b_inf){
     retval = BLISS_B_BAD_DATA;
     goto fail;
   }
 
   /* multiply z2 by 2^d */
-  mul2d(tz2, z2, n, p->d);
+  mul2d(tz2, z2, n, p.d);
 
-  if(vector_max_norm(tz2, n) > p->b_inf){
+  if(vector_max_norm(tz2, n) > p.b_inf){
     retval = BLISS_B_BAD_DATA;
     goto fail;
   }
 
-  if (vector_norm2(z1, n) + vector_norm2(tz2, n) > p->b_l2){
+  if (vector_norm2(z1, n) + vector_norm2(tz2, n) > p.b_l2){
     retval = BLISS_B_BAD_DATA;
     goto fail;
   }
@@ -757,20 +768,20 @@ int32_t bliss_b_verify(const bliss_signature_t *signature,  const bliss_public_k
 
   /* v = a * z1 */
 
-  multiply(v, z1, a, n, p);
+  multiply(v, z1, a, n, &p);
 
   /* v = (1/(q + 2)) * a * z1 */
   for (i = 0; i < n; i++){
     assert(0 <= v[i] && v[i] < q);
-    //v[i] = modQ(2*v[i]*p->one_q2, p->q2, p->q2_inv);
-    v[i] = smodq(2*v[i]*p->one_q2, p->q2);  
+    //v[i] = modQ(2*v[i]*p.one_q2, p.q2, p.q2_inv);
+    v[i] = smodq(2*v[i]*p.one_q2, p.q2);  
   }
 
   /* v += (q/q+2) * c */
   for (i = 0; i < kappa; i++) {
     idx = c_indices[i];
-    //v[idx] = modQ(v[idx] + (q * p->one_q2), p->q2, p->q2_inv);
-    v[idx] = smodq(v[idx] + (q * p->one_q2), p->q2);
+    //v[idx] = modQ(v[idx] + (q * p.one_q2), p.q2, p.q2_inv);
+    v[idx] = smodq(v[idx] + (q * p.one_q2), p.q2);
   }
   
   if (false) {
@@ -781,15 +792,15 @@ int32_t bliss_b_verify(const bliss_signature_t *signature,  const bliss_public_k
     }
   }
 
-  drop_bits(v, v, n, p->d);
+  drop_bits(v, v, n, p.d);
 
   /*  v += z_2  mod p. */
   for (i = 0; i < n; i++){
     v[i] += z2[i];
-    //v[i] = v[i] % p->mod_p;
-    v[i] = smodq(v[i], p->mod_p);
+    //v[i] = v[i] % p.mod_p;
+    v[i] = smodq(v[i], p.mod_p);
     if (v[i] < 0){
-      v[i] += p->mod_p;
+      v[i] += p.mod_p;
     }
 
   }
@@ -816,6 +827,7 @@ int32_t bliss_b_verify(const bliss_signature_t *signature,  const bliss_public_k
 
   for (i = 0; i < kappa; i++){
     if (indices[i] != c_indices[i]){
+      fprintf(stderr, "indices[%d] = %d c_indices[%d] = %d\n", i, indices[i], i, c_indices[i]);
       retval = BLISS_B_VERIFY_FAIL;
       break;
     }
