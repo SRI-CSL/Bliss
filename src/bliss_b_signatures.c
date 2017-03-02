@@ -97,6 +97,9 @@ static void generateC(uint32_t *indices, uint32_t kappa, const int32_t *n_vector
 
     } else {
       assert(n == 512 && (SHA3_512_DIGEST_LENGTH & 7) == 0);
+
+      extra_bits = 0; // Prevent a GCC warning
+
       /* We need kappa indices of 9 bits */
       i = 0;
       j = 0;
