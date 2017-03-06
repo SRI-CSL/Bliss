@@ -25,6 +25,19 @@ static void mul2d(int32_t *output, const int32_t *input, uint32_t n, uint32_t d)
   }
 }
 
+#ifndef NDEBUG
+static bool check_arg(int32_t v[], uint32_t n, int32_t q){
+  uint32_t i;
+
+  for(i = 0; i < n; i++){
+    if(v[i] < 0){ return false; }
+    if(v[i] >= q){ return false; }
+  }
+
+  return true;
+}
+#endif
+
 /* iam: bliss-06-13-2013
  *
  *   on page 21 of DDLL: every x between [-q, q) and any positive integer d, x can be uniquely written
@@ -168,7 +181,10 @@ static void submul_c(int32_t *z, uint32_t n, const int32_t *s, const uint32_t *c
  *
  * Multiplies lhs by rhs and places the result in result.
  *
- *  -- lhs and rhs polynomials of degree n.
+ *  -- lhs is a polynomial of degree n.
+ *  -- rhs is an ntt of a polynomial of degree n.
+ *
+ * returns a polynomial of degree n, whose int32_t coeffs are in [0, q)
  *
  */
 static inline void multiply(int32_t *result, const int32_t *lhs, const int32_t *rhs, uint32_t n, bliss_param_t *p){
@@ -479,6 +495,7 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
   }
 
   /* 2b: drop bits mod_p */
+  assert(check_arg(v, n, p.q2));
   drop_bits(dv, v, n, p.d);
   for (i=0; i<n; i++) {
     //dv[i] = dv[i] % p.mod_p;
@@ -573,7 +590,9 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
     //y1[i] = modQ(v[i] - z2[i], p.q2, p.q2_inv);
     y1[i] = smodq(v[i] - z2[i], p.q2);
   }
+  assert(check_arg(v, n, p.q2));
   drop_bits(v, v, n, p.d);   // drop_bits(v)
+  assert(check_arg(y1, n, p.q2));
   drop_bits(y1, y1, n, p.d); // drop_bits(v - z2)
   for (i=0; i<n; i++) {
     z2[i] = v[i] - y1[i]; 
@@ -792,6 +811,7 @@ int32_t bliss_b_verify(const bliss_signature_t *signature,  const bliss_public_k
     }
   }
 
+  assert(check_arg(v, n, p.q2));
   drop_bits(v, v, n, p.d);
 
   /*  v += z_2  mod p. */

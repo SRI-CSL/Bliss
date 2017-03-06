@@ -1,8 +1,14 @@
-0.  The public key polynomial 'a' should not be stored in NTT form
-    since that forces a dependency on a particular choice of NTT.
+0.  The public key polynomial 'a' should not be stored in NTT form in
+    either the public key or the signature, since that forces a
+    dependency on a particular choice of NTT.
+
+    It can be stored in ntt form in the private key. I guess when we
+    write the private key out to a file we would store a not it ntt
+    form.
 
 
-2. The NTT implementation should be isolated from the bliss b
+
+1. The NTT implementation should be isolated from the bliss b
    implementation by a minimal API, and then we can test various
    versions via this API and dynamic libraries.
 
@@ -16,14 +22,46 @@ void delete_ntt_state(ntt_state_t* state);
 
 void multiply(int32_t *result, const int32_t *lhs, const int32_t *rhs, uint32_t n, const ntt_state_t* state);
 
+
+
+we have an opaque type  ntt_t
+
+a polynomial, a,  = array of n int32_t integers in [0, q - 1]
+               in ascending order  a[i] = coeff in a of x^i
+
+
+and another opaque type ntt_state_t;
+
+bool init_ntt_state(ntt_state_t* state, int32_t q, int32_t n);
+
+or
+
+bool init_ntt_state(ntt_state_t* state, bliss_kind_t k);
+
+
+
+void delete_ntt_state(ntt_state_t* state);
+
+=======
+
+currying for clarity?
+
+forward_ntt(ntt_state_t* state)(a : polynomial)  = ntt_t
+
+inverse_ntt(ntt_state_t* state)(b : ntt_t) = polynomial
+
+negate_ntt(ntt_state_t* state)(b : ntt_t) =  ntt_t    ;; multiply by -1
+
+product_ntt(ntt_state_t* state)(b : ntt_t) =  ntt_t   ;; pointwise product
+
+invert_poly(ntt_state_t* state)(a : polynomial)  =  ntt_t , bool
+
+
+
 Talk more with BD about this once he has finished his talk.
 
 3. Debugging code should be removed and the code should get a
    spring clean.
 
-
-4. Implement a constant-time modQ operation. Use it systematically.
-
-
-5. Finish the eBATS api (bliss_b.h). 
+4. Finish the eBATS api (bliss_b.h). 
 (https://bench.cr.yp.to/ebats.html)

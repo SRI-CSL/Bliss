@@ -1,4 +1,3 @@
-#include <assert.h>
 #include <stdint.h>
 
 #include "modulii.h"
@@ -61,12 +60,5 @@ int32_t modq(int32_t x, int32_t q) {
   return x - divq(x, q) * q;
 }
 
-//s is for simple
-int32_t smodq(int32_t x, int32_t q) {
-  assert(q > 0);
-  int32_t y = x % q;
-  return y + ((y >> 31) & q); 
-
-}
 
 
