@@ -8,6 +8,7 @@
 #include "ntt_blzzd.h"
 
 /*
+ *
  * Libraryish API for our uses of the Number Theoretic Transform.
  *
  *
@@ -128,10 +129,10 @@ bool invert_polynomial(const ntt_state_t state, ntt_t output, const polynomial_t
   assert(state != NULL);
 
   forward_ntt(state, output, input);
-  for (i=0; i<s->n; i++) {
+  for (i = 0; i < s->n; i++) {
     x = a[i];
-    if (x == 0) return false; // not invertible
-    x = ntt32_pwr(x, s->q - 2, s->q);  // x^(q-2) = inverse of x
+    if (x == 0) return false;           /* not invertible */
+    x = ntt32_pwr(x, s->q - 2, s->q);   /* x^(q-2) = inverse of x */
     a[i] = x;
   }
 
