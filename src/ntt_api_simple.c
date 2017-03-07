@@ -121,7 +121,19 @@ void product_ntt(const ntt_state_t state, ntt_t output, const ntt_t lhs,  const 
 
 bool invert_polynomial(const ntt_state_t state, ntt_t output, const polynomial_t input){
   ntt_state_simple_t *s = (ntt_state_simple_t *)state;
+  int32_t *a = output;
+  uint32_t i;
+  int32_t x;
+
   assert(state != NULL);
 
-  return false;
+  forward_ntt(state, output, input);
+  for (i=0; i<s->n; i++) {
+    x = a[i];
+    if (x == 0) return false; // not invertible
+    x = ntt32_pwr(x, s->q - 2, s->q);  // x^(q-2) = inverse of x
+    a[i] = x;
+  }
+
+  return true;
 }

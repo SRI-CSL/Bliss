@@ -225,7 +225,7 @@ int32_t bliss_b_private_key_gen(bliss_private_key_t *private_key, bliss_kind_t k
     ntt32_fft(u, p.n, p.q, p.w);
 
     for (i = 0; i < p.n; i++) {
-      x = u[i] % p.q;
+      x = u[i];
       if (x == 0)
         break;
       x = ntt32_pwr(x, p.q - 2, p.q);
