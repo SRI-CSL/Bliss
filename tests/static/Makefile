@@ -26,8 +26,8 @@ endif
 
 
 CPPFLAGS +=  -I../../include/ -I../../arch/${ARCH} 
-# CFLAGS += -std=gnu99 -Wall -O3
-CFLAGS += -std=gnu99 -Wall -pg -g
+CFLAGS += -std=gnu99 -Wall -O3 -pg 
+#CFLAGS += -std=gnu99 -Wall -g
 
 OBJDIR=../../obj
 OBJ_GLOBS = $(addsuffix /*.o,${OBJDIR})
