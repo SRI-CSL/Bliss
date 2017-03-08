@@ -18,7 +18,7 @@ typedef int32_t *polynomial_t;
 
 typedef void *ntt_state_t;
 
-typedef void *ntt_t;
+typedef void *ntt_t;   //might be better to bite the bullet and admit it is int32_t*
 
 
 extern ntt_state_t init_ntt_state(bliss_kind_t kind);

@@ -9,7 +9,7 @@
 
 /*
  *
- * Libraryish API for our uses of the Number Theoretic Transform.
+ * Implementation of our NTT API using ntt_blzzd 
  *
  *
  *
