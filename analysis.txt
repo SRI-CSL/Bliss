@@ -1,0 +1,599 @@
+Flat profile:
+
+Each sample counts as 0.01 seconds.
+  %   cumulative   self              self     total           
+ time   seconds   seconds    calls  ms/call  ms/call  name    
+ 17.70      1.86     1.86  1679493     0.00     0.00  KeccakF1600_StatePermute
+ 17.32      3.68     1.82    48894     0.04     0.06  ntt32_fft
+  7.71      4.49     0.81     8991     0.09     0.09  greedy_sc
+  6.71      5.20     0.71 11735291     0.00     0.00  sampler_ber_exp
+  5.95      5.82     0.63 98560256     0.00     0.00  sub_mod
+  5.90      6.44     0.62  1491901     0.00     0.00  keccak_absorb
+  4.43      6.91     0.47 98560256     0.00     0.00  add_mod
+  3.95      7.32     0.42 26690310     0.00     0.00  entropy_random_bits
+  3.81      7.72     0.40 166218086     0.00     0.00  entropy_random_bit
+  3.43      8.08     0.36  2405647     0.00     0.00  ntt32_pwr
+  3.05      8.40     0.32 50513578     0.00     0.00  sampler_ber
+  2.47      8.66     0.26  1491901     0.00     0.00  sha3_512
+  2.38      8.91     0.25 15115437     0.00     0.00  load64
+  2.19      9.14     0.23    68125     0.00     0.00  ntt32_xmu
+  1.71      9.32     0.18  7970304     0.00     0.00  sampler_gauss
+  1.62      9.49     0.17   141370     0.00     0.00  check_arg
+  1.43      9.64     0.15 13427109     0.00     0.00  store64
+  1.43      9.79     0.15 11708571     0.00     0.00  sampler_pos_binary
+  1.14      9.91     0.12 50711712     0.00     0.00  entropy_random_uint8
+  0.76      9.99     0.08 15180800     0.00     0.00  smodq
+  0.76     10.07     0.08    10432     0.01     0.08  uniform_poly
+  0.48     10.12     0.05    38482     0.00     0.00  vector_norm2
+  0.48     10.17     0.05    24371     0.00     0.00  drop_bits
+  0.48     10.22     0.05     5120     0.01     1.37  bliss_b_sign
+  0.38     10.26     0.04  2597158     0.00     0.00  bit_pool_refresh
+  0.29     10.29     0.03    20500     0.00     0.00  vector_max_norm
+  0.29     10.32     0.03     5120     0.01     0.16  bliss_b_verify
+  0.19     10.34     0.02  5401310     0.00     0.00  entropy_random_uint64
+  0.19     10.36     0.02    24371     0.00     0.00  check_arg
+  0.19     10.38     0.02    19231     0.00     0.00  ntt32_flp
+  0.19     10.40     0.02    16288     0.00     0.00  vector_scalar_product
+  0.19     10.42     0.02    10250     0.00     0.00  mul2d
+  0.19     10.44     0.02     5120     0.00     0.51  bliss_b_private_key_gen
+  0.10     10.45     0.01  1491901     0.00     0.00  keccak_squeezeblocks
+  0.10     10.46     0.01    14111     0.00     0.00  generateC
+  0.10     10.47     0.01     5312     0.00     0.13  invert_polynomial
+  0.10     10.48     0.01     5120     0.00     0.00  bliss_b_public_key_extract
+  0.10     10.49     0.01     5120     0.00     0.00  ntt32_cmu
+  0.10     10.50     0.01     5120     0.00     0.00  sampler_init
+  0.05     10.51     0.01     8144     0.00     0.00  sampler_ber_cosh
+  0.05     10.51     0.01        1     5.00     5.04  entropy_init
+  0.00     10.51     0.00  1467550     0.00     0.00  increment_seed
+  0.00     10.51     0.00   146755     0.00     0.02  refresh
+  0.00     10.51     0.00    79238     0.00     0.02  char_pool_refresh
+  0.00     10.51     0.00    67517     0.00     0.02  int_pool_refresh
+  0.00     10.51     0.00    56320     0.00     0.00  zero_int_array
+  0.00     10.51     0.00    46080     0.00     0.00  bliss_params_init
+  0.00     10.51     0.00    30720     0.00     0.00  secure_free
+  0.00     10.51     0.00    29663     0.00     0.07  forward_ntt
+  0.00     10.51     0.00    25600     0.00     0.00  secure_free
+  0.00     10.51     0.00    19231     0.00     0.07  inverse_ntt
+  0.00     10.51     0.00    19231     0.00     0.00  product_ntt
+  0.00     10.51     0.00    15360     0.00     0.00  delete_ntt_state
+  0.00     10.51     0.00    15360     0.00     0.00  init_ntt_state
+  0.00     10.51     0.00    14111     0.00     0.00  delete_ntt
+  0.00     10.51     0.00    14111     0.00     0.00  init_ntt
+  0.00     10.51     0.00    14111     0.00     0.14  multiply_ntt
+  0.00     10.51     0.00     5120     0.00     0.00  bliss_b_private_key_delete
+  0.00     10.51     0.00     5120     0.00     0.00  bliss_b_private_key_init
+  0.00     10.51     0.00     5120     0.00     0.00  bliss_b_public_key_delete
+  0.00     10.51     0.00     5120     0.00     0.00  bliss_signature_delete
+  0.00     10.51     0.00     5120     0.00     0.00  cpucycles
+  0.00     10.51     0.00     5120     0.00     0.00  get_k_sigma
+  0.00     10.51     0.00     5120     0.00     0.00  get_k_sigma_bits
+  0.00     10.51     0.00     5120     0.00     0.00  get_table
+  0.00     10.51     0.00     5120     0.00     0.00  negate_ntt
+  0.00     10.51     0.00        5     0.00     0.00  average
+  0.00     10.51     0.00        5     0.00     0.00  median
+  0.00     10.51     0.00        5     0.00     0.00  print_results
+
+ %         the percentage of the total running time of the
+time       program used by this function.
+
+cumulative a running sum of the number of seconds accounted
+ seconds   for by this function and those listed above it.
+
+ self      the number of seconds accounted for by this
+seconds    function alone.  This is the major sort for this
+           listing.
+
+calls      the number of times this function was invoked, if
+           this function is profiled, else blank.
+ 
+ self      the average number of milliseconds spent in this
+ms/call    function per call, if this function is profiled,
+	   else blank.
+
+ total     the average number of milliseconds spent in this
+ms/call    function and its descendents per call, if this 
+	   function is profiled, else blank.
+
+name       the name of the function.  This is the minor sort
+           for this listing. The index shows the location of
+	   the function in the gprof listing. If the index is
+	   in parenthesis it shows where it would appear in
+	   the gprof listing if it were to be printed.
+
+Copyright (C) 2012 Free Software Foundation, Inc.
+
+Copying and distribution of this file, with or without modification,
+are permitted in any medium without royalty provided the copyright
+notice and this notice are preserved.
+
+		     Call graph (explanation follows)
+
+
+granularity: each sample hit covers 2 byte(s) for 0.10% of 10.51 seconds
+
+index % time    self  children    called     name
+                                                 <spontaneous>
+[1]    100.0    0.00   10.51                 main [1]
+                0.05    6.99    5120/5120        bliss_b_sign [2]
+                0.02    2.60    5120/5120        bliss_b_private_key_gen [8]
+                0.03    0.81    5120/5120        bliss_b_verify [23]
+                0.01    0.00    5120/5120        bliss_b_public_key_extract [47]
+                0.01    0.00       1/1           entropy_init [50]
+                0.00    0.00    5120/5120        cpucycles [64]
+                0.00    0.00    5120/5120        bliss_b_private_key_delete [60]
+                0.00    0.00    5120/5120        bliss_b_public_key_delete [62]
+                0.00    0.00    5120/5120        bliss_signature_delete [63]
+                0.00    0.00       5/5           print_results [70]
+-----------------------------------------------
+                0.05    6.99    5120/5120        main [1]
+[2]     66.9    0.05    6.99    5120         bliss_b_sign [2]
+                0.18    4.51 7970304/7970304     sampler_gauss [3]
+                0.00    1.24    8991/14111       multiply_ntt [10]
+                0.81    0.00    8991/8991        greedy_sc [25]
+                0.05    0.00 10332160/15180800     smodq [36]
+                0.04    0.00   19251/24371       drop_bits [38]
+                0.04    0.00   28242/38482       vector_norm2 [37]
+                0.01    0.02    8991/14111       generateC [40]
+                0.02    0.00   16288/16288       vector_scalar_product [43]
+                0.02    0.00   19251/24371       check_arg [42]
+                0.02    0.00   10260/20500       vector_max_norm [41]
+                0.00    0.01    5120/1491901     sha3_512 [4]
+                0.01    0.00    5130/10250       mul2d [44]
+                0.01    0.00    5120/5120        sampler_init [48]
+                0.01    0.00    8144/8144        sampler_ber_cosh [49]
+                0.00    0.00    8991/11735291     sampler_ber_exp [7]
+                0.00    0.00    8991/166218086     entropy_random_bit [20]
+                0.00    0.00   30720/30720       secure_free [54]
+                0.00    0.00    5120/46080       bliss_params_init [53]
+                0.00    0.00    5120/15360       init_ntt_state [57]
+                0.00    0.00    5120/15360       delete_ntt_state [56]
+-----------------------------------------------
+                0.18    4.51 7970304/7970304     bliss_b_sign [2]
+[3]     44.6    0.18    4.51 7970304         sampler_gauss [3]
+                0.70    2.11 11708571/11735291     sampler_ber_exp [7]
+                0.15    0.71 11708571/11708571     sampler_pos_binary [22]
+                0.23    0.55 14986308/26690310     entropy_random_bits [18]
+                0.02    0.04 7991209/166218086     entropy_random_bit [20]
+-----------------------------------------------
+                0.00    0.01    5120/1491901     bliss_b_sign [2]
+                0.00    0.01    5120/1491901     bliss_b_verify [23]
+                0.00    0.03   14111/1491901     generateC [40]
+                0.26    2.84 1467550/1491901     refresh [5]
+[4]     30.0    0.26    2.89 1491901         sha3_512 [4]
+                0.01    1.80 1491901/1491901     keccak_squeezeblocks [13]
+                0.62    0.46 1491901/1491901     keccak_absorb [21]
+-----------------------------------------------
+                0.00    1.43   67517/146755      int_pool_refresh [17]
+                0.00    1.67   79238/146755      char_pool_refresh [15]
+[5]     29.5    0.00    3.10  146755         refresh [5]
+                0.26    2.84 1467550/1491901     sha3_512 [4]
+                0.00    0.00 1467550/1467550     increment_seed [51]
+-----------------------------------------------
+                0.72    0.45   19231/48894       inverse_ntt [19]
+                1.10    0.70   29663/48894       forward_ntt [11]
+[6]     28.2    1.82    1.15   48894         ntt32_fft [6]
+                0.63    0.00 98560256/98560256     sub_mod [28]
+                0.47    0.00 98560256/98560256     add_mod [29]
+                0.06    0.00   48894/141370      check_arg [33]
+-----------------------------------------------
+                0.00    0.00    8991/11735291     bliss_b_sign [2]
+                0.00    0.00   17729/11735291     sampler_ber_cosh [49]
+                0.70    2.11 11708571/11735291     sampler_gauss [3]
+[7]     26.8    0.71    2.11 11735291         sampler_ber_exp [7]
+                0.32    1.79 50513578/50513578     sampler_ber [9]
+-----------------------------------------------
+                0.02    2.60    5120/5120        main [1]
+[8]     24.9    0.02    2.60    5120         bliss_b_private_key_gen [8]
+                0.08    0.75   10432/10432       uniform_poly [24]
+                0.01    0.71    5312/5312        invert_polynomial [27]
+                0.00    0.67   10240/29663       forward_ntt [11]
+                0.00    0.35    5120/19231       inverse_ntt [19]
+                0.00    0.02    5120/19231       product_ntt [35]
+                0.00    0.02    5120/5120        negate_ntt [45]
+                0.00    0.00   10240/25600       secure_free [55]
+                0.00    0.00    5120/46080       bliss_params_init [53]
+                0.00    0.00    5120/5120        bliss_b_private_key_init [61]
+                0.00    0.00    5120/15360       init_ntt_state [57]
+                0.00    0.00    5120/15360       delete_ntt_state [56]
+-----------------------------------------------
+                0.32    1.79 50513578/50513578     sampler_ber_exp [7]
+[9]     20.1    0.32    1.79 50513578         sampler_ber [9]
+                0.12    1.67 50711712/50711712     entropy_random_uint8 [14]
+-----------------------------------------------
+                0.00    0.70    5120/14111       bliss_b_verify [23]
+                0.00    1.24    8991/14111       bliss_b_sign [2]
+[10]    18.4    0.00    1.94   14111         multiply_ntt [10]
+                0.00    0.95   14111/19231       inverse_ntt [19]
+                0.00    0.92   14111/29663       forward_ntt [11]
+                0.00    0.06   14111/19231       product_ntt [35]
+                0.00    0.00   14111/14111       init_ntt [59]
+                0.00    0.00   14111/14111       delete_ntt [58]
+-----------------------------------------------
+                0.00    0.35    5312/29663       invert_polynomial [27]
+                0.00    0.67   10240/29663       bliss_b_private_key_gen [8]
+                0.00    0.92   14111/29663       multiply_ntt [10]
+[11]    18.4    0.00    1.94   29663         forward_ntt [11]
+                1.10    0.70   29663/48894       ntt32_fft [6]
+                0.10    0.04   29663/68125       ntt32_xmu [31]
+-----------------------------------------------
+                0.21    0.00  187592/1679493     keccak_absorb [21]
+                1.65    0.00 1491901/1679493     keccak_squeezeblocks [13]
+[12]    17.7    1.86    0.00 1679493         KeccakF1600_StatePermute [12]
+-----------------------------------------------
+                0.01    1.80 1491901/1491901     sha3_512 [4]
+[13]    17.2    0.01    1.80 1491901         keccak_squeezeblocks [13]
+                1.65    0.00 1491901/1679493     KeccakF1600_StatePermute [12]
+                0.15    0.00 13427109/13427109     store64 [34]
+-----------------------------------------------
+                0.12    1.67 50711712/50711712     sampler_ber [9]
+[14]    17.1    0.12    1.67 50711712         entropy_random_uint8 [14]
+                0.00    1.67   79237/79238       char_pool_refresh [15]
+-----------------------------------------------
+                0.00    0.00       1/79238       entropy_init [50]
+                0.00    1.67   79237/79238       entropy_random_uint8 [14]
+[15]    15.9    0.00    1.67   79238         char_pool_refresh [15]
+                0.00    1.67   79238/146755      refresh [5]
+-----------------------------------------------
+                0.01    0.69 2597158/5401310     bit_pool_refresh [26]
+                0.01    0.74 2804152/5401310     uniform_poly [24]
+[16]    13.8    0.02    1.43 5401310         entropy_random_uint64 [16]
+                0.00    1.43   67516/67517       int_pool_refresh [17]
+-----------------------------------------------
+                0.00    0.00       1/67517       entropy_init [50]
+                0.00    1.43   67516/67517       entropy_random_uint64 [16]
+[17]    13.6    0.00    1.43   67517         int_pool_refresh [17]
+                0.00    1.43   67517/146755      refresh [5]
+-----------------------------------------------
+                0.18    0.43 11704002/26690310     sampler_pos_binary [22]
+                0.23    0.55 14986308/26690310     sampler_gauss [3]
+[18]    13.3    0.42    0.98 26690310         entropy_random_bits [18]
+                0.34    0.63 143242661/166218086     entropy_random_bit [20]
+-----------------------------------------------
+                0.00    0.35    5120/19231       bliss_b_private_key_gen [8]
+                0.00    0.95   14111/19231       multiply_ntt [10]
+[19]    12.4    0.00    1.30   19231         inverse_ntt [19]
+                0.72    0.45   19231/48894       ntt32_fft [6]
+                0.06    0.02   19231/68125       ntt32_xmu [31]
+                0.02    0.02   19231/19231       ntt32_flp [39]
+-----------------------------------------------
+                0.00    0.00    8415/166218086     sampler_ber_cosh [49]
+                0.00    0.00    8991/166218086     bliss_b_sign [2]
+                0.02    0.04 7991209/166218086     sampler_gauss [3]
+                0.04    0.07 14966810/166218086     sampler_pos_binary [22]
+                0.34    0.63 143242661/166218086     entropy_random_bits [18]
+[20]    10.8    0.40    0.74 166218086         entropy_random_bit [20]
+                0.04    0.70 2597157/2597158     bit_pool_refresh [26]
+-----------------------------------------------
+                0.62    0.46 1491901/1491901     sha3_512 [4]
+[21]    10.3    0.62    0.46 1491901         keccak_absorb [21]
+                0.25    0.00 15115437/15115437     load64 [32]
+                0.21    0.00  187592/1679493     KeccakF1600_StatePermute [12]
+-----------------------------------------------
+                0.15    0.71 11708571/11708571     sampler_gauss [3]
+[22]     8.2    0.15    0.71 11708571         sampler_pos_binary [22]
+                0.18    0.43 11704002/26690310     entropy_random_bits [18]
+                0.04    0.07 14966810/166218086     entropy_random_bit [20]
+-----------------------------------------------
+                0.03    0.81    5120/5120        main [1]
+[23]     8.0    0.03    0.81    5120         bliss_b_verify [23]
+                0.00    0.70    5120/14111       multiply_ntt [10]
+                0.03    0.00 4848640/15180800     smodq [36]
+                0.01    0.00   10240/20500       vector_max_norm [41]
+                0.00    0.01    5120/14111       generateC [40]
+                0.01    0.00   10240/38482       vector_norm2 [37]
+                0.00    0.01    5120/1491901     sha3_512 [4]
+                0.01    0.00    5120/24371       drop_bits [38]
+                0.01    0.00    5120/10250       mul2d [44]
+                0.00    0.00    5120/24371       check_arg [42]
+                0.00    0.00    5120/46080       bliss_params_init [53]
+                0.00    0.00    5120/15360       init_ntt_state [57]
+                0.00    0.00    5120/15360       delete_ntt_state [56]
+-----------------------------------------------
+                0.08    0.75   10432/10432       bliss_b_private_key_gen [8]
+[24]     7.9    0.08    0.75   10432         uniform_poly [24]
+                0.01    0.74 2804152/5401310     entropy_random_uint64 [16]
+-----------------------------------------------
+                0.81    0.00    8991/8991        bliss_b_sign [2]
+[25]     7.7    0.81    0.00    8991         greedy_sc [25]
+-----------------------------------------------
+                0.00    0.00       1/2597158     entropy_init [50]
+                0.04    0.70 2597157/2597158     entropy_random_bit [20]
+[26]     7.0    0.04    0.70 2597158         bit_pool_refresh [26]
+                0.01    0.69 2597158/5401310     entropy_random_uint64 [16]
+-----------------------------------------------
+                0.01    0.71    5312/5312        bliss_b_private_key_gen [8]
+[27]     6.8    0.01    0.71    5312         invert_polynomial [27]
+                0.36    0.00 2405647/2405647     ntt32_pwr [30]
+                0.00    0.35    5312/29663       forward_ntt [11]
+-----------------------------------------------
+                0.63    0.00 98560256/98560256     ntt32_fft [6]
+[28]     5.9    0.63    0.00 98560256         sub_mod [28]
+-----------------------------------------------
+                0.47    0.00 98560256/98560256     ntt32_fft [6]
+[29]     4.4    0.47    0.00 98560256         add_mod [29]
+-----------------------------------------------
+                0.36    0.00 2405647/2405647     invert_polynomial [27]
+[30]     3.4    0.36    0.00 2405647         ntt32_pwr [30]
+-----------------------------------------------
+                0.06    0.02   19231/68125       inverse_ntt [19]
+                0.06    0.02   19231/68125       product_ntt [35]
+                0.10    0.04   29663/68125       forward_ntt [11]
+[31]     3.0    0.23    0.08   68125         ntt32_xmu [31]
+                0.08    0.00   68125/141370      check_arg [33]
+-----------------------------------------------
+                0.25    0.00 15115437/15115437     keccak_absorb [21]
+[32]     2.4    0.25    0.00 15115437         load64 [32]
+-----------------------------------------------
+                0.01    0.00    5120/141370      ntt32_cmu [46]
+                0.02    0.00   19231/141370      ntt32_flp [39]
+                0.06    0.00   48894/141370      ntt32_fft [6]
+                0.08    0.00   68125/141370      ntt32_xmu [31]
+[33]     1.6    0.17    0.00  141370         check_arg [33]
+-----------------------------------------------
+                0.15    0.00 13427109/13427109     keccak_squeezeblocks [13]
+[34]     1.4    0.15    0.00 13427109         store64 [34]
+-----------------------------------------------
+                0.00    0.02    5120/19231       bliss_b_private_key_gen [8]
+                0.00    0.06   14111/19231       multiply_ntt [10]
+[35]     0.8    0.00    0.09   19231         product_ntt [35]
+                0.06    0.02   19231/68125       ntt32_xmu [31]
+-----------------------------------------------
+                0.03    0.00 4848640/15180800     bliss_b_verify [23]
+                0.05    0.00 10332160/15180800     bliss_b_sign [2]
+[36]     0.8    0.08    0.00 15180800         smodq [36]
+-----------------------------------------------
+                0.01    0.00   10240/38482       bliss_b_verify [23]
+                0.04    0.00   28242/38482       bliss_b_sign [2]
+[37]     0.5    0.05    0.00   38482         vector_norm2 [37]
+-----------------------------------------------
+                0.01    0.00    5120/24371       bliss_b_verify [23]
+                0.04    0.00   19251/24371       bliss_b_sign [2]
+[38]     0.5    0.05    0.00   24371         drop_bits [38]
+-----------------------------------------------
+                0.02    0.02   19231/19231       inverse_ntt [19]
+[39]     0.4    0.02    0.02   19231         ntt32_flp [39]
+                0.02    0.00   19231/141370      check_arg [33]
+-----------------------------------------------
+                0.00    0.01    5120/14111       bliss_b_verify [23]
+                0.01    0.02    8991/14111       bliss_b_sign [2]
+[40]     0.4    0.01    0.03   14111         generateC [40]
+                0.00    0.03   14111/1491901     sha3_512 [4]
+-----------------------------------------------
+                0.01    0.00   10240/20500       bliss_b_verify [23]
+                0.02    0.00   10260/20500       bliss_b_sign [2]
+[41]     0.3    0.03    0.00   20500         vector_max_norm [41]
+-----------------------------------------------
+                0.00    0.00    5120/24371       bliss_b_verify [23]
+                0.02    0.00   19251/24371       bliss_b_sign [2]
+[42]     0.2    0.02    0.00   24371         check_arg [42]
+-----------------------------------------------
+                0.02    0.00   16288/16288       bliss_b_sign [2]
+[43]     0.2    0.02    0.00   16288         vector_scalar_product [43]
+-----------------------------------------------
+                0.01    0.00    5120/10250       bliss_b_verify [23]
+                0.01    0.00    5130/10250       bliss_b_sign [2]
+[44]     0.2    0.02    0.00   10250         mul2d [44]
+-----------------------------------------------
+                0.00    0.02    5120/5120        bliss_b_private_key_gen [8]
+[45]     0.2    0.00    0.02    5120         negate_ntt [45]
+                0.01    0.01    5120/5120        ntt32_cmu [46]
+-----------------------------------------------
+                0.01    0.01    5120/5120        negate_ntt [45]
+[46]     0.2    0.01    0.01    5120         ntt32_cmu [46]
+                0.01    0.00    5120/141370      check_arg [33]
+-----------------------------------------------
+                0.01    0.00    5120/5120        main [1]
+[47]     0.1    0.01    0.00    5120         bliss_b_public_key_extract [47]
+                0.00    0.00    5120/46080       bliss_params_init [53]
+-----------------------------------------------
+                0.01    0.00    5120/5120        bliss_b_sign [2]
+[48]     0.1    0.01    0.00    5120         sampler_init [48]
+                0.00    0.00    5120/5120        get_table [67]
+                0.00    0.00    5120/5120        get_k_sigma [65]
+                0.00    0.00    5120/5120        get_k_sigma_bits [66]
+-----------------------------------------------
+                0.01    0.00    8144/8144        bliss_b_sign [2]
+[49]     0.1    0.01    0.00    8144         sampler_ber_cosh [49]
+                0.00    0.00   17729/11735291     sampler_ber_exp [7]
+                0.00    0.00    8415/166218086     entropy_random_bit [20]
+-----------------------------------------------
+                0.01    0.00       1/1           main [1]
+[50]     0.0    0.01    0.00       1         entropy_init [50]
+                0.00    0.00       1/79238       char_pool_refresh [15]
+                0.00    0.00       1/67517       int_pool_refresh [17]
+                0.00    0.00       1/2597158     bit_pool_refresh [26]
+-----------------------------------------------
+                0.00    0.00 1467550/1467550     refresh [5]
+[51]     0.0    0.00    0.00 1467550         increment_seed [51]
+-----------------------------------------------
+                0.00    0.00   25600/56320       secure_free [55]
+                0.00    0.00   30720/56320       secure_free [54]
+[52]     0.0    0.00    0.00   56320         zero_int_array [52]
+-----------------------------------------------
+                0.00    0.00    5120/46080       bliss_b_private_key_init [61]
+                0.00    0.00    5120/46080       bliss_b_private_key_gen [8]
+                0.00    0.00    5120/46080       bliss_b_private_key_delete [60]
+                0.00    0.00    5120/46080       bliss_b_public_key_extract [47]
+                0.00    0.00    5120/46080       bliss_b_sign [2]
+                0.00    0.00    5120/46080       bliss_b_verify [23]
+                0.00    0.00   15360/46080       init_ntt_state [57]
+[53]     0.0    0.00    0.00   46080         bliss_params_init [53]
+-----------------------------------------------
+                0.00    0.00   30720/30720       bliss_b_sign [2]
+[54]     0.0    0.00    0.00   30720         secure_free [54]
+                0.00    0.00   30720/56320       zero_int_array [52]
+-----------------------------------------------
+                0.00    0.00   10240/25600       bliss_b_private_key_gen [8]
+                0.00    0.00   15360/25600       bliss_b_private_key_delete [60]
+[55]     0.0    0.00    0.00   25600         secure_free [55]
+                0.00    0.00   25600/56320       zero_int_array [52]
+-----------------------------------------------
+                0.00    0.00    5120/15360       bliss_b_private_key_gen [8]
+                0.00    0.00    5120/15360       bliss_b_sign [2]
+                0.00    0.00    5120/15360       bliss_b_verify [23]
+[56]     0.0    0.00    0.00   15360         delete_ntt_state [56]
+-----------------------------------------------
+                0.00    0.00    5120/15360       bliss_b_private_key_gen [8]
+                0.00    0.00    5120/15360       bliss_b_sign [2]
+                0.00    0.00    5120/15360       bliss_b_verify [23]
+[57]     0.0    0.00    0.00   15360         init_ntt_state [57]
+                0.00    0.00   15360/46080       bliss_params_init [53]
+-----------------------------------------------
+                0.00    0.00   14111/14111       multiply_ntt [10]
+[58]     0.0    0.00    0.00   14111         delete_ntt [58]
+-----------------------------------------------
+                0.00    0.00   14111/14111       multiply_ntt [10]
+[59]     0.0    0.00    0.00   14111         init_ntt [59]
+-----------------------------------------------
+                0.00    0.00    5120/5120        main [1]
+[60]     0.0    0.00    0.00    5120         bliss_b_private_key_delete [60]
+                0.00    0.00   15360/25600       secure_free [55]
+                0.00    0.00    5120/46080       bliss_params_init [53]
+-----------------------------------------------
+                0.00    0.00    5120/5120        bliss_b_private_key_gen [8]
+[61]     0.0    0.00    0.00    5120         bliss_b_private_key_init [61]
+                0.00    0.00    5120/46080       bliss_params_init [53]
+-----------------------------------------------
+                0.00    0.00    5120/5120        main [1]
+[62]     0.0    0.00    0.00    5120         bliss_b_public_key_delete [62]
+-----------------------------------------------
+                0.00    0.00    5120/5120        main [1]
+[63]     0.0    0.00    0.00    5120         bliss_signature_delete [63]
+-----------------------------------------------
+                0.00    0.00    5120/5120        main [1]
+[64]     0.0    0.00    0.00    5120         cpucycles [64]
+-----------------------------------------------
+                0.00    0.00    5120/5120        sampler_init [48]
+[65]     0.0    0.00    0.00    5120         get_k_sigma [65]
+-----------------------------------------------
+                0.00    0.00    5120/5120        sampler_init [48]
+[66]     0.0    0.00    0.00    5120         get_k_sigma_bits [66]
+-----------------------------------------------
+                0.00    0.00    5120/5120        sampler_init [48]
+[67]     0.0    0.00    0.00    5120         get_table [67]
+-----------------------------------------------
+                0.00    0.00       5/5           print_results [70]
+[68]     0.0    0.00    0.00       5         average [68]
+-----------------------------------------------
+                0.00    0.00       5/5           print_results [70]
+[69]     0.0    0.00    0.00       5         median [69]
+-----------------------------------------------
+                0.00    0.00       5/5           main [1]
+[70]     0.0    0.00    0.00       5         print_results [70]
+                0.00    0.00       5/5           median [69]
+                0.00    0.00       5/5           average [68]
+-----------------------------------------------
+
+ This table describes the call tree of the program, and was sorted by
+ the total amount of time spent in each function and its children.
+
+ Each entry in this table consists of several lines.  The line with the
+ index number at the left hand margin lists the current function.
+ The lines above it list the functions that called this function,
+ and the lines below it list the functions this one called.
+ This line lists:
+     index	A unique number given to each element of the table.
+		Index numbers are sorted numerically.
+		The index number is printed next to every function name so
+		it is easier to look up where the function is in the table.
+
+     % time	This is the percentage of the `total' time that was spent
+		in this function and its children.  Note that due to
+		different viewpoints, functions excluded by options, etc,
+		these numbers will NOT add up to 100%.
+
+     self	This is the total amount of time spent in this function.
+
+     children	This is the total amount of time propagated into this
+		function by its children.
+
+     called	This is the number of times the function was called.
+		If the function called itself recursively, the number
+		only includes non-recursive calls, and is followed by
+		a `+' and the number of recursive calls.
+
+     name	The name of the current function.  The index number is
+		printed after it.  If the function is a member of a
+		cycle, the cycle number is printed between the
+		function's name and the index number.
+
+
+ For the function's parents, the fields have the following meanings:
+
+     self	This is the amount of time that was propagated directly
+		from the function into this parent.
+
+     children	This is the amount of time that was propagated from
+		the function's children into this parent.
+
+     called	This is the number of times this parent called the
+		function `/' the total number of times the function
+		was called.  Recursive calls to the function are not
+		included in the number after the `/'.
+
+     name	This is the name of the parent.  The parent's index
+		number is printed after it.  If the parent is a
+		member of a cycle, the cycle number is printed between
+		the name and the index number.
+
+ If the parents of the function cannot be determined, the word
+ `<spontaneous>' is printed in the `name' field, and all the other
+ fields are blank.
+
+ For the function's children, the fields have the following meanings:
+
+     self	This is the amount of time that was propagated directly
+		from the child into the function.
+
+     children	This is the amount of time that was propagated from the
+		child's children to the function.
+
+     called	This is the number of times the function called
+		this child `/' the total number of times the child
+		was called.  Recursive calls by the child are not
+		listed in the number after the `/'.
+
+     name	This is the name of the child.  The child's index
+		number is printed after it.  If the child is a
+		member of a cycle, the cycle number is printed
+		between the name and the index number.
+
+ If there are any cycles (circles) in the call graph, there is an
+ entry for the cycle-as-a-whole.  This entry shows who called the
+ cycle (as parents) and the members of the cycle (as children.)
+ The `+' recursive calls entry shows the number of function calls that
+ were internal to the cycle, and the calls entry for each member shows,
+ for that member, how many times it was called from other members of
+ the cycle.
+
+Copyright (C) 2012 Free Software Foundation, Inc.
+
+Copying and distribution of this file, with or without modification,
+are permitted in any medium without royalty provided the copyright
+notice and this notice are preserved.
+
+Index by function name
+
+  [12] KeccakF1600_StatePermute [16] entropy_random_uint64 [39] ntt32_flp
+  [29] add_mod (ntt_blzzd.c)  [14] entropy_random_uint8   [30] ntt32_pwr
+  [68] average (tests.h)      [11] forward_ntt            [31] ntt32_xmu
+  [26] bit_pool_refresh (entropy.c) [40] generateC (bliss_b_signatures.c) [70] print_results
+  [60] bliss_b_private_key_delete [65] get_k_sigma        [35] product_ntt
+   [8] bliss_b_private_key_gen [66] get_k_sigma_bits       [5] refresh (entropy.c)
+  [61] bliss_b_private_key_init (bliss_b_keys.c) [67] get_table [9] sampler_ber
+  [62] bliss_b_public_key_delete [25] greedy_sc           [49] sampler_ber_cosh
+  [47] bliss_b_public_key_extract [51] increment_seed (entropy.c) [7] sampler_ber_exp
+   [2] bliss_b_sign           [59] init_ntt                [3] sampler_gauss
+  [23] bliss_b_verify         [57] init_ntt_state         [48] sampler_init
+  [53] bliss_params_init      [17] int_pool_refresh (entropy.c) [22] sampler_pos_binary
+  [63] bliss_signature_delete [19] inverse_ntt            [55] secure_free (bliss_b_utils.h)
+  [15] char_pool_refresh (entropy.c) [27] invert_polynomial [54] secure_free (bliss_b_utils.h)
+  [42] check_arg (bliss_b_signatures.c) [21] keccak_absorb (shake128.c) [4] sha3_512
+  [33] check_arg (ntt_blzzd.c) [13] keccak_squeezeblocks (shake128.c) [36] smodq (modulii.h)
+  [64] cpucycles (cpucycles.h) [32] load64 (shake128.c)   [34] store64 (shake128.c)
+  [58] delete_ntt             [69] median (tests.h)       [28] sub_mod (ntt_blzzd.c)
+  [56] delete_ntt_state       [44] mul2d (bliss_b_signatures.c) [24] uniform_poly
+  [38] drop_bits (bliss_b_signatures.c) [10] multiply_ntt (ntt_api.h) [41] vector_max_norm
+  [50] entropy_init           [45] negate_ntt             [37] vector_norm2
+  [20] entropy_random_bit     [46] ntt32_cmu              [43] vector_scalar_product
+  [18] entropy_random_bits     [6] ntt32_fft              [52] zero_int_array
