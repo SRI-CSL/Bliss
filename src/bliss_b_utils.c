@@ -93,11 +93,13 @@ int32_t vector_max_norm(const int32_t *v, uint32_t n)
   int32_t max;
 
   max = 0;
+
   for (i = 0; i < n; i++) {
-    if (v[i] > max)
+    if (v[i] > max){
       max = v[i];
-    if (-v[i] > max)
+    } else if (-v[i] > max){
       max = -v[i];
+    }
   }
 
   return max;
