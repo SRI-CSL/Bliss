@@ -43,10 +43,7 @@ static bool check_arg(int32_t v[], uint32_t n, int32_t q){
  *   on page 21 of DDLL: every x between [-q, q) and any positive integer d, x can be uniquely written
  *   as  x = [x]_d * 2^d  + r where r is in [-2^(d -1), 2^(d -1)).
  *
- *   we think this is computing: x --> [x]_d
- *
- * we could check this by brute force for q = 12289 and d among 8, 9, 10. Note that this is quite
- * different from the strongswan version.
+ *   this is computing: x --> [x]_d
  *
  */
 static void drop_bits(int32_t *output, const int32_t *input, uint32_t n, uint32_t d) {
@@ -61,6 +58,61 @@ static void drop_bits(int32_t *output, const int32_t *input, uint32_t n, uint32_
     output[i] = (input[i] + half_delta) / delta;
   }
 }
+
+/*
+ * GreedySC (derived from blzzd version)
+ *
+ * should be static once we choose one and use it.
+ *
+ * Input:  s1, s2, are the polynomial components of the secret key.
+ *         c_indices correspond to the sparse polynomial
+ *
+ * Output: v1 and v2 are output polynomials of size n.
+ *
+ */
+static void greedy_sc(const int32_t *s1, const int32_t *s2, uint32_t n,  const uint32_t *c_indices, uint32_t kappa, int32_t *v1, int32_t *v2){
+  uint32_t index, i, k;
+  int32_t sign;
+
+  for (i = 0; i < n; i++) {
+    v1[i] = 0;
+    v2[i] = 0;
+  }
+
+  for (k = 0; k < kappa; k++) {
+
+    index = c_indices[k];
+    sign = 0;
+    /* \xi_i = sign(<v, si>) */
+    for (i = 0; i < n - index; i++) {
+      sign += s1[i] * v1[index + i] + s2[i] * v2[index + i];
+    }
+    for (i = n - index; i < n; i++) {
+      sign -= s1[i] * v1[index + i - n] + s2[i] * v2[index + i - n];
+    }
+    /* v = v - \xi_i . si */
+    if (sign > 0) {
+      for (i = 0; i < n - index; i++) {
+	v1[index + i] -= s1[i];
+	v2[index + i] -= s2[i];
+      }
+      for (i = n - index; i < n; i++) {
+	v1[index + i - n] += s1[i];
+	v2[index + i - n] += s2[i];
+      }
+    } else {
+      for (i = 0; i < n - index; i++) {
+	v1[index + i] += s1[i];
+	v2[index + i] += s2[i];
+      }
+      for (i = n - index; i < n; i++) {
+	v1[index + i - n] -= s1[i];
+	v2[index + i - n] -= s2[i];
+      }
+    }
+  }
+}
+
 
 
 static void generateC(uint32_t *indices, uint32_t kappa, const int32_t *n_vector, uint32_t n, uint8_t *hash, uint32_t hash_sz){
@@ -461,7 +513,6 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
   
   for (i=0; i<n; i++) {
     // this is v[i] = (2 * v[i] * xi + y2[i]) % q2
-    //v[i] = modQ(2 * v[i] * p.one_q2 + y2[i], p.q2, p.q2_inv);
     v[i] = smodq(2 * v[i] * p.one_q2 + y2[i], p.q2);
   }
 
@@ -481,7 +532,6 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
   assert(check_arg(v, n, p.q2));
   drop_bits(dv, v, n, p.d);
   for (i=0; i<n; i++) {
-    //dv[i] = dv[i] % p.mod_p;
     dv[i] = smodq(dv[i], p.mod_p);
   }
 
@@ -497,7 +547,6 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
 
   generateC(indices, kappa, dv, n, hash, hash_sz);
 
-  //iam: too noisy when there are restarts (BLISS_B_0)
   if (false) {
     printf("sign: indices after generateC\n");
     for (i=0; i<kappa; i++) {
@@ -546,12 +595,8 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
   /* 7: continue with probability 1/(M exp(-|v|^2/2sigma^2) * cosh(<z, v>/sigma^2)) otherwise restart */
   // NOTE: we could do the ber_exp earlier since it does not depend on z
 
-  //iam: not seeing the use of M the repetition rate (p.m)
-  
   norm_v = (uint32_t)(vector_norm2(v1, n) + vector_norm2(v2, n));
 
-  // TODO: are we sure the assertion always holds?
-  // What should we do if we get norm_v > M ?
   if(p.M <= norm_v) {
     fprintf(stdout, "M = %d norm = %d\n", (int)p.M, (int)norm_v);
   }
@@ -570,7 +615,6 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
 
   /* 8: z2 = (drop_bits(v) - drop_bits(v - z2)) mod p  */
   for (i=0; i<n; i++) {
-    //y1[i] = modQ(v[i] - z2[i], p.q2, p.q2_inv);
     y1[i] = smodq(v[i] - z2[i], p.q2);
   }
   assert(check_arg(v, n, p.q2));
@@ -615,7 +659,7 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
   signature->kind = p.kind;
   signature->z1 = z1;
   signature->z2 = z2;
-  signature->c = (uint32_t *)indices;  //icky cast
+  signature->c = (uint32_t *)indices;
 
   /* need to free some stuff */
 
@@ -784,14 +828,12 @@ int32_t bliss_b_verify(const bliss_signature_t *signature,  const bliss_public_k
   /* v = (1/(q + 2)) * a * z1 */
   for (i = 0; i < n; i++){
     assert(0 <= v[i] && v[i] < q);
-    //v[i] = modQ(2*v[i]*p.one_q2, p.q2, p.q2_inv);
     v[i] = smodq(2*v[i]*p.one_q2, p.q2);  
   }
 
   /* v += (q/q+2) * c */
   for (i = 0; i < kappa; i++) {
     idx = c_indices[i];
-    //v[idx] = modQ(v[idx] + (q * p.one_q2), p.q2, p.q2_inv);
     v[idx] = smodq(v[idx] + (q * p.one_q2), p.q2);
   }
   
@@ -809,7 +851,6 @@ int32_t bliss_b_verify(const bliss_signature_t *signature,  const bliss_public_k
   /*  v += z_2  mod p. */
   for (i = 0; i < n; i++){
     v[i] += z2[i];
-    //v[i] = v[i] % p.mod_p;
     v[i] = smodq(v[i], p.mod_p);
     if (v[i] < 0){
       v[i] += p.mod_p;

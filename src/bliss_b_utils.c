@@ -36,57 +36,6 @@ void zero_int_array(int32_t *ptr, size_t len){
 
 
 
-/*
- * GreedySC version (based on blzzd)
- *
- * should be static once we choose one and use it.
- *
- */
-void greedy_sc(const int32_t *s1, const int32_t *s2, uint32_t n,  const uint32_t *c_indices, uint32_t kappa, int32_t *v1, int32_t *v2)
-{
-  uint32_t index, i, k;
-  int32_t sign;
-
-  for (i = 0; i < n; i++) {
-    v1[i] = 0;
-    v2[i] = 0;
-  }
-
-  for (k = 0; k < kappa; k++) {
-
-    index = c_indices[k];
-    sign = 0;
-    /* \xi_i = sign(<v, si>) */
-    for (i = 0; i < n - index; i++) {
-      sign += s1[i] * v1[index + i] + s2[i] * v2[index + i];
-    }
-    for (i = n - index; i < n; i++) {
-      sign -= s1[i] * v1[index + i - n] + s2[i] * v2[index + i - n];
-    }
-    /* v = v - \xi_i . si */
-    if (sign > 0) {
-      for (i = 0; i < n - index; i++) {
-	v1[index + i] -= s1[i];
-	v2[index + i] -= s2[i];
-      }
-      for (i = n - index; i < n; i++) {
-	v1[index + i - n] += s1[i];
-	v2[index + i - n] += s2[i];
-      }
-    } else {
-      for (i = 0; i < n - index; i++) {
-	v1[index + i] += s1[i];
-	v2[index + i] += s2[i];
-      }
-      for (i = n - index; i < n; i++) {
-	v1[index + i - n] -= s1[i];
-	v2[index + i - n] -= s2[i];
-      }
-    }
-  }
-}
-
-
 int32_t vector_max_norm(const int32_t *v, uint32_t n)
 {
   uint32_t i;

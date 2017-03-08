@@ -22,20 +22,6 @@ static inline void secure_free(int32_t **ptr_p, size_t len){
 }
 
 
-/*
- * GreedySC (derived from blzzd version)
- *
- * should be static once we choose one and use it.
- *
- * Input:  s1, s2, are the polynomial components of the secret key.
- *         c_indices correspond to the sparse polynomial
- *
- * Output: v1 and v2 are output polynomials of size n.
- *
- *
- * BD: yay!
- */
-extern void greedy_sc(const int32_t *s1, const int32_t *s2, uint32_t n,  const uint32_t *c_indices, uint32_t kappa, int32_t *v1, int32_t *v2);
 
 
 /*
