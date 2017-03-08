@@ -9,6 +9,7 @@
 #include "bliss_b_utils.h"
 #include "entropy.h"
 
+#include "ntt_api.h"
 #include "ntt_blzzd.h"
 
 
@@ -52,10 +53,8 @@ void uniform_poly(int32_t v[], uint32_t n, uint32_t nz1, uint32_t nz2, entropy_t
   }
 }
 
-
-
 // BD: for debugging
-static void check_key(bliss_private_key_t *key, bliss_param_t *p) {
+static void check_key(bliss_private_key_t *key, bliss_param_t *p, ntt_state_t state) {
   int32_t aux[512];
   uint32_t i, n;
   int32_t q;
@@ -64,15 +63,10 @@ static void check_key(bliss_private_key_t *key, bliss_param_t *p) {
   
   n = p->n;
   q = p->q;
-
-  // compute product key->a * key->s1
-  ntt32_xmu(aux, n, q, key->s1, p->w);
-  ntt32_fft(aux, n, q, p->w);         // that's ntt(key->s1)
-  ntt32_xmu(aux, n, q, aux, key->a);  // ntt(key->s1 * key->a)
-  ntt32_fft(aux, n, q, p->w);
-  ntt32_xmu(aux, n, q, aux, p->r);
-  ntt32_flp(aux, n, q);               // aux = key->a * key->s1 mod q
-
+  
+  // compute product key->s1 * key->a
+  multiply_ntt(state, aux, key->s1, key->a);
+  
   printf("a * s1:\n");
   for (i=0; i<n; i++) {
     printf(" %d", aux[i]);
@@ -172,7 +166,7 @@ int32_t bliss_b_private_key_gen(bliss_private_key_t *private_key, bliss_kind_t k
   int32_t retcode;
   int32_t i, j, x;
   int32_t *t = NULL, *u = NULL;
-
+  ntt_state_t state;
   bliss_param_t p;
 
   if (! bliss_params_init(&p, kind)) {
@@ -186,6 +180,12 @@ int32_t bliss_b_private_key_gen(bliss_private_key_t *private_key, bliss_kind_t k
 
   if (retcode !=  BLISS_B_NO_ERROR) {
     return retcode;
+  }
+
+  //opaque, but clearly a pointer type.
+  state = init_ntt_state(kind);
+  if (state == NULL) {
+    goto fail;
   }
 
   t = calloc(p.n, sizeof(int32_t));
@@ -206,11 +206,15 @@ int32_t bliss_b_private_key_gen(bliss_private_key_t *private_key, bliss_kind_t k
     private_key->s2[i] *= 2;
   private_key->s2[0] --;
 
+  /*
   for (i = 0; i < p.n; i++)
     t[i] = private_key->s2[i];
+  */
 
-  ntt32_xmu(t, p.n, p.q, t, p.w);
-  ntt32_fft(t, p.n, p.q, p.w);
+  //N.B. ntt_t t
+  forward_ntt(state, t, private_key->s2);
+    //ntt32_xmu(t, p.n, p.q, private_key->s2, p.w);
+    //ntt32_fft(t, p.n, p.q, p.w);
 
   /* find an invertible f  */
   for (j = 0; j < 4; j++) {
@@ -219,24 +223,16 @@ int32_t bliss_b_private_key_gen(bliss_private_key_t *private_key, bliss_kind_t k
     uniform_poly(private_key->s1, p.n, p.nz1, p.nz2, entropy);
 
     /* a = g/f. Try again if f is not invertible. */
-    for (i = 0; i < p.n; i++)
-      u[i] = private_key->s1[i];
-    ntt32_xmu(u, p.n, p.q, u, p.w);
-    ntt32_fft(u, p.n, p.q, p.w);
-
-    for (i = 0; i < p.n; i++) {
-      x = u[i];
-      if (x == 0)
-        break;
-      x = ntt32_pwr(x, p.q - 2, p.q);
-      u[i] = x;
-    }
-    if (i < p.n)
+    if(!invert_polynomial(state, u, private_key->s1)){
       continue;
-
+    }
+    
     /*  success!  */
+
     ntt32_xmu(private_key->a, p.n, p.q, t, u);
     ntt32_fft(private_key->a, p.n, p.q, p.w);
+
+    
     ntt32_xmu(private_key->a, p.n, p.q, private_key->a, p.r);
 
     /* retransform (Saarinen says: can we optimize this?) */
@@ -245,6 +241,7 @@ int32_t bliss_b_private_key_gen(bliss_private_key_t *private_key, bliss_kind_t k
     ntt32_xmu(private_key->a, p.n, p.q, private_key->a, p.w);
     ntt32_fft(private_key->a, p.n, p.q, p.w);
 
+    
     /* TL:  I just understood, it comes from a slight optimization of BLISS
      *
      *      During the keygen, we set a_1 = 2a_q mod 2q, where a_q = (2g-1)/f mod q
@@ -278,8 +275,12 @@ int32_t bliss_b_private_key_gen(bliss_private_key_t *private_key, bliss_kind_t k
 
     // BD: for debugging
     if (false) {
-      check_key(private_key, &p);
+      check_key(private_key, &p, state);
     }
+
+    
+
+    delete_ntt_state(state);
 
     return BLISS_B_NO_ERROR;
   }
@@ -289,6 +290,8 @@ int32_t bliss_b_private_key_gen(bliss_private_key_t *private_key, bliss_kind_t k
   secure_free(&t, p.n);
   secure_free(&u, p.n);
 
+  delete_ntt_state(state);
+  
   bliss_b_private_key_delete(private_key);
 
   return BLISS_B_NO_MEM;

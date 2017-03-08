@@ -94,9 +94,9 @@ void inverse_ntt(const ntt_state_t state, polynomial_t output, const ntt_t input
     output[i] = a[i];
   }
   
-  ntt32_fft(output, s->n, s->q, s->w);              /* result = ntt(input) = inverse ntt(poly) modulo reordering (input = ntt(poly)) */
-  ntt32_xmu(output, s->n, s->q, a, s->r);           /* multiply by powers of psi^-1  */
-  ntt32_flp(output, s->n, s->q);                    /* reorder: result mod q */
+  ntt32_fft(output, s->n, s->q, s->w);             /* result = ntt(input) = inverse ntt(poly) modulo reordering (input = ntt(poly)) */
+  ntt32_xmu(output, s->n, s->q, output, s->r);     /* multiply by powers of psi^-1  */
+  ntt32_flp(output, s->n, s->q);                   /* reorder: result mod q */
 
 }
 

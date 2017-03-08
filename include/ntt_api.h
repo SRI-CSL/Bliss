@@ -43,4 +43,32 @@ extern void product_ntt(const ntt_state_t state, ntt_t output, const ntt_t lhs, 
 extern bool invert_polynomial(const ntt_state_t state, ntt_t output, const polynomial_t input);
 
 
+
+/*
+ *
+ * Multiplies lhs by rhs and places the result in result.
+ *
+ *  -- lhs is a polynomial of degree n.
+ *  -- rhs is an ntt of a polynomial of degree n.
+ *
+ * returns a polynomial of degree n, whose int32_t coeffs are in [0, q)
+ *
+ */
+static inline void multiply_ntt(const ntt_state_t state, polynomial_t result, polynomial_t lhs, ntt_t rhs){
+
+  ntt_t temp = init_ntt(state);
+
+  forward_ntt(state, temp, lhs);
+
+  product_ntt(state, temp, temp,  rhs);
+
+  inverse_ntt(state, result, temp);
+
+  delete_ntt(state, temp);
+
+}
+
+
+
+
 #endif

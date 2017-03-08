@@ -5,11 +5,11 @@
 #include "bliss_b_keys.h"
 #include "bliss_b_signatures.h"
 #include "bliss_b_utils.h"
-#include "ntt_blzzd.h"
 #include "sampler.h"
 #include "shake128.h"
 #include "modulii.h"
 
+#include "ntt_api.h"
 
 #define VERBOSE_RESTARTS  false
 
@@ -177,27 +177,6 @@ static void submul_c(int32_t *z, uint32_t n, const int32_t *s, const uint32_t *c
 
 
 /*
- * Isolate the use of NTT into a routine.
- *
- * Multiplies lhs by rhs and places the result in result.
- *
- *  -- lhs is a polynomial of degree n.
- *  -- rhs is an ntt of a polynomial of degree n.
- *
- * returns a polynomial of degree n, whose int32_t coeffs are in [0, q)
- *
- */
-static inline void multiply(int32_t *result, const int32_t *lhs, const int32_t *rhs, uint32_t n, bliss_param_t *p){
-  ntt32_xmu(result, n, p->q, lhs, p->w);         /* multiply by powers of psi                  */
-  ntt32_fft(result, n, p->q, p->w);              /* result = ntt(lhs)                          */
-  ntt32_xmu(result, n, p->q, result, rhs);       /* result = ntt(lhs) * rhs (both in ntt form) */
-  ntt32_fft(result, n, p->q, p->w);              /* result = ntt(ntt(lhs) * a) = inverse ntt(lhs) * a modulo reordering */
-  ntt32_xmu(result, n, p->q, result, p->r);      /* multiply by powers of psi^-1  */
-  ntt32_flp(result, n, p->q);                    /* reorder: result mod q */
-}
-
-
-/*
  * BD: Consistency check for v, y1, y2
  * - v is (2 * zeta * y1 * a1 + y2)
  * - for any c, we can build 
@@ -207,7 +186,7 @@ static inline void multiply(int32_t *result, const int32_t *lhs, const int32_t *
  *  (2 * zeta * a * z1 + zeta * q * c + z2) == v mod 2q
  */
 static void check_before_drop(const bliss_private_key_t *key, uint8_t *hash, uint32_t hash_sz,
-			      const int32_t *v, const int32_t *y1, const int32_t *y2, bliss_param_t *p) {
+			      const int32_t *v, const int32_t *y1, const int32_t *y2, bliss_param_t *p, ntt_state_t state) {
   int32_t z1[512], z2[512], aux[512];
   uint32_t c[40];
   int32_t q;
@@ -235,8 +214,9 @@ static void check_before_drop(const bliss_private_key_t *key, uint8_t *hash, uin
   }
 
   // compute z1 * a in aux
-  multiply(aux, z1, key->a, n, p);
-  
+  multiply_ntt(state, aux, z1, key->a);
+    
+
   for (i=0; i<n; i++) {
     aux[i] = 2 * aux[i] * p->one_q2 + z2[i];
   }
@@ -291,13 +271,8 @@ static void check_before_drop(const bliss_private_key_t *key, uint8_t *hash, uin
   }
 
   // compute z1 * a in aux
-  ntt32_xmu(aux, n, q, z1, p->w);
-  ntt32_fft(aux, n, q, p->w);
-  ntt32_xmu(aux, n, q, aux, key->a);
-  ntt32_fft(aux, n, q, p->w);
-  ntt32_xmu(aux, n, q, aux, p->r);
-  ntt32_flp(aux, n, q);
-
+  multiply_ntt(state, aux, z1, key->a);
+ 
   for (i=0; i<n; i++) {
     aux[i] = 2 * aux[i] * p->one_q2 + z2[i];
   }
@@ -343,6 +318,8 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
   sampler_t sampler;
   bliss_b_error_t retval;
   bliss_param_t p;
+  ntt_state_t state;
+
   // parameters extracted from p: n = size, q = modulus
   uint32_t n, kappa;
   // these are the private key (a is stored as NTT)
@@ -362,7 +339,7 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
     // bad kind/not supported
     return BLISS_B_BAD_ARGS;
   }
-
+  
   a = private_key->a;
   s1 = private_key->s1;
   s2 = private_key->s2;
@@ -371,6 +348,13 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
 
   kappa = p.kappa;
 
+  //opaque, but clearly a pointer type.
+  state = init_ntt_state(private_key->kind);
+  if (state == NULL) {
+    return BLISS_B_NO_MEM;
+  }
+
+  
   /* initialize our sampler */
   if (!sampler_init(&sampler, p.sigma, p.ell, p.precision, entropy)) {
     retval = BLISS_B_BAD_ARGS;
@@ -473,8 +457,7 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
   }
 
   /* 2: compute v = ((2 * xi * a * y1) + y2) mod 2q */
-
-  multiply(v, y1, a, n, &p);
+  multiply_ntt(state, v, y1, a);
   
   for (i=0; i<n; i++) {
     // this is v[i] = (2 * v[i] * xi + y2[i]) % q2
@@ -491,7 +474,7 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
   }
 
   if (false) {
-    check_before_drop(private_key, hash, hash_sz, v, y1, y2, &p);
+    check_before_drop(private_key, hash, hash_sz, v, y1, y2, &p, state);
   }
 
   /* 2b: drop bits mod_p */
@@ -651,6 +634,8 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
   free(hash);
   hash = NULL;
 
+  delete_ntt_state(state);
+
   secure_free(&v, n);
   secure_free(&dv, n);
   secure_free(&y1, n);
@@ -668,13 +653,15 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
 int32_t bliss_b_verify(const bliss_signature_t *signature,  const bliss_public_key_t *public_key, const uint8_t *msg, size_t msg_sz){
   bliss_b_error_t retval;
   bliss_param_t p;
+  ntt_state_t state;
+
   // parameters extracted from p: n = size, q = modulus
   uint32_t n, kappa;
   int32_t  q;
 
   uint32_t i;
   
-  int32_t *a, *z1, *z2, *tz2, *v = NULL;
+  int32_t *a, *z1, *z2, *tz2 = NULL, *v = NULL;
   uint32_t *c_indices, *indices = NULL;
   uint32_t idx;
 
@@ -699,10 +686,16 @@ int32_t bliss_b_verify(const bliss_signature_t *signature,  const bliss_public_k
   z2 = signature->z2;         /* length n */
   c_indices = signature->c;   /* length kappa */
 
+  //opaque, but clearly a pointer type.
+  state = init_ntt_state(public_key->kind);
+  if (state == NULL) {
+    return BLISS_B_NO_MEM;
+  }
 
   tz2 = calloc(n, sizeof(int32_t));
   if(tz2 ==  NULL){
-    return BLISS_B_NO_MEM;
+    retval = BLISS_B_NO_MEM;
+    goto fail;
   }
 
   /* first check the norms */
@@ -786,8 +779,7 @@ int32_t bliss_b_verify(const bliss_signature_t *signature,  const bliss_public_k
   }
 
   /* v = a * z1 */
-
-  multiply(v, z1, a, n, &p);
+  multiply_ntt(state, v, z1, a);
 
   /* v = (1/(q + 2)) * a * z1 */
   for (i = 0; i < n; i++){
@@ -854,6 +846,8 @@ int32_t bliss_b_verify(const bliss_signature_t *signature,  const bliss_public_k
 
 
  fail:
+  
+  delete_ntt_state(state);
 
   free(tz2);
   tz2 = NULL;
