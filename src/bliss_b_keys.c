@@ -10,8 +10,6 @@
 #include "entropy.h"
 
 #include "ntt_api.h"
-#include "ntt_blzzd.h"
-
 
 /*
    Constructs a random polyomial
@@ -201,20 +199,13 @@ int32_t bliss_b_private_key_gen(bliss_private_key_t *private_key, bliss_kind_t k
   /* randomize g */
   uniform_poly(private_key->s2, p.n, p.nz1, p.nz2, entropy);
 
-  /* g = 2g - 1 */
+  /* g = 2g - 1   N.B the Bliss-B paper uses 2g + 1 */
   for (i = 0; i < p.n; i++)
     private_key->s2[i] *= 2;
   private_key->s2[0] --;
 
-  /*
-  for (i = 0; i < p.n; i++)
-    t[i] = private_key->s2[i];
-  */
-
   //N.B. ntt_t t
   forward_ntt(state, t, private_key->s2);
-    //ntt32_xmu(t, p.n, p.q, private_key->s2, p.w);
-    //ntt32_fft(t, p.n, p.q, p.w);
 
   /* find an invertible f  */
   for (j = 0; j < 4; j++) {
@@ -222,45 +213,20 @@ int32_t bliss_b_private_key_gen(bliss_private_key_t *private_key, bliss_kind_t k
     /* randomize f  */
     uniform_poly(private_key->s1, p.n, p.nz1, p.nz2, entropy);
 
-    /* a = g/f. Try again if f is not invertible. */
+    /* Try again if f is not invertible. */
     if(!invert_polynomial(state, u, private_key->s1)){
       continue;
     }
     
-    /*  success!  */
+    /*  success!  a = (2g - 1)/f. */
+    product_ntt(state, private_key->a, t,  u);
+    inverse_ntt(state, private_key->a, private_key->a);
 
-    ntt32_xmu(private_key->a, p.n, p.q, t, u);
-    ntt32_fft(private_key->a, p.n, p.q, p.w);
+    // a = -1 * a
+    negate_ntt(state, private_key->a);
 
-    
-    ntt32_xmu(private_key->a, p.n, p.q, private_key->a, p.r);
-
-    /* retransform (Saarinen says: can we optimize this?) */
-    ntt32_cmu(private_key->a, p.n, p.q, private_key->a, -1);    /* flip sign  IAM&BD: this seems to be wrong. see tests/static/text_blzzd.c */
-    ntt32_flp(private_key->a, p.n, p.q);
-    ntt32_xmu(private_key->a, p.n, p.q, private_key->a, p.w);
-    ntt32_fft(private_key->a, p.n, p.q, p.w);
-
-    
-    /* TL:  I just understood, it comes from a slight optimization of BLISS
-     *
-     *      During the keygen, we set a_1 = 2a_q mod 2q, where a_q = (2g-1)/f mod q
-     *      But when we use it, we use (zeta*a_1) mod 2q, where zeta = (q-2)^(-1) mod 2q
-     *      Now, zeta*a_1 mod q = -a_q mod q
-     *      Therefore that is what they compute in the keygeneration, and I guess they are
-     *      doing the computation mod 2q using a "trick" to get the mod 2q in the signing alg.
-     *      see https://github.com/mjosaarinen/blzzrd/blob/master/pubpriv.c#L254
-     *      (This comes from the fact that you can compute mod 2q by coputing mod q, and then
-     *      looking at the result mod 2)
-     */
-
-    /* TL:
-     *       Now that I read that again, I don't know why it's done this way but I think it's actually
-     *       giving a BLISS-B key.
-     *
-     *       Indeed, a = (2g-1)/f and we compute NTT (-a), i.e. NTT((2*(-g)+1)/f)
-     *       Now the distribution of g is centered, therefore it does not matter.
-     */
+    /* currently storing the private_key->a in ntt form */
+    forward_ntt(state, private_key->a, private_key->a);
 
     /*  normalize a */
     for (i = 0; i < p.n; i++) {
