@@ -43,9 +43,14 @@ static void char_pool_refresh(entropy_t *entropy) {
   entropy->char_index = 0;
 }
 
-static void int_pool_refresh(entropy_t *entropy) {
-  refresh(entropy, (uint8_t *) entropy->int_pool, EPOOL_HASH_COUNT);
-  entropy->int_index = 0;
+static void int16_pool_refresh(entropy_t *entropy) {
+  refresh(entropy, (uint8_t *) entropy->int16_pool, EPOOL_HASH_COUNT);
+  entropy->int16_index = 0;
+}
+
+static void int64_pool_refresh(entropy_t *entropy) {
+  refresh(entropy, (uint8_t *) entropy->int64_pool, EPOOL_HASH_COUNT);
+  entropy->int64_index = 0;
 }
 
 
@@ -56,11 +61,24 @@ static void int_pool_refresh(entropy_t *entropy) {
 uint64_t entropy_random_uint64(entropy_t *entropy){
   assert(entropy != NULL);
 
-  if (entropy->int_index >= HASH_LEN_UINT64 * EPOOL_HASH_COUNT) {
-    int_pool_refresh(entropy);
+  if (entropy->int64_index >= HASH_LEN_UINT64 * EPOOL_HASH_COUNT) {
+    int64_pool_refresh(entropy);
   }
-  assert(entropy->int_index < HASH_LEN_UINT64 * EPOOL_HASH_COUNT);
-  return entropy->int_pool[entropy->int_index++];
+  assert(entropy->int64_index < HASH_LEN_UINT64 * EPOOL_HASH_COUNT);
+  return entropy->int64_pool[entropy->int64_index++];
+}
+
+/*
+ * Random 16bit integer
+ */
+uint16_t entropy_random_uint16(entropy_t *entropy){
+  assert(entropy != NULL);
+
+  if (entropy->int16_index >= HASH_LEN_UINT16 * EPOOL_HASH_COUNT) {
+    int16_pool_refresh(entropy);
+  }
+  assert(entropy->int16_index < HASH_LEN_UINT16 * EPOOL_HASH_COUNT);
+  return entropy->int16_pool[entropy->int16_index++];
 }
 
 
@@ -137,7 +155,8 @@ void entropy_init(entropy_t *entropy, const uint8_t *seed) {
     entropy->seed[i] = seed[i];
   }
   char_pool_refresh(entropy);
-  int_pool_refresh(entropy);
+  int16_pool_refresh(entropy);
+  int64_pool_refresh(entropy);
   bit_pool_refresh(entropy);
 }
 

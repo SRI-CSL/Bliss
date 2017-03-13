@@ -24,7 +24,8 @@
 void uniform_poly(int32_t v[], uint32_t n, uint32_t nz1, uint32_t nz2, entropy_t *entropy)
 {
   uint32_t i, j;
-  uint64_t x;
+  uint16_t x;
+  uint32_t mask;
 
   for (i = 0; i < n; i++){
     v[i] = 0;
@@ -32,22 +33,20 @@ void uniform_poly(int32_t v[], uint32_t n, uint32_t nz1, uint32_t nz2, entropy_t
   
   i = 0;
   while (i < nz1) {
-    x = entropy_random_uint64(entropy);  
-    j = (x >> 1) % n; // nb: uniform because n is a power of 2
-    if (v[j] != 0)
-      continue;
-    v[j] = x & 1 ? 1 : -1;
-    i++;
+    x = entropy_random_uint16(entropy);  
+    j = (x >> 1) % n;               // nb: uniform because n is a power of 2
+    mask = -(1^(v[j]&1));           // mask = 1...1 if v[j] == 0 else 0
+    i += mask&1;                    // add 1 only if v[j] == 0
+    v[j] += (-1 + ((x&1)<<1))&mask; // v[j] = -1 if x&1 == 0 else 1
   }
 
   i = 0;
   while (i < nz2) {
-    x = entropy_random_uint64(entropy);
-    j = (x >> 1) % n; // nb: uniform because n is a power of 2
-    if (v[j] != 0)
-      continue;
-    v[j] = x & 1 ? 2 : -2;
-    i++;
+    x = entropy_random_uint16(entropy);
+    j = (x >> 1) % n;                     // nb: uniform because n is a power of 2
+    mask = -(1^((v[j]&1)|((v[j]&2)>>1))); // mask = 1...1 if v[j] == 0 else 0
+    i += mask&1;                          // add 1 only if v[j] == 0
+    v[j] += (-2 + ((x&1)<<2))&mask;       // v[j] = -2 if x&1 == 0 else 2
   }
 }
 
