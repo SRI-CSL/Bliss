@@ -84,7 +84,7 @@ bool sampler_ber_cosh(sampler_t* sampler, int32_t x) {
     if (bit) return true;
 
     bit = entropy_random_bit(sampler->entropy);
-    if(!bit) {
+    if (!bit) {
       bit = sampler_ber_exp(sampler, (uint32_t)x);
       if (!bit) return false;
     }
@@ -142,7 +142,7 @@ int32_t sampler_gauss(sampler_t *sampler) {
     x = sampler_pos_binary(sampler);
 
     do {
-      y = entropy_random_bits(sampler->entropy, sampler->k_sigma_bits);     
+      y = entropy_random_bits(sampler->entropy, sampler->k_sigma_bits);
     } while (y >= sampler->k_sigma);
 
     e = y * (y + 2u * sampler->k_sigma * x);

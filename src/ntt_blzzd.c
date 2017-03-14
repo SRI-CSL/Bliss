@@ -9,12 +9,11 @@
 #include "ntt_blzzd.h"
 
 #ifndef NDEBUG
-static bool check_arg(int32_t v[], uint32_t n, int32_t q){
+static bool good_arg(int32_t v[], uint32_t n, int32_t q){
   uint32_t i;
 
-  for(i = 0; i < n; i++){
-    if(v[i] < 0){ return false; }
-    if(v[i] >= q){ return false; }
+  for (i = 0; i < n; i++){
+    if (v[i] < 0 || v[i] >= q) return false;
   }
 
   return true;
@@ -52,12 +51,15 @@ int32_t ntt32_pwr(int32_t x, int32_t n, int32_t q) {
  */
 static inline int32_t sub_mod(int32_t x, int32_t y, int32_t q) {
   x -= y;
-  return x < 0 ? x + q : x;
+  //  return x < 0 ? x + q : x;
+  return x + ((x >> 31) & q);
 }
 
 static inline int32_t add_mod(int32_t x, int32_t y, int32_t q) {
-  x += y;
-  return x - q >= 0 ? x - q : x;
+  //  x += y;
+  //  return x - q >= 0 ? x - q : x;
+  x += y - q;
+  return x + ((x >> 31) & q);
 }
 
 
@@ -65,7 +67,7 @@ void ntt32_fft(int32_t v[], uint32_t n, int32_t q, const int32_t w[]) {
   uint32_t i, j, k, l;
   int32_t x, y;
 
-  assert(check_arg(v, n, q));
+  assert(good_arg(v, n, q));
 
   // bit-inverse shuffle
   j = n >> 1;
@@ -103,21 +105,23 @@ void ntt32_fft(int32_t v[], uint32_t n, int32_t q, const int32_t w[]) {
 
     l >>= 1;
   }
+
+  assert(good_arg(v, n, q));
 }
 
 // Elementwise vector product  v = t (*) u.
 // BD: modified to use 32 bit arithmetic
 void ntt32_xmu(int32_t v[], uint32_t n, int32_t q, const int32_t t[], const int32_t u[]) {
   uint32_t i;
-
+  int32_t x;
 
   // multiply each element point-by-point
   for (i = 0; i < n; i++) {
-    v[i] = (t[i] * u[i]) % q;
-    if (v[i] < 0) v[i] += q;
+    x = (t[i] * u[i]) % q;
+    v[i] = x + ((x >> 31) & q); // v[i] = if x<0 then x+q else x
   }
 
-  assert(check_arg(v, n, q));
+  assert(good_arg(v, n, q));
 
 }
 
@@ -125,13 +129,14 @@ void ntt32_xmu(int32_t v[], uint32_t n, int32_t q, const int32_t t[], const int3
 // BD: modified to use 32 bit arithmetic
 void ntt32_cmu(int32_t v[], uint32_t n, int32_t q, const int32_t t[], int32_t c) {
   uint32_t i;
+  int32_t x;
 
   for (i = 0; i < n; i++) {
-    v[i] = (t[i] * c) % q;
-    if (v[i] < 0) v[i] += q;
+    x = (t[i] * c) % q;
+    v[i] = x + ((x >> 31) & q); // v[i] = if x<0 then x+q else x
   }
 
-  assert(check_arg(v, n, q));
+  assert(good_arg(v, n, q));
 
 }
 
@@ -141,16 +146,18 @@ void ntt32_flp(int32_t v[], uint32_t n, int32_t q) {
   uint32_t i, j;
   int32_t x;
 
+  assert(good_arg(v, n, q));
+
   for (i = 1, j = n - 1; i < j; i++, j--) {
     x = v[i];
     v[i] = v[j];
     v[j] = x;
   }
 
-  if (v[0] != 0) {
-    v[0] = q - v[0];
-  }
+  // replace v[0] by q - v[0] if v[0] > 0, keep v[0] = 0 otherwise
+  x = q & ((-v[0]) >> 31);
+  v[0] = x - v[0];
   
-  assert(check_arg(v, n, q));
+  assert(good_arg(v, n, q));
 }
 

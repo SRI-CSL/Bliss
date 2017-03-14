@@ -68,7 +68,7 @@ static const uint64_t KeccakF_RoundConstants[NROUNDS] =
 
 void KeccakF1600_StatePermute(uint64_t * state)
 {
-  int round;
+  uint32_t round;
 
   uint64_t Aba, Abe, Abi, Abo, Abu;
   uint64_t Aga, Age, Agi, Ago, Agu;
@@ -329,20 +329,18 @@ void KeccakF1600_StatePermute(uint64_t * state)
   state[22] = Asi;
   state[23] = Aso;
   state[24] = Asu;
-
-#undef    round
 }
 
-#include <string.h>
-#define MIN(a, b) ((a) < (b) ? (a) : (b))
-
-
+/*
+ * BD: changed the type of mlen from unsigned long long to unsigned int
+ * to be consistent with the callers. Also changed the type of i.
+ */
 static void keccak_absorb(uint64_t *s,
                           unsigned int r,
-                          const unsigned char *m, unsigned long long int mlen,
+                          const unsigned char *m, unsigned int mlen,
                           unsigned char p)
 {
-  unsigned long long i;
+  unsigned int i;
   unsigned char t[200];
 
   for (i = 0; i < 25; ++i)
@@ -424,10 +422,11 @@ void sha3_512(unsigned char *output, const unsigned char *input, unsigned int in
 {
   uint64_t s[25];
   unsigned char t[SHA3_512_RATE];  
-  int i;
+  uint32_t i;
 
   keccak_absorb(s, SHA3_512_RATE, input, inputByteLen, 0x06);
   keccak_squeezeblocks(t, 1, s, SHA3_512_RATE);
   for(i=0;i<64;i++)
     output[i] = t[i];
 }
+

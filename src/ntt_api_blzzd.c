@@ -56,7 +56,7 @@ void delete_ntt_state(ntt_state_t state){
 }
 
 
-extern  ntt_t init_ntt(ntt_state_t state){
+ntt_t init_ntt(ntt_state_t state){
   ntt_state_simple_t *s = (ntt_state_simple_t *)state;
   int32_t* ntt;
   assert(state != NULL);
@@ -111,10 +111,11 @@ void negate_ntt(const ntt_state_t state, ntt_t inplace){
 
 void product_ntt(const ntt_state_t state, ntt_t output, const ntt_t lhs,  const ntt_t rhs){
   ntt_state_simple_t *s = (ntt_state_simple_t *)state;
-  assert(state != NULL);
   int32_t *a = lhs;
   int32_t *b = rhs;
   int32_t *result = output;
+
+  assert(state != NULL);
 
   ntt32_xmu(result, s->n, s->q, a, b);       /* result = lhs * rhs (pointwise product) */
 

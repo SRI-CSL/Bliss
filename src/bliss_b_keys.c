@@ -21,11 +21,10 @@
    - entropy: an initialized source of randomness
 
 */
-void uniform_poly(int32_t v[], uint32_t n, uint32_t nz1, uint32_t nz2, entropy_t *entropy)
-{
+void uniform_poly(int32_t v[], uint32_t n, uint32_t nz1, uint32_t nz2, entropy_t *entropy) {
   uint32_t i, j;
   uint16_t x;
-  uint32_t mask;
+  int32_t mask;
 
   for (i = 0; i < n; i++){
     v[i] = 0;
@@ -161,7 +160,7 @@ static int32_t bliss_b_private_key_init(bliss_private_key_t *private_key, bliss_
  */
 int32_t bliss_b_private_key_gen(bliss_private_key_t *private_key, bliss_kind_t kind, entropy_t *entropy){
   int32_t retcode;
-  int32_t i, j, x;
+  int32_t i, j;
   int32_t *t = NULL, *u = NULL;
   ntt_state_t state;
   bliss_param_t p;
@@ -217,7 +216,7 @@ int32_t bliss_b_private_key_gen(bliss_private_key_t *private_key, bliss_kind_t k
       continue;
     }
     
-    /*  success!  a = (2g - 1)/f. */
+    /* Success: u = ntt of f^-1. Compute a = (2g - 1)/f. */
     product_ntt(state, private_key->a, t,  u);
     inverse_ntt(state, private_key->a, private_key->a);
 
@@ -227,13 +226,16 @@ int32_t bliss_b_private_key_gen(bliss_private_key_t *private_key, bliss_kind_t k
     /* currently storing the private_key->a in ntt form */
     forward_ntt(state, private_key->a, private_key->a);
 
-    /*  normalize a */
+    /* normalize a */
+#if 0
+    /* BD: this is redundant. forward_ntt produces results in [0 .. q-1] */
     for (i = 0; i < p.n; i++) {
       x = private_key->a[i] % p.q;
       if (x < 0)
         x += p.q;
       private_key->a[i] = x;
     }
+#endif
 
     secure_free(&t, p.n);
     secure_free(&u, p.n);
@@ -244,7 +246,6 @@ int32_t bliss_b_private_key_gen(bliss_private_key_t *private_key, bliss_kind_t k
     }
 
     
-
     delete_ntt_state(state);
 
     return BLISS_B_NO_ERROR;
@@ -271,8 +272,6 @@ void bliss_b_private_key_delete(bliss_private_key_t *private_key){
     // bad kind/not supported
     return;
   }
-
-
 
   secure_free(&private_key->s1, p.n);
   secure_free(&private_key->s2, p.n);
