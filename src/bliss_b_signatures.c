@@ -80,7 +80,6 @@ static void greedy_sc(const int32_t *s1, const int32_t *s2, uint32_t n,  const u
   }
 
   for (k = 0; k < kappa; k++) {
-
     index = c_indices[k];
     sign = 0;
     /* \xi_i = sign(<v, si>) */
@@ -93,21 +92,21 @@ static void greedy_sc(const int32_t *s1, const int32_t *s2, uint32_t n,  const u
     /* v = v - \xi_i . si */
     if (sign > 0) {
       for (i = 0; i < n - index; i++) {
-	v1[index + i] -= s1[i];
-	v2[index + i] -= s2[i];
+        v1[index + i] -= s1[i];
+        v2[index + i] -= s2[i];
       }
       for (i = n - index; i < n; i++) {
-	v1[index + i - n] += s1[i];
-	v2[index + i - n] += s2[i];
+        v1[index + i - n] += s1[i];
+        v2[index + i - n] += s2[i];
       }
     } else {
       for (i = 0; i < n - index; i++) {
-	v1[index + i] += s1[i];
-	v2[index + i] += s2[i];
+        v1[index + i] += s1[i];
+        v2[index + i] += s2[i];
       }
       for (i = n - index; i < n; i++) {
-	v1[index + i - n] -= s1[i];
-	v2[index + i - n] -= s2[i];
+        v1[index + i - n] -= s1[i];
+        v2[index + i - n] -= s2[i];
       }
     }
   }
@@ -115,9 +114,9 @@ static void greedy_sc(const int32_t *s1, const int32_t *s2, uint32_t n,  const u
 
 
 
-static void generateC(uint32_t *indices, uint32_t kappa, const int32_t *n_vector, uint32_t n, uint8_t *hash, uint32_t hash_sz){
+static void generateC(uint32_t *indices, uint32_t kappa, const int32_t *n_vector, uint32_t n, uint8_t *hash, uint32_t hash_sz) {
   uint8_t whash[SHA3_512_DIGEST_LENGTH];
-  uint8_t array[512]; // size we need is either 256 (for Bliss 0) or 512 for others
+  uint8_t array[512];  // size we need is either 256 (for Bliss 0) or 512 for others
   uint32_t i, j, index;
   uint32_t x, tries;
   uint32_t extra_bits;
@@ -128,21 +127,21 @@ static void generateC(uint32_t *indices, uint32_t kappa, const int32_t *n_vector
    * append the n_vector to the hash array
    */
   j = SHA3_512_DIGEST_LENGTH;
-  for(i = 0; i < n; i++) {
+  for (i = 0; i < n; i++) {
     // n_vector[i] is between 0 and mod_p (less than 2^16)
-    x = (uint32_t) n_vector[i];
+    x = (uint32_t)n_vector[i];
     hash[j] = x & 255;
     hash[j + 1] = (x >> 8);
     j += 2;
   }
 
   /* We bail out after 256 iterations in case something goes wrong. */
-  for (tries = 0; tries < 256; tries ++) {
+  for (tries = 0; tries < 256; tries++) {
     /*
      * BD: just to be safe, we shouldn't overwrite the last element of hash
      * (so that n_vector[n-1] is taken into account).
      */
-    hash[hash_sz - 1] ++;
+    hash[hash_sz - 1]++;
     sha3_512(whash, hash, hash_sz);
 
     memset(array, 0, n);
@@ -150,40 +149,40 @@ static void generateC(uint32_t *indices, uint32_t kappa, const int32_t *n_vector
     if (n == 256) {
       /* Bliss_b 0: we need kappa indices of 8 bits */
       i = 0;
-      for (j=0; j<SHA3_512_DIGEST_LENGTH; j++) {
-	index = whash[j];  
-	if(! array[index]) {
-	  indices[i] = index;
-	  array[index] = 1;
-	  i ++;
-	  if (i >= kappa) return;
-	}
+      for (j = 0; j < SHA3_512_DIGEST_LENGTH; j++) {
+        index = whash[j];
+        if (!array[index]) {
+          indices[i] = index;
+          array[index] = 1;
+          i++;
+          if (i >= kappa) return;
+        }
       }
 
     } else {
       assert(n == 512 && (SHA3_512_DIGEST_LENGTH & 7) == 0);
 
-      extra_bits = 0; // Prevent a GCC warning
+      extra_bits = 0;  // Prevent a GCC warning
 
       /* We need kappa indices of 9 bits */
       i = 0;
       j = 0;
-      while(j<SHA3_512_DIGEST_LENGTH) {
-	if ((j & 7) == 0) {
-	  /* start of a block of 8 bytes */
-	  extra_bits = whash[j];
-	  j ++;
-	}
-	index = ((uint32_t)whash[j] << 1) | (extra_bits & 1);
-	extra_bits >>= 1;
-	j ++;
+      while (j < SHA3_512_DIGEST_LENGTH) {
+        if ((j & 7) == 0) {
+          /* start of a block of 8 bytes */
+          extra_bits = whash[j];
+          j++;
+        }
+        index = ((uint32_t)whash[j] << 1) | (extra_bits & 1);
+        extra_bits >>= 1;
+        j++;
 
-	if(! array[index]) {
-	  indices[i] = index;
-	  array[index] = 1;
-	  i ++;
-	  if (i >= kappa) return;
-	}
+        if (!array[index]) {
+          indices[i] = index;
+          array[index] = 1;
+          i++;
+          if (i >= kappa) return;
+        }
       }
     }
   }

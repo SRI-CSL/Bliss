@@ -39,14 +39,14 @@ extern int32_t vector_max_norm(const int32_t *v, uint32_t n);
  * - v2 a vector of length n
  * - n the length
  *
- * returns the scalar product.
+ * returns the scalar product (ignore overflows).
  */
 extern int32_t vector_scalar_product(const int32_t *v1, const int32_t *v2, uint32_t n);
 
 /*
- * Square of the Euclidean norm of v1
+ * Square of the Euclidean norm of v (ignore overflows)
  */
-extern int32_t vector_norm2(const int32_t *v1, uint32_t n);
+extern int32_t vector_norm2(const int32_t *v, uint32_t n);
 
 
 #endif

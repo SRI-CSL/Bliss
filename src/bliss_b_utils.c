@@ -54,15 +54,18 @@ int32_t vector_max_norm(const int32_t *v, uint32_t n)
   return max;
 }
 
-
-int32_t vector_scalar_product(const int32_t *v1, const int32_t *t2, uint32_t n)
+/*
+ * Scalar product of v1 and v2
+ */
+int32_t vector_scalar_product(const int32_t *v1, const int32_t *v2, uint32_t n)
 {
   uint32_t i;
   int32_t sum;
 
   sum = 0;
-  for (i = 0; i < n; i++)
-    sum += v1[i] * t2[i];
+  for (i = 0; i < n; i++) {
+    sum += v1[i] * v2[i];
+  }
 
   return sum;
 }
@@ -70,14 +73,14 @@ int32_t vector_scalar_product(const int32_t *v1, const int32_t *t2, uint32_t n)
 /*
  * Square of the Euclidean norm of v
  */
-int32_t vector_norm2(const int32_t *v1, uint32_t n)
+int32_t vector_norm2(const int32_t *v, uint32_t n)
 {
   uint32_t i;
   int32_t sum;
 
   sum = 0;
   for (i = 0; i < n; i++) {
-    sum += v1[i] * v1[i];
+    sum += v[i] * v[i];
   }
 
   return sum;

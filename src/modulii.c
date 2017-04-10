@@ -51,8 +51,6 @@ static int32_t divq(int32_t x, int32_t q) {
   case 15362:   return (((uint64_t) x) * 143146938) >> 41;
   default: return x / q;
   }
-  
-  return (((uint64_t) x) * 178942409) >> 41;
 }
 
 int32_t modq(int32_t x, int32_t q) {

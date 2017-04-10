@@ -43,8 +43,8 @@ void uniform_poly(int32_t v[], uint32_t n, uint32_t nz1, uint32_t nz2, entropy_t
   while (i < nz2) {
     x = entropy_random_uint16(entropy);
     j = (x >> 1) % n;                     // nb: uniform because n is a power of 2
-    mask = -(1^((v[j]&1)|((v[j]&2)>>1))); // mask = 1...1 if v[j] == 0 else 0
-    i += mask&1;                          // add 1 only if v[j] == 0
+    mask = -(1^((v[j]&1)|((v[j]&2)>>1))); // mask = 1...1 if v[j] == 0 or v[j] == 1 else 0
+    i += mask&1;                          // add 1 only if v[j] == 0 or v[j] == 1
     v[j] += (-2 + ((x&1)<<2))&mask;       // v[j] = -2 if x&1 == 0 else 2
   }
 }
@@ -226,27 +226,15 @@ int32_t bliss_b_private_key_gen(bliss_private_key_t *private_key, bliss_kind_t k
     /* currently storing the private_key->a in ntt form */
     forward_ntt(state, private_key->a, private_key->a);
 
-    /* normalize a */
-#if 0
-    /* BD: this is redundant. forward_ntt produces results in [0 .. q-1] */
-    for (i = 0; i < p.n; i++) {
-      x = private_key->a[i] % p.q;
-      if (x < 0)
-        x += p.q;
-      private_key->a[i] = x;
-    }
-#endif
-
     secure_free(&t, p.n);
     secure_free(&u, p.n);
+
+    delete_ntt_state(state);
 
     // BD: for debugging
     if (false) {
       check_key(private_key, &p, state);
     }
-
-    
-    delete_ntt_state(state);
 
     return BLISS_B_NO_ERROR;
   }
@@ -298,7 +286,7 @@ int32_t bliss_b_public_key_extract(bliss_public_key_t *public_key, const bliss_p
 
   b = private_key->a;
 
-  /* we calloc so we do not have to zero them out later */
+  /* we calloc so we do not have to zero it out later */
   a = calloc(n, sizeof(int32_t));
   if (a == NULL) {
     return BLISS_B_NO_MEM;
