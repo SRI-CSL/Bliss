@@ -271,10 +271,10 @@ static const bliss_param_t bliss_b_params[] = {
     279583,             /* floor(2^32/q2)     */
     3841,               /* 1/(q + 2) mod 2q   */
     12,                 /* kappa */
-    542,                /* b_inf */
-    2428 * 2428,        /* L2 norm */
-    140,                /* nz1 */
-    38,                 /* nz2 */
+    530,                /* b_inf */
+    2492 * 2492,        /* L2 norm */
+    141,                /* nz1 */
+    39,                 /* nz2 */
     100,                /* sigma */
     17628,              /* M  (actually p_max. see workings below) */
     2.44,               /* m  = repetition rate alpha 0.748   M = 17840  */
