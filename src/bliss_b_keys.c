@@ -226,15 +226,16 @@ int32_t bliss_b_private_key_gen(bliss_private_key_t *private_key, bliss_kind_t k
     /* currently storing the private_key->a in ntt form */
     forward_ntt(state, private_key->a, private_key->a);
 
+    // BD: for debugging (iam: must do it before cleanup)
+    if (false) {
+      check_key(private_key, &p, state);
+    }
+
+    
     secure_free(&t, p.n);
     secure_free(&u, p.n);
 
     delete_ntt_state(state);
-
-    // BD: for debugging
-    if (false) {
-      check_key(private_key, &p, state);
-    }
 
     return BLISS_B_NO_ERROR;
   }
