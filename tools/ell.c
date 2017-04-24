@@ -18,15 +18,16 @@ static uint32_t  get_bits(uint64_t num){
 
 int main(int argc, char* argv[]){
 
-  if(argc != 2){
-    fprintf(stderr, "Usage: %s <sigma>\n", argv[0]);
+  if(argc != 3){
+    fprintf(stderr, "Usage: %s <sigma> <precision>\n", argv[0]);
     exit(EXIT_FAILURE);
 
   } else {
     uint32_t sigma;
-    uint32_t precision = 128;
+    uint32_t precision;
     
     sigma = atoi(argv[1]);
+    precision = atoi(argv[2]);
 
     mpfr_t sq2r2;
     mpfr_t inv_sq2r2;

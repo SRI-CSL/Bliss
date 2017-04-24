@@ -271,17 +271,17 @@ static const bliss_param_t bliss_b_params[] = {
     279583,             /* floor(2^32/q2)     */
     3841,               /* 1/(q + 2) mod 2q   */
     12,                 /* kappa */
-    530,                /* b_inf */
-    2492 * 2492,        /* L2 norm */
+    1903,                /* b_inf */
+    2496 * 2496,        /* L2 norm */
     141,                /* nz1 */
     39,                 /* nz2 */
     100,                /* sigma */
-    17628,              /* M  (actually p_max. see workings below) */
+    17928,              /* M  (actually p_max. see workings below) */
     2.44,               /* m  = repetition rate alpha 0.748   M = 17840  */
     w7681n256,          /* w */
     r7681n256,          /* r */
     19,                 /* ell (computed by tools/ell) */
-    128,                /* precision */
+    64,                 /* precision */
   },
 
   /* bliss-b 1 */
@@ -295,8 +295,8 @@ static const bliss_param_t bliss_b_params[] = {
     174748,             /* q2_inv = floor(2^32/q2) */
     6145,               /* one_q2 = 1/(q + 2) mod 2q */
     23,                 /* kappa */
-    2100,               /* b_inf */
-    12872 * 12872,      /* b_l2 = square of L2 norm */
+    2559,               /* b_inf */
+    12847 * 12847,      /* b_l2 = square of L2 norm */
     154,                /* nz1 = number of coeffs equal to +/-1 in the private key */
     0,                  /* nz2 = number of coeffs equal to +/-2 */
     215,                /* sigma */
@@ -305,7 +305,7 @@ static const bliss_param_t bliss_b_params[] = {
     w12289n512,         /* w = powers of omega  (for NTT) */
     r12289n512,         /* r = powers of omeag/n (for inverse NTT) */
     21,                 /* ell */
-    128,                /* precision */
+    64                  /* precision */
   },
 
   /* bliss-b 2 */
@@ -320,7 +320,7 @@ static const bliss_param_t bliss_b_params[] = {
     174748,             /* floor(2^32/q2)     */
     6145,               /* 1/(q + 2) mod 2q   */
     23,                 /* kappa */
-    1563,               /* b_inf */
+    2559,               /* b_inf */
     11073 * 11073,      /* L2 norm */
     154,                /* nz1 */
     0,                  /* nz2 */
@@ -330,7 +330,7 @@ static const bliss_param_t bliss_b_params[] = {
     w12289n512,         /* w */
     r12289n512,         /* r */
     19,                 /* ell: computed by tools/ell.c */
-    128,                /* precision */
+    64                  /* precision */
   },
 
   /* bliss-b 3 */
@@ -346,7 +346,7 @@ static const bliss_param_t bliss_b_params[] = {
     6145,               /* 1/(q + 2) mod 2q   */
     30,                 /* kappa */
     1760,               /* b_inf */
-    10206 * 10206,      /* L2 norm */
+    10214 * 10214,      /* L2 norm */
     216,                /* nz1 */
     16,                 /* nz2 */
     250,                /* sigma */
@@ -355,7 +355,7 @@ static const bliss_param_t bliss_b_params[] = {
     w12289n512,         /* w */
     r12289n512,         /* r */
     21,                 /* ell */
-    128,                /* precision */
+    64                  /* precision */
   },
 
   /* bliss-b 4 */
@@ -371,7 +371,7 @@ static const bliss_param_t bliss_b_params[] = {
     6145,               /* 1/(q + 2) mod 2q   */
     39,                 /* kappa */
     1613,               /* b_inf */
-    9901 * 9901,        /* L2 norm */
+    9896 * 9896,        /* L2 norm */
     231,                /* nz1 */
     31,                 /* nz2 */
     271,                /* sigma */
@@ -380,7 +380,7 @@ static const bliss_param_t bliss_b_params[] = {
     w12289n512,         /* w */
     r12289n512,         /* r */
     22,                 /* ell */
-    128                 /* precision */
+    64                  /* precision */
   },
 
 
@@ -415,10 +415,10 @@ p_max = (5 * nz_1 + 20 * nz_2 + 9) * kappa  o.w.
 
 bliss-b 0:
 n 256
-nz_1 nz_2       140,     38,     
+nz_1 nz_2       141,     39,     
 delta_1 delta_2 0.55,    0.15,
 kappa 12
-p_max 17628
+p_max 17928
 
 previous M 17928
 

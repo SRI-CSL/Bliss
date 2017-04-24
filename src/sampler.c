@@ -45,7 +45,7 @@ bool sampler_ber(sampler_t *sampler, const uint8_t *p) {
 }
 
 /*
- * Sampling Bernoulli_E with E = exp(-x/(2*sigma*sigma).
+ * Sampling Bernoulli_E with E = exp(-x/(2*sigma*sigma)).
  * Algorithm 8 from DDLL
  */
 bool sampler_ber_exp(sampler_t* sampler, uint32_t x) {
@@ -70,7 +70,7 @@ bool sampler_ber_exp(sampler_t* sampler, uint32_t x) {
 }
 
 /*
- * Sampling Bernoulli_C with C = 1/cosh(x/(sigma*sigma) 
+ * Sampling Bernoulli_C with C = 1/cosh(x/(sigma*sigma)) 
  */
 bool sampler_ber_cosh(sampler_t* sampler, int32_t x) {
   bool bit;
@@ -94,7 +94,7 @@ bool sampler_ber_cosh(sampler_t* sampler, int32_t x) {
 
 /*
  * Sample a non-negative integer according to the binary discrete
- * Guassian distribution.
+ * Gaussian distribution.
  *
  * Source: strongswan/src/libstrongswan/plugins/bliss/bliss_sampler.c
  *
@@ -149,8 +149,8 @@ int32_t sampler_gauss(sampler_t *sampler) {
     
     if (sampler_ber_exp(sampler, e)) {
       u = entropy_random_bit(sampler->entropy);
-      if (x | y | u) { 
-	break; 
+      if (x | y | u) { // don't restart if (x, y) != (0, 0) or u = 1
+	      break; 
       }
     }
   }

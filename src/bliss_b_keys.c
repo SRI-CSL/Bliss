@@ -70,6 +70,13 @@ static void check_key(bliss_private_key_t *key, bliss_param_t *p, ntt_state_t st
   }
   printf("\n");
 
+  printf("s1:\n");
+  for (i=0; i<n; i++) {
+    printf(" %d", key->s1[i]);
+    if ((i & 15) == 15) printf("\n");
+  }
+  printf("\n");
+
   printf("s2:\n");
   for (i=0; i<n; i++) {
     printf(" %d", key->s2[i]);
