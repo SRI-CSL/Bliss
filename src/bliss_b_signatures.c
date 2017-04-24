@@ -629,45 +629,20 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
     assert(-p.mod_p/2 <= z2[i] && z2[i] < p.mod_p/2);
   }
   
-  /* 8: seem to also need to check norms akin to what happens in the entry to verify */
+  /* 8: Also need to check norms akin to what happens in the entry to verify for BLISS-0, BLISS-3 and BLISS-4 */
+  if (vector_max_norm(z1, n) > p.b_inf) {
+    if(VERBOSE_RESTARTS){ fprintf(stdout, "--> norm z1 too high\n"); }
+    goto restart;
+  }
   mul2d(y2, z2, n, p.d);
-  // if (vector_max_norm(z1, n) > p.b_inf) {
-  //   if(VERBOSE_RESTARTS){ fprintf(stdout, "--> norm z1 too high\n"); }
-  //   goto restart;
-  // }
-  // if (vector_max_norm(y2, n) > p.b_inf) {
-  //   if(VERBOSE_RESTARTS){ fprintf(stdout, "--> norm y2 too high\n"); }
-  //   goto restart;
-  // }
-  // if (vector_norm2(z1,  n) + vector_norm2(y2, n) > p.b_l2){
-  //   if(VERBOSE_RESTARTS){ fprintf(stdout, "--> euclidean norm too high\n"); }
-  //   goto restart;
-  // }
-
-  assert(vector_max_norm(z1, n) <= p.b_inf);
-  printf("%d\n", vector_max_norm(y2, n));
-  assert(vector_max_norm(y2, n) <= p.b_inf);
-  printf("verify: z1\n");
-    for (i=0; i<n; i++) {
-      printf(" %d", z1[i]);
-      if ((i & 15) == 15) printf("\n");
-    }
-    printf("\n");
-    printf("verify: y2\n");
-    for (i=0; i<n; i++) {
-      printf(" %d", y2[i]);
-      if ((i & 15) == 15) printf("\n");
-    }
-    printf("\n\n");
-  printf("%d\n", vector_norm2(z1,  n));
-  printf("%d\n", vector_norm2(y2, n));
-  printf("%d\n", vector_norm2(z1,  n) + vector_norm2(y2, n));
-  printf("%d\n", p.b_l2);
-  assert(vector_norm2(z1,  n) + vector_norm2(y2, n) <= p.b_l2);
-
-
-  // 
-  // Surprising: that should not be necessary, but I see that BLISS-0 fails sometimes. To investigate. 
+  if (vector_max_norm(y2, n) > p.b_inf) {
+    if(VERBOSE_RESTARTS){ fprintf(stdout, "--> norm z2*2^d too high\n"); }
+    goto restart;
+  }
+  if (vector_norm2(z1,  n) + vector_norm2(y2, n) > p.b_l2){
+    if(VERBOSE_RESTARTS){ fprintf(stdout, "--> euclidean norm too high\n"); }
+    goto restart;
+  }
 
   /* return (z1, z2, c) */
 

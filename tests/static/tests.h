@@ -1,46 +1,37 @@
 #include <stdio.h>
-
-#include "entropy.h"
+#include <sys/time.h>
 
 #define NTESTS 1024
 
-unsigned long long t[NTESTS];
 
-static int cmp_llu(const void *a, const void*b)
-{
-  if(*(unsigned long long *)a < *(unsigned long long *)b) return -1;
-  if(*(unsigned long long *)a > *(unsigned long long *)b) return 1;
+#if defined(WINDOWS)
+#include <Windows.h>
+
+// From github.com/open-quantum-safe/liboqs
+// (under MIT License)
+int gettimeofday(struct timeval *tp, struct timezone *tzp) {
+  // Note: some broken versions only have 8 trailing zero's, the correct epoch
+  // has 9 trailing zero's
+  static const uint64_t EPOCH = ((uint64_t)116444736000000000ULL);
+
+  SYSTEMTIME system_time;
+  FILETIME file_time;
+  uint64_t time;
+
+  GetSystemTime(&system_time);
+  SystemTimeToFileTime(&system_time, &file_time);
+  time = ((uint64_t)file_time.dwLowDateTime);
+  time += ((uint64_t)file_time.dwHighDateTime) << 32;
+
+  tp->tv_sec = (long)((time - EPOCH) / 10000000L);
+  tp->tv_usec = (long)(system_time.wMilliseconds * 1000);
   return 0;
 }
+#endif
 
-static unsigned long long median(unsigned long long *l, size_t llen)
-{
-  qsort(l,llen,sizeof(unsigned long long),cmp_llu);
-
-  if(llen%2) return l[llen/2];
-  else return (l[llen/2-1]+l[llen/2])/2;
-}
-
-static unsigned long long average(unsigned long long *t, size_t tlen)
-{
-  unsigned long long acc=0;
+double average_t(double *t, size_t tlen) {
+  double acc = 0.0;
   size_t i;
-  for(i=0;i<tlen;i++)
-    acc += t[i];
-  return acc/(tlen);
-}
-
-void print_results(const char *s, unsigned long long *t, size_t tlen)
-{
-  size_t i;
-  printf("%s", s);
-  for(i=0;i<tlen-1;i++)
-  {
-    t[i] = t[i+1] - t[i];
-  //  printf("%llu ", t[i]);
-  }
-  printf("\n");
-  printf("median: %llu\n", median(t, tlen));
-  printf("average: %llu\n", average(t, tlen-1));
-  printf("\n");
+  for (i = 0; i < tlen; i++) acc += t[i] / (tlen);
+  return acc;
 }

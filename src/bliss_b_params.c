@@ -271,8 +271,8 @@ static const bliss_param_t bliss_b_params[] = {
     279583,             /* floor(2^32/q2)     */
     3841,               /* 1/(q + 2) mod 2q   */
     12,                 /* kappa */
-    1903,                /* b_inf */
-    2496 * 2496,        /* L2 norm */
+    530,                /* b_inf */
+    2492 * 2492,        /* L2 norm */
     141,                /* nz1 */
     39,                 /* nz2 */
     100,                /* sigma */
@@ -295,8 +295,8 @@ static const bliss_param_t bliss_b_params[] = {
     174748,             /* q2_inv = floor(2^32/q2) */
     6145,               /* one_q2 = 1/(q + 2) mod 2q */
     23,                 /* kappa */
-    2559,               /* b_inf */
-    12847 * 12847,      /* b_l2 = square of L2 norm */
+    2100,               /* b_inf */
+    12872 * 12872,      /* b_l2 = square of L2 norm */
     154,                /* nz1 = number of coeffs equal to +/-1 in the private key */
     0,                  /* nz2 = number of coeffs equal to +/-2 */
     215,                /* sigma */
@@ -320,8 +320,8 @@ static const bliss_param_t bliss_b_params[] = {
     174748,             /* floor(2^32/q2)     */
     6145,               /* 1/(q + 2) mod 2q   */
     23,                 /* kappa */
-    2559,               /* b_inf */
-    11073 * 11073,      /* L2 norm */
+    1563,               /* b_inf */
+    11074 * 11074,      /* L2 norm */
     154,                /* nz1 */
     0,                  /* nz2 */
     107,                /* sigma */
@@ -346,7 +346,7 @@ static const bliss_param_t bliss_b_params[] = {
     6145,               /* 1/(q + 2) mod 2q   */
     30,                 /* kappa */
     1760,               /* b_inf */
-    10214 * 10214,      /* L2 norm */
+    10206 * 10206,      /* L2 norm */
     216,                /* nz1 */
     16,                 /* nz2 */
     250,                /* sigma */
@@ -371,7 +371,7 @@ static const bliss_param_t bliss_b_params[] = {
     6145,               /* 1/(q + 2) mod 2q   */
     39,                 /* kappa */
     1613,               /* b_inf */
-    9896 * 9896,        /* L2 norm */
+    9901 * 9901,        /* L2 norm */
     231,                /* nz1 */
     31,                 /* nz2 */
     271,                /* sigma */
