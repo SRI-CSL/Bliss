@@ -35,7 +35,7 @@ endif
 # CPPFLAGS += -I./include  -I./arch/${ARCH} -DNDEBUG
 # CFLAGS += -std=c99 -fPIC -Wall -O3 -pg
 CPPFLAGS += -I./include  -I./arch/${ARCH} -DNDEBUG
-CFLAGS += -std=c99 -fPIC -Wall -O3 -g -Wsign-conversion
+CFLAGS += -std=c99 -fPIC -Wall -O3 -g -Wsign-conversion -funroll-loops
 
 SRC_GLOBS = $(addsuffix /*.c,src)
 SRC = $(sort $(wildcard $(SRC_GLOBS)))

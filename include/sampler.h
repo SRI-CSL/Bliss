@@ -12,7 +12,8 @@
 
 typedef struct sampler_s {
   entropy_t *entropy;
-  const uint8_t *c;      /* the table we will use (from tables.h) */
+  const uint8_t *c;      /* the table we will use for Boolean sampling (from tables.h) */
+  const uint8_t *cdt;    /* the cumulative distribution table we will use (from cdtables.h) */
   uint32_t sigma;        /* the standard deviation of the distribution */
   uint32_t ell;          /* rows in the table     */
   uint32_t precision;    /* precision used in computing the tables */
@@ -53,6 +54,7 @@ extern bool sampler_ber(sampler_t *sampler, const uint8_t *val);
  * - returns false with probability 1-E
  */
 extern bool sampler_ber_exp(sampler_t *sampler, uint32_t x);
+extern bool sampler_ber_exp_ct(sampler_t *sampler, uint32_t x); // constant time
 
 /*
  * Sampling Bernoulli_C with C = 1/cosh(x/(sigma*sigma)
@@ -75,6 +77,13 @@ extern uint32_t sampler_pos_binary(sampler_t *sample);
  * Does not fail.
  */
 extern int32_t sampler_gauss(sampler_t *sampler);
+
+/* 
+ * Sampling the Gaussian distribution exp(-x^2/(2*sigma*sigma)) using a cumulative distribution table
+ * Returns the sampled value.
+ * Does not fail.
+ */
+extern int32_t sampler_gauss_CDT(sampler_t *sampler);
 
 
 #endif

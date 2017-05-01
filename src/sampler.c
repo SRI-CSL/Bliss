@@ -70,6 +70,29 @@ bool sampler_ber_exp(sampler_t* sampler, uint32_t x) {
 }
 
 /*
+ * Sampling Bernoulli_E with E = exp(-x/(2*sigma*sigma))
+ * in constant time.
+ */
+bool sampler_ber_exp_ct(sampler_t* sampler, uint32_t x) {
+  const uint8_t* row;
+  uint32_t xi;
+  uint32_t i;
+  bool bit;
+  uint32_t ret = 1;
+
+  xi = x;
+  row = sampler->c;
+  for ( i = sampler->ell - 1; i!=0; i--) {
+    bit = sampler_ber(sampler, row);
+    ret = ret * (1-(xi&1)+bit*(xi&1));
+    xi >>= 1;
+    row += sampler->columns;
+  }
+
+  return (bool) ret;
+}
+
+/*
  * Sampling Bernoulli_C with C = 1/cosh(x/(sigma*sigma)) 
  */
 bool sampler_ber_cosh(sampler_t* sampler, int32_t x) {
@@ -157,4 +180,14 @@ int32_t sampler_gauss(sampler_t *sampler) {
 
   val_pos = (int32_t)(sampler->k_sigma * x + y);
   return u ? val_pos : - val_pos;
+}
+
+/* 
+ * Sampling the Gaussian distribution exp(-x^2/(2*sigma*sigma)) using a cumulative distribution table
+ *
+ * returns the sampled value.
+ */
+int32_t sampler_gauss_CDT(sampler_t *sampler) {
+  assert(0);
+  return 0;
 }
