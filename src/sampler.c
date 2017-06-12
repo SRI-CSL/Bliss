@@ -169,7 +169,7 @@ int32_t sampler_gauss(sampler_t *sampler) {
     // 1. (x, y) != (0, 0) or u = 1
     // 2. sampler_ber_exp(sampler, e) = 1
     if (x | y | u) {
-      if (sampler_ber_exp(sampler, e)) break; 
+      if (sampler_ber_exp(sampler, e)) break; // lazy sample
     }
   }
 
