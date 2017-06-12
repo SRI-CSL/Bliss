@@ -19,5 +19,5 @@ script:
   - make check CFLAGS="-std=gnu99 -fPIC -fprofile-arcs -ftest-coverage -g -O0"
 
 after_success:
-  - lcov -d . -b . --capture --output-file coverage.info
+  - lcov -d . -b tests/static --capture --output-file coverage.info
   - coveralls-lcov coverage.info
