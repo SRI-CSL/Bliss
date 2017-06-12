@@ -4,7 +4,6 @@ os:
   - linux
 
 compiler:
-  - clang
   - gcc
 
 sudo: required
