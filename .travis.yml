@@ -2,12 +2,23 @@ language: c
 
 os:
   - linux
-  - osx
 
 compiler:
   - clang
   - gcc
 
+sudo: required
+
+dist: trusty
+
+install:
+  - sudo apt-get update
+  - sudo apt-get install -y lcov
+  - gem install coveralls-lcov
+
 script:
   - make check
 
+after_success:
+  - lcov --directory src --base-directory src --capture --output-file coverage.info
+  - coveralls-lcov coverage.info
