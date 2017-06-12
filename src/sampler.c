@@ -119,9 +119,7 @@ bool sampler_ber_cosh(sampler_t* sampler, int32_t x) {
  * Sample a non-negative integer according to the binary discrete
  * Gaussian distribution.
  *
- * Source: strongswan/src/libstrongswan/plugins/bliss/bliss_sampler.c
- *
- * Modified to look more like Algorithm 10 in DDLL
+ * Algorithm 10 in DDLL.
  */
 
 #define MAX_SAMPLE_COUNT 16
@@ -152,9 +150,6 @@ uint32_t sampler_pos_binary(sampler_t *sampler) {
  *
  * returns the sampled value.
  *
- *
- * Source: strongswan/src/libstrongswan/plugins/bliss/bliss_sampler.c
- *
  * Combination of Algorithms 11 and 12 from DDLL.
  */
 int32_t sampler_gauss(sampler_t *sampler) {
@@ -169,12 +164,12 @@ int32_t sampler_gauss(sampler_t *sampler) {
     } while (y >= sampler->k_sigma);
 
     e = y * (y + 2u * sampler->k_sigma * x);
-    
-    if (sampler_ber_exp(sampler, e)) {
-      u = entropy_random_bit(sampler->entropy);
-      if (x | y | u) { // don't restart if (x, y) != (0, 0) or u = 1
-	      break; 
-      }
+    u = entropy_random_bit(sampler->entropy);
+    // don't restart if both hold:
+    // 1. (x, y) != (0, 0) or u = 1
+    // 2. sampler_ber_exp(sampler, e) = 1
+    if (!sampler_ber_exp(sampler, e) && (x | y | u)) {
+      break; 
     }
   }
 
