@@ -168,8 +168,8 @@ int32_t sampler_gauss(sampler_t *sampler) {
     // don't restart if both hold:
     // 1. (x, y) != (0, 0) or u = 1
     // 2. sampler_ber_exp(sampler, e) = 1
-    if (sampler_ber_exp(sampler, e) && (x | y | u)) {
-      break; 
+    if (x | y | u) {
+      if (sampler_ber_exp(sampler, e)) break; // lazy sample
     }
   }
 

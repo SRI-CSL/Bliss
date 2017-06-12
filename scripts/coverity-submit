@@ -9,7 +9,7 @@ else
    COVERITY_TOKEN=$1
 fi
 
-rm bliss.tgz
+rm -f bliss.tgz
 tar czvf bliss.tgz cov-int
 curl --form token=${COVERITY_TOKEN} \
   --form email=iam@csl.sri.com \
