@@ -17,8 +17,8 @@ install:
   - gem install coveralls-lcov
 
 script:
-  - make check
+  - make check CFLAGS="-std=c99 -fPIC -fprofile-arcs -ftest-coverage -g -O0"
 
 after_success:
-  - lcov --directory src --base-directory src --capture --output-file coverage.info
+  - lcov -d . -b . --capture --output-file coverage.info
   - coveralls-lcov coverage.info
