@@ -1,0 +1,19 @@
+#!/bin/bash
+
+if [ -z $1 ];
+then
+    echo "We need the coverity token: e.g. "
+    echo  "./coverity-submit tHiSiSnOtMyKeY"
+    exit 1
+else
+   COVERITY_TOKEN=$1
+fi
+
+rm bliss.tgz
+tar czvf bliss.tgz cov-int
+curl --form token=${COVERITY_TOKEN} \
+  --form email=iam@csl.sri.com \
+  --form file=@bliss.tgz \
+  --form version="1.0.0" \
+  --form description="Bliss master" \
+  https://scan.coverity.com/builds?project=SRI-CSL%2FBliss
