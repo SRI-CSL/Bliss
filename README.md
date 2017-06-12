@@ -1,4 +1,6 @@
-[![Build Status](https://travis-ci.org/SRI-CSL/BLISS.svg?branch=master)](https://travis-ci.org/SRI-CSL/Bliss)
+[![Build Status](https://travis-ci.org/SRI-CSL/Bliss.svg?branch=master)](https://travis-ci.org/SRI-CSL/Bliss)
+[![Coverity Scan Build Status](https://scan.coverity.com/projects/12768/badge.svg)](https://scan.coverity.com/projects/sri-csl-Bliss)
+[![Coverage Status](https://coveralls.io/repos/github/SRI-CSL/Bliss/badge.svg?branch=master)](https://coveralls.io/github/SRI-CSL/Bliss?branch=master)
 
 
 

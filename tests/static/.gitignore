@@ -3,5 +3,6 @@
 *.dSYM
 test_signing
 test_signings
+test_profiling
 mod
 
