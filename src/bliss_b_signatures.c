@@ -188,6 +188,11 @@ static void generateC(uint32_t *indices, uint32_t kappa, const int32_t *n_vector
   }
 }
 
+
+#if 0
+
+// FOR DEBUGGING ONLY
+
 /*
  * Auxiliary function: add s * c to z
  * - c = array of kappa indices
@@ -365,6 +370,8 @@ static void check_before_drop(const bliss_private_key_t *key, uint8_t *hash, uin
 
 }
 
+#endif
+
 int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *private_key, const uint8_t *msg, size_t msg_sz, entropy_t *entropy){
   sampler_t sampler;
   bliss_b_error_t retval;
@@ -523,9 +530,10 @@ int32_t bliss_b_sign(bliss_signature_t *signature,  const bliss_private_key_t *p
     }
   }
 
-  if (false) {
-    check_before_drop(private_key, hash, hash_sz, v, y1, y2, &p, state);
-  }
+#if 0
+  // DEBUG
+  check_before_drop(private_key, hash, hash_sz, v, y1, y2, &p, state);
+#endif
 
   /* 2b: drop bits mod_p */
   assert(check_arg(v, n, p.q2));

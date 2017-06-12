@@ -49,6 +49,7 @@ void uniform_poly(int32_t v[], uint32_t n, uint32_t nz1, uint32_t nz2, entropy_t
   }
 }
 
+#if 0
 // BD: for debugging
 static void check_key(bliss_private_key_t *key, bliss_param_t *p, ntt_state_t state) {
   int32_t aux[512];
@@ -112,6 +113,7 @@ static void check_key(bliss_private_key_t *key, bliss_param_t *p, ntt_state_t st
   }
   printf("\n\n");
 }
+#endif
 
 static int32_t bliss_b_private_key_init(bliss_private_key_t *private_key, bliss_kind_t kind){
   uint32_t n;
@@ -233,10 +235,10 @@ int32_t bliss_b_private_key_gen(bliss_private_key_t *private_key, bliss_kind_t k
     /* currently storing the private_key->a in ntt form */
     forward_ntt(state, private_key->a, private_key->a);
 
+#if 0
     // BD: for debugging (iam: must do it before cleanup)
-    if (false) {
-      check_key(private_key, &p, state);
-    }
+    check_key(private_key, &p, state);
+#endif
 
     
     secure_free(&t, p.n);
