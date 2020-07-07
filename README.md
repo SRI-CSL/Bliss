@@ -12,7 +12,7 @@ post quantum cryptography.
 
 See the original:
 
-* [BLISS webpage](http://bliss.di.ens.fr/).
+* [BLISS webpage](https://web.archive.org/web/20151006213007/http://bliss.di.ens.fr/).
 
 * [BLISS paper](papers/DDLL13.pdf)
 
