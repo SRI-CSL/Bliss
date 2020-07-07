@@ -59,7 +59,7 @@ const int w7681n256[256] = {
  *     c = ntt(ntt(a * w) * ntt(b * w))
  *
  * instead of this
- * 
+ *
  *     d = inv_ntt(ntt(a * w) * ntt(b * w)),
  *
  * where '*' means elementwise multiplication. The coefficients of c are
@@ -69,7 +69,7 @@ const int w7681n256[256] = {
  *  c[i] = d[n - i]  for i=1 to n-1
  *
  * To get the final result, we must multiply d[i] by 1/n * 1/psi^i.
- * To get the same thing in c, we multiply c[i] by 1/n * 1/psi^(n - i). 
+ * To get the same thing in c, we multiply c[i] by 1/n * 1/psi^(n - i).
  * That's what the table r is about:
  *
  *   r[i] = 1/n * 1/psi^(n - i)
@@ -277,6 +277,7 @@ static const bliss_param_t bliss_b_params[] = {
     39,                 /* nz2 */
     100,                /* sigma */
     17928,              /* M  (actually p_max. see workings below) */
+    //    17839,              /* M = 2 * sigma^2 * ln(m) */
     2.44,               /* m  = repetition rate alpha 0.748   M = 17840  */
     w7681n256,          /* w */
     r7681n256,          /* r */
@@ -301,6 +302,7 @@ static const bliss_param_t bliss_b_params[] = {
     0,                  /* nz2 = number of coeffs equal to +/-2 */
     215,                /* sigma */
     17825,              /* M  (actually p_max. see workings below)  */
+    //    17622,              /* M = 2 * sigma^2 * ln(m) */
     1.21,               /* m = repetition rate BLISS  strongswan .M = 46539, with alpha = 1.000. BLISS-B .M = 17954, with alpha = 1.610 (we get 17623) */
     w12289n512,         /* w = powers of omega  (for NTT) */
     r12289n512,         /* r = powers of omeag/n (for inverse NTT) */
@@ -326,6 +328,7 @@ static const bliss_param_t bliss_b_params[] = {
     0,                  /* nz2 */
     107,                /* sigma */
     17825,              /* M (actually p_max. see workings below) */
+    //    17844,              /* M = 2 * sigma^2 * ln(m) */
     2.18,               /* m  = repetition rate  alpha = 0.801 */
     w12289n512,         /* w */
     r12289n512,         /* r */
@@ -351,6 +354,7 @@ static const bliss_param_t bliss_b_params[] = {
     16,                 /* nz2 */
     250,                /* sigma */
     42270,              /* M  (actually p_max. see workings below) */
+    //    42059,              /* M = 2 * sigma^2 * ln(m) */
     1.40,               /* m  = repetition rate strongswan BLISS .M = 128113,  with alpha = 0.700. BLISS_B .M = 42455, with alpha = 1.216 (we get 42059) */
     w12289n512,         /* w */
     r12289n512,         /* r */
@@ -376,6 +380,7 @@ static const bliss_param_t bliss_b_params[] = {
     31,                 /* nz2 */
     271,                /* sigma */
     69576,              /* M (actually p_max. see workings below) */
+    //    69950,              /* M = 2 * sigma^2 * ln(m) */
     1.61,               /* m  = repetition rate strongswan .M = 244186,  with alpha = 0.550  BLISS-B .M = 70034,  with alpha = 1.027  (we get 69950) */
     w12289n512,         /* w */
     r12289n512,         /* r */
@@ -391,8 +396,8 @@ bool bliss_params_init(bliss_param_t *params, bliss_kind_t kind){
   assert(params != NULL);
 
   memset(params, 0, sizeof(bliss_param_t));
-  
-  if (BLISS_B_0 <= kind && kind <= BLISS_B_4  && params != NULL) {
+
+  if (BLISS_B_0 <= kind && kind <= BLISS_B_4 && params != NULL) {
     *params = bliss_b_params[kind];
     return true;
   } else {
@@ -415,7 +420,7 @@ p_max = (5 * nz_1 + 20 * nz_2 + 9) * kappa  o.w.
 
 bliss-b 0:
 n 256
-nz_1 nz_2       141,     39,     
+nz_1 nz_2       141,     39,
 delta_1 delta_2 0.55,    0.15,
 kappa 12
 p_max 17928
@@ -424,38 +429,38 @@ previous M 17928
 
 
 bliss-b 1:
-n 512        
-nz_1 nz_2       154,    0, 
-delta_1 delta_2 0.3,    0,     
-kappa 23   
+n 512
+nz_1 nz_2       154,    0,
+delta_1 delta_2 0.3,    0,
+kappa 23
 p_max 17825
 
 previous M 17825
 
 
 bliss-b 2:
-n 512        
-nz_1 nz_2       154,    0,      
-delta_1 delta_2 0.3,    0,     
-kappa 23   
+n 512
+nz_1 nz_2       154,    0,
+delta_1 delta_2 0.3,    0,
+kappa 23
 p_max 17825
 
 previous M 17825
 
 bliss-b 3:
 n 512
-nz_1 nz_2       216,    16,     
-delta_1 delta_2 0.42,   0.03,     
+nz_1 nz_2       216,    16,
+delta_1 delta_2 0.42,   0.03,
 kappa 30
 p_max 42270
 
 previous M 42270
 
 bliss-b 4:
-n 512        
-nz_1 nz_2       231,    31, 
-delta_1 delta_2 0.45,   0.06,     
-kappa 39    
+n 512
+nz_1 nz_2       231,    31,
+delta_1 delta_2 0.45,   0.06,
+kappa 39
 p_max 69576
 
 previous M 69576

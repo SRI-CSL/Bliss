@@ -9,7 +9,7 @@
 
 /*
  *
- * Implementation of our NTT API using ntt_blzzd 
+ * Implementation of our NTT API using ntt_blzzd
  *
  *
  *
@@ -46,7 +46,7 @@ ntt_state_t init_ntt_state(bliss_kind_t kind){
     s->w = p.w;
     s->r = p.r;
   }
-  
+
   return (ntt_state_t)s;
 }
 
@@ -60,7 +60,7 @@ ntt_t init_ntt(ntt_state_t state){
   ntt_state_simple_t *s = (ntt_state_simple_t *)state;
   int32_t* ntt;
   assert(state != NULL);
-  
+
   ntt = calloc(s->n, sizeof(int32_t));
 
   return (ntt_t)ntt;
@@ -73,15 +73,12 @@ void delete_ntt(ntt_state_t state, ntt_t input){
 
 }
 
-
-
 void forward_ntt(const ntt_state_t state, ntt_t output, const polynomial_t input){
   ntt_state_simple_t *s = (ntt_state_simple_t *)state;
   assert(state != NULL);
 
   ntt32_xmu(output, s->n, s->q, input, s->w);         /* multiply by powers of psi                  */
   ntt32_fft(output, s->n, s->q, s->w);                /* result = ntt(input)                        */
-
 }
 
 void inverse_ntt(const ntt_state_t state, polynomial_t output, const ntt_t input){
@@ -93,11 +90,10 @@ void inverse_ntt(const ntt_state_t state, polynomial_t output, const ntt_t input
   for(i = 0; i < s->n; i++){
     output[i] = a[i];
   }
-  
+
   ntt32_fft(output, s->n, s->q, s->w);             /* result = ntt(input) = inverse ntt(poly) modulo reordering (input = ntt(poly)) */
   ntt32_xmu(output, s->n, s->q, output, s->r);     /* multiply by powers of psi^-1  */
   ntt32_flp(output, s->n, s->q);                   /* reorder: result mod q */
-
 }
 
 void negate_ntt(const ntt_state_t state, ntt_t inplace){
@@ -106,7 +102,6 @@ void negate_ntt(const ntt_state_t state, ntt_t inplace){
   assert(state != NULL);
 
   ntt32_cmu(result, s->n, s->q, result, -1);
-
 }
 
 void product_ntt(const ntt_state_t state, ntt_t output, const ntt_t lhs,  const ntt_t rhs){
@@ -118,7 +113,6 @@ void product_ntt(const ntt_state_t state, ntt_t output, const ntt_t lhs,  const 
   assert(state != NULL);
 
   ntt32_xmu(result, s->n, s->q, a, b);       /* result = lhs * rhs (pointwise product) */
-
 }
 
 bool invert_polynomial(const ntt_state_t state, ntt_t output, const polynomial_t input){

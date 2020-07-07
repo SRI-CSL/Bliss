@@ -29,10 +29,10 @@ void uniform_poly(int32_t v[], uint32_t n, uint32_t nz1, uint32_t nz2, entropy_t
   for (i = 0; i < n; i++){
     v[i] = 0;
   }
-  
+
   i = 0;
   while (i < nz1) {
-    x = entropy_random_uint16(entropy);  
+    x = entropy_random_uint16(entropy);
     j = (x >> 1) % n;               // nb: uniform because n is a power of 2
     mask = -(1^(v[j]&1));           // mask = 1...1 if v[j] == 0 else 0
     i += mask&1;                    // add 1 only if v[j] == 0
@@ -57,13 +57,13 @@ static void check_key(bliss_private_key_t *key, bliss_param_t *p, ntt_state_t st
   int32_t q;
 
   assert(key->kind == p->kind);
-  
+
   n = p->n;
   q = p->q;
-  
+
   // compute product key->s1 * key->a
   multiply_ntt(state, aux, key->s1, key->a);
-  
+
   printf("a * s1:\n");
   for (i=0; i<n; i++) {
     printf(" %d", aux[i]);
@@ -115,37 +115,40 @@ static void check_key(bliss_private_key_t *key, bliss_param_t *p, ntt_state_t st
 }
 #endif
 
-static int32_t bliss_b_private_key_init(bliss_private_key_t *private_key, bliss_kind_t kind){
-  uint32_t n;
-  int32_t *f = NULL, *g = NULL, *a = NULL;
-  bliss_param_t p;
-
-  if (! bliss_params_init(&p, kind)) {
-    // bad kind/not supported
-    return BLISS_B_BAD_ARGS;
-  }
-
-  n = p.n;
+/*
+ * Initialize private_key:
+ * - kind = Bliss B variant
+ * - n = corresponding key size (ring size)
+ *
+ * Result
+ * - kind and n are stored
+ * - buffers for s1, s2 and a are allocated and
+ *   initialized to all zeros
+ *
+ * Error code:
+ * - if all works right, result = BLISS_B_NO_ERROR
+ * - if kind is no supported, result = BLISS_B_BAD_ARGS
+ * - if malloc fails, result = BLISS_B_NO_MEM
+ *
+ * If the result is anything other than BLISS_B_NO_ERROR then private_key
+ * is unchanged.
+ */
+static int32_t bliss_b_private_key_init(bliss_private_key_t *private_key, bliss_kind_t kind, uint32_t n){
+  int32_t *f, *g, *a;
 
   /* we calloc so we do not have to zero them out later */
+  f = NULL;
+  g = NULL;
+  a = NULL;
   f = calloc(n, sizeof(int32_t));
-  if (f == NULL) {
-    goto fail;
-  }
-
-  /* we calloc so we do not have to zero them out later */
   g = calloc(n, sizeof(int32_t));
-  if (g == NULL) {
-    goto fail;
-  }
-
-  /* we calloc so we do not have to zero them out later */
   a = calloc(n, sizeof(int32_t));
-  if (a == NULL) {
+  if (f == NULL || g == NULL || a == NULL) {
     goto fail;
   }
 
   private_key->kind = kind;
+  private_key->n = n;
   private_key->s1 = f;
   private_key->s2 = g;
   private_key->a = a;
@@ -153,7 +156,7 @@ static int32_t bliss_b_private_key_init(bliss_private_key_t *private_key, bliss_
   return BLISS_B_NO_ERROR;
 
  fail:
-
+  /* calloc failed */
   free(f);
   free(g);
   free(a);
@@ -162,48 +165,68 @@ static int32_t bliss_b_private_key_init(bliss_private_key_t *private_key, bliss_
 
 }
 
-/**
+
+/*
+ * Delete private key
+ * - it must have been initialized by the previous function
+ */
+void bliss_b_private_key_delete(bliss_private_key_t *private_key){
+  uint32_t n;
+
+  n = private_key->n;
+  secure_free(&private_key->s1, n);
+  secure_free(&private_key->s2, n);
+  secure_free(&private_key->a, n);
+}
+
+/*
  * Bliss-b public and sign key generation
- *        sign key is    f, g small and f invertible
- *        public key is  a_q = -(2g-1)/f mod q = (2g'+1)/f
+ * the sign key is a pair f, g small and f invertible
+ * the public key is  a_q = -(2g-1)/f mod q = (2g'+1)/f
+ *
+ * Result:
+ * - if all goes well, the function returns BLISS_B_NO_ERROR
+ *   private_key->kind is set to kind
+ *   f is stored in private_key->s1,
+ *   g is stored in private_key->s2,
+ *   NTT(a_q) is stored in private_key->a
+ *
+ * Error codes:
+ * - BLISS_B_BAD_ARGS: kind is not supported
+ * - BLISS_B_NO_MEM: failed to allocate buffers
+ * - BLISS_B_RETRY: failed to construct an invertible f after 10 attempts
+ *
  */
 int32_t bliss_b_private_key_gen(bliss_private_key_t *private_key, bliss_kind_t kind, entropy_t *entropy){
   int32_t retcode;
   int32_t i, j;
-  int32_t *t = NULL, *u = NULL;
+  int32_t *t, *u;
   ntt_state_t state;
   bliss_param_t p;
 
   if (! bliss_params_init(&p, kind)) {
-    // bad kind/not supported
+    // not supported
     return BLISS_B_BAD_ARGS;
   }
 
-  assert(private_key != NULL);
-
-  retcode = bliss_b_private_key_init(private_key, kind);
-
-  if (retcode !=  BLISS_B_NO_ERROR) {
+  /* Allocate buffers */
+  retcode = bliss_b_private_key_init(private_key, kind, p.n);
+  if (retcode != BLISS_B_NO_ERROR) {
     return retcode;
   }
 
-  //opaque, but clearly a pointer type.
+  /* Auxiliary buffers and ntt state */
+  t = NULL;
+  u = NULL;
   state = init_ntt_state(kind);
-  if (state == NULL) {
-    goto fail;
-  }
-
   t = calloc(p.n, sizeof(int32_t));
-  if (t == NULL) {
-    goto fail;
-  }
-
   u = calloc(p.n, sizeof(int32_t));
-  if (u == NULL) {
+  if (state == NULL || t == NULL || u == NULL) {
+    retcode = BLISS_B_NO_MEM;
     goto fail;
   }
 
-  /* randomize g */
+  /* random g */
   uniform_poly(private_key->s2, p.n, p.nz1, p.nz2, entropy);
 
   /* g = 2g - 1   N.B the Bliss-B paper uses 2g + 1 */
@@ -211,113 +234,79 @@ int32_t bliss_b_private_key_gen(bliss_private_key_t *private_key, bliss_kind_t k
     private_key->s2[i] *= 2;
   private_key->s2[0] --;
 
-  //N.B. ntt_t t
-  forward_ntt(state, t, private_key->s2);
-
-  /* find an invertible f  */
-  for (j = 0; j < 4; j++) {
-
-    /* randomize f  */
+  /* find an invertible f: try 10 times */
+  for (j = 0; j < 10; j++) {
+    /* pick a random f then check if it's invertible */
     uniform_poly(private_key->s1, p.n, p.nz1, p.nz2, entropy);
-
-    /* Try again if f is not invertible. */
-    if(!invert_polynomial(state, u, private_key->s1)){
-      continue;
-    }
-    
-    /* Success: u = ntt of f^-1. Compute a = (2g - 1)/f. */
-    product_ntt(state, private_key->a, t,  u);
-    inverse_ntt(state, private_key->a, private_key->a);
-
-    // a = -1 * a
-    negate_ntt(state, private_key->a);
-
-    /* currently storing the private_key->a in ntt form */
-    forward_ntt(state, private_key->a, private_key->a);
+    if (invert_polynomial(state, u, private_key->s1)) {
+      /*
+       * Success:
+       * - u contains NTT f^-1
+       * - compute a = - (2g - 1)/f = - s2/s1
+       */
+      forward_ntt(state, t, private_key->s2);   // t := NTT(2g - 1)
+      product_ntt(state, private_key->a, t, u); // a := NTT((2g - 1)/f)
+      negate_ntt(state, private_key->a);        // a := NTT( - (2g - 1)/f)
 
 #if 0
-    // BD: for debugging (iam: must do it before cleanup)
-    check_key(private_key, &p, state);
+      // BD: for debugging (iam: must do it before cleanup)
+      check_key(private_key, &p, state);
 #endif
 
-    
-    secure_free(&t, p.n);
-    secure_free(&u, p.n);
+      /* Cleanup */
+      secure_free(&t, p.n);
+      secure_free(&u, p.n);
+      delete_ntt_state(state);
 
-    delete_ntt_state(state);
-
-    return BLISS_B_NO_ERROR;
+      return BLISS_B_NO_ERROR;
+    }
   }
+
+  // Unlucky: didn't find an invertible f in 10 tries
+  retcode = BLISS_B_RETRY;
 
  fail:
-
   secure_free(&t, p.n);
   secure_free(&u, p.n);
-
   delete_ntt_state(state);
-  
   bliss_b_private_key_delete(private_key);
 
-  return BLISS_B_NO_MEM;
+  return retcode;
 }
 
-void bliss_b_private_key_delete(bliss_private_key_t *private_key){
-  bliss_param_t p;
-
-  assert(private_key != NULL);
-  
-  if (! bliss_params_init(&p, private_key->kind)) {
-    // bad kind/not supported
-    return;
-  }
-
-  secure_free(&private_key->s1, p.n);
-  secure_free(&private_key->s2, p.n);
-  secure_free(&private_key->a, p.n);
-
-}
-
-
+/*
+ * Copy private_key->a into public_key
+ * - return BLISS_B_NO_MEM if malloc fails
+ * - return BLISS_B_NO_ERROR otherwise
+ */
 int32_t bliss_b_public_key_extract(bliss_public_key_t *public_key, const bliss_private_key_t *private_key){
   uint32_t n, i;
   int32_t *a, *b;
+  int32_t retcode;
 
-  assert(private_key != NULL && private_key->a != NULL);
-
-  bliss_param_t p;
-
-  
-  if (! bliss_params_init(&p, private_key->kind)) {
-    // bad kind/not supported
-    return BLISS_B_BAD_ARGS;
-  }
-
-  n = p.n;
-
+  n = private_key->n;
   b = private_key->a;
 
   /* we calloc so we do not have to zero it out later */
+  retcode = BLISS_B_NO_MEM;
   a = calloc(n, sizeof(int32_t));
-  if (a == NULL) {
-    return BLISS_B_NO_MEM;
+  if (a != NULL) {
+    retcode = BLISS_B_NO_ERROR;
+    for(i = 0; i < n; i++){
+      a[i] = b[i];
+    }
   }
 
-  for(i = 0; i < n; i++){
-    a[i] = b[i];
-  }
-
+  /* if malloc fails, we set public_key->a to NULL */
   public_key->kind = private_key->kind;
+  public_key->n = n;
   public_key->a = a;
 
-  return BLISS_B_NO_ERROR;
-
+  return retcode;
 }
 
 
 void bliss_b_public_key_delete(bliss_public_key_t *public_key){
-
-  assert(public_key != NULL);
-
   free(public_key->a);
   public_key->a = NULL;
 }

@@ -11,13 +11,13 @@
 
 // hard-coded seed for testing
 static uint8_t seed[SHA3_512_DIGEST_LENGTH] = {
-    0, 1, 2, 3, 4, 5, 6, 7, 
-    0, 1, 2, 3, 4, 5, 6, 7, 
-    0, 1, 2, 3, 4, 5, 6, 7, 
-    0, 1, 2, 3, 4, 5, 6, 7, 
-    0, 1, 2, 3, 4, 5, 6, 7, 
-    0, 1, 2, 3, 4, 5, 6, 7, 
-    0, 1, 2, 3, 4, 5, 6, 7, 
+    0, 1, 2, 3, 4, 5, 6, 7,
+    0, 1, 2, 3, 4, 5, 6, 7,
+    0, 1, 2, 3, 4, 5, 6, 7,
+    0, 1, 2, 3, 4, 5, 6, 7,
+    0, 1, 2, 3, 4, 5, 6, 7,
+    0, 1, 2, 3, 4, 5, 6, 7,
+    0, 1, 2, 3, 4, 5, 6, 7,
     0, 1, 2, 3, 4, 5, 6, 7
 };
 
@@ -53,14 +53,13 @@ int main(int argc, char* argv[]) {
 
     for (count = 0; count < NTESTS; count++) {
       ok = false;
-      
 
       retcode = bliss_b_private_key_gen(&private_key, type, &entropy);
       if (retcode != BLISS_B_NO_ERROR) {
         fprintf(stderr,
                 "bliss_b_private_key_gen failed: type = %d, retcode = %d\n",
                 type, retcode);
-        goto exit;
+        goto key_failed;
       }
 
       retcode = bliss_b_public_key_extract(&public_key, &private_key);
@@ -68,7 +67,7 @@ int main(int argc, char* argv[]) {
         fprintf(stderr,
                 "bliss_b_public_key_extract failed: type = %d, retcode = %d\n",
                 type, retcode);
-        goto exit;
+        goto pubkey_failed;
       }
 
       gettimeofday(&t_start, NULL);
@@ -78,29 +77,29 @@ int main(int argc, char* argv[]) {
       if (retcode != BLISS_B_NO_ERROR) {
         fprintf(stderr, "bliss_b_sign failed: type = %d, retcode = %d\n", type,
                 retcode);
-        goto exit;
+        goto sign_failed;
       }
 
       gettimeofday(&t_start, NULL);
       retcode = bliss_b_verify(&signature, &public_key, msg, msg_sz);
       gettimeofday(&t_end, NULL);
-      tverify[count] = (double) ((t_end.tv_sec * 1000000 + t_end.tv_usec) - (t_start.tv_sec * 1000000 + t_start.tv_usec));; 
+      tverify[count] = (double) ((t_end.tv_sec * 1000000 + t_end.tv_usec) - (t_start.tv_sec * 1000000 + t_start.tv_usec));;
       if (retcode != BLISS_B_NO_ERROR) {
         fprintf(stderr, "bliss_b_verify failed: type = %d, retcode = %d\n",
                 type, retcode);
-        goto exit;
+        goto sign_failed;
       }
 
       ok = true;
 
-    exit:
-
-      bliss_b_private_key_delete(&private_key);
-
-      bliss_b_public_key_delete(&public_key);
-
+      // BD: on fail, we don't want to call delete on things that
+      // aren't initialized.
+    sign_failed:
       bliss_signature_delete(&signature);
-
+    pubkey_failed:
+      bliss_b_public_key_delete(&public_key);
+    key_failed:
+      bliss_b_private_key_delete(&private_key);
       if (ok) {
         results[type]++;
       } else {

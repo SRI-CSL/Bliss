@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <sys/time.h>
 
-#define NTESTS 1024
+#define NTESTS 102400
 
 
 #if defined(WINDOWS)

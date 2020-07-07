@@ -43,9 +43,9 @@ int32_t ntt32_pwr(int32_t x, int32_t n, int32_t q) {
 
 
 /*
- * FFT operation (forward and inverse).  
+ * FFT operation (forward and inverse).
  *
- * BD: modified to use 32-bit arithmetic (don't use ntt32_muln), 
+ * BD: modified to use 32-bit arithmetic (don't use ntt32_muln),
  * which is safe if q is less than 2^16.
  * Also forced intermediate results to be between 0 and q-1.
  */
@@ -122,7 +122,6 @@ void ntt32_xmu(int32_t v[], uint32_t n, int32_t q, const int32_t t[], const int3
   }
 
   assert(good_arg(v, n, q));
-
 }
 
 // Multiply with a scalar  v = t * c.
@@ -137,7 +136,6 @@ void ntt32_cmu(int32_t v[], uint32_t n, int32_t q, const int32_t t[], int32_t c)
   }
 
   assert(good_arg(v, n, q));
-
 }
 
 // Flip the order.
@@ -157,7 +155,7 @@ void ntt32_flp(int32_t v[], uint32_t n, int32_t q) {
   // replace v[0] by q - v[0] if v[0] > 0, keep v[0] = 0 otherwise
   x = q & ((-v[0]) >> 31);
   v[0] = x - v[0];
-  
+
   assert(good_arg(v, n, q));
 }
 
