@@ -5,7 +5,7 @@ tests=test_intt_red1024 test_intt_red1024b \
   test_ntt_red1024 test_ntt_red1024b test_ntt_red1024c \
   test_ntt_red1024d test_ntt_red1024e test_ntt_red1024f
 
-CC=gcc
+CC?=clang
 CFLAGS=-Wall
 
 #
